@@ -1,0 +1,348 @@
+#include <pebble.h>
+
+#define SCREEN_W 200
+#define SCREEN_H 228
+#define OUTER_PAD 8
+#define METRIC_TRAY_W 42
+#define GAP_W 8
+#define CLOCK_PANEL_W 134
+#define CLOCK_PANEL_H 212
+#define CLOCK_PANEL_RADIUS 4
+
+#define STORAGE_KEY_THEME 100
+#define STORAGE_KEY_SLOT_1_METRIC 101
+#define STORAGE_KEY_SLOT_2_METRIC 102
+#define STORAGE_KEY_SLOT_3_METRIC 103
+#define STORAGE_KEY_SLOT_4_METRIC 104
+#define STORAGE_KEY_SHOW_LEADING_ZERO 105
+#define STORAGE_KEY_WEATHER_TEMP 106
+#define STORAGE_KEY_WEATHER_CODE 107
+#define STORAGE_KEY_WEATHER_VALID 108
+
+typedef enum {
+  METRIC_WEATHER = 0,
+  METRIC_HEART_RATE = 1,
+  METRIC_BATTERY = 2,
+  METRIC_CALORIES = 3,
+  METRIC_STEPS = 4,
+  METRIC_NONE = 5
+} MetricType;
+
+typedef enum {
+  THEME_DEFAULT = 0,
+  THEME_BLUE = 1,
+  THEME_PINK = 2,
+  THEME_GREEN = 3,
+  THEME_WHITE = 4,
+  THEME_ORANGE = 5,
+  THEME_DARK_BLUE = 6,
+  THEME_BLACK = 7
+} ThemeType;
+
+typedef enum {
+  WEATHER_SUNNY = 0,
+  WEATHER_PARTLY_CLOUDY = 1,
+  WEATHER_RAINY = 2,
+  WEATHER_STORM = 3,
+  WEATHER_SNOW = 4,
+  WEATHER_FOG = 5,
+  WEATHER_UNKNOWN = 6
+} WeatherCondition;
+
+typedef struct {
+  ThemeType theme;
+  MetricType slot_metrics[4];
+  bool show_leading_zero;
+} DayMateSettings;
+
+typedef struct {
+  GColor background;
+  GColor clock_panel;
+  GColor clock_text;
+  GColor metric_text;
+  GColor weather;
+  GColor heart_rate;
+  GColor battery;
+  GColor calories;
+  GColor steps;
+  bool individual_metric_colors;
+} DayMateTheme;
+
+static Window *s_window;
+static Layer *s_canvas_layer;
+static GFont s_font_time;
+static GFont s_font_metric;
+static GFont s_font_date;
+
+static DayMateSettings s_settings = {
+  .theme = THEME_DEFAULT,
+  .slot_metrics = {METRIC_WEATHER, METRIC_HEART_RATE, METRIC_BATTERY, METRIC_STEPS},
+  .show_leading_zero = true
+};
+
+static BatteryChargeState s_battery;
+static bool s_weather_available = false;
+static int s_weather_temp = 95;
+static WeatherCondition s_weather_condition = WEATHER_PARTLY_CLOUDY;
+static bool s_steps_available = false;
+static int s_steps = 8542;
+static bool s_heart_available = false;
+static int s_heart_rate = 110;
+static bool s_calories_available = false;
+static int s_calories = 1520;
+
+static DayMateTheme get_theme(void) {
+  switch (s_settings.theme) {
+    case THEME_BLUE:
+      return (DayMateTheme){GColorBlue, GColorBlueMoon, GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
+    case THEME_PINK:
+      return (DayMateTheme){GColorMagenta, GColorJazzberryJam, GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
+    case THEME_GREEN:
+      return (DayMateTheme){GColorKellyGreen, GColorDarkGreen, GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
+    case THEME_WHITE:
+      return (DayMateTheme){GColorWhite, GColorLightGray, GColorBlack, GColorBlack, GColorBlack, GColorBlack, GColorBlack, GColorBlack, GColorBlack, false};
+    case THEME_ORANGE:
+      return (DayMateTheme){GColorOrange, GColorDarkCandyAppleRed, GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
+    case THEME_DARK_BLUE:
+      return (DayMateTheme){GColorDukeBlue, GColorOxfordBlue, GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
+    case THEME_BLACK:
+      return (DayMateTheme){GColorBlack, GColorDarkGray, GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
+    case THEME_DEFAULT:
+    default:
+      return (DayMateTheme){GColorBlack, GColorDarkGray, GColorWhite, GColorWhite, GColorYellow, GColorGreen, GColorVividViolet, GColorOrange, GColorCyan, true};
+  }
+}
+
+static GColor color_for_metric(DayMateTheme theme, MetricType metric) {
+  if (!theme.individual_metric_colors) return theme.metric_text;
+  switch (metric) {
+    case METRIC_WEATHER: return theme.weather;
+    case METRIC_HEART_RATE: return theme.heart_rate;
+    case METRIC_BATTERY: return theme.battery;
+    case METRIC_CALORIES: return theme.calories;
+    case METRIC_STEPS: return theme.steps;
+    default: return theme.metric_text;
+  }
+}
+
+static const char *icon_for_metric(MetricType metric) {
+  switch (metric) {
+    case METRIC_WEATHER:
+      switch (s_weather_condition) {
+        case WEATHER_SUNNY: return "S";
+        case WEATHER_RAINY: return "R";
+        case WEATHER_STORM: return "T";
+        case WEATHER_SNOW: return "N";
+        case WEATHER_FOG: return "F";
+        case WEATHER_PARTLY_CLOUDY:
+        default: return "W";
+      }
+    case METRIC_HEART_RATE: return "H";
+    case METRIC_BATTERY: return s_battery.is_charging ? "C" : "B";
+    case METRIC_CALORIES: return "K";
+    case METRIC_STEPS: return "P";
+    default: return "";
+  }
+}
+
+static void format_compact(int value, bool available, char *buffer, size_t size) {
+  if (!available || value < 0) {
+    snprintf(buffer, size, "---");
+  } else if (value < 10000) {
+    snprintf(buffer, size, "%d", value);
+  } else {
+    snprintf(buffer, size, "%dk", value / 1000);
+  }
+}
+
+static void value_for_metric(MetricType metric, char *buffer, size_t size) {
+  switch (metric) {
+    case METRIC_WEATHER:
+      if (s_weather_available) snprintf(buffer, size, "%d", s_weather_temp);
+      else snprintf(buffer, size, "---");
+      break;
+    case METRIC_HEART_RATE:
+      if (s_heart_available) snprintf(buffer, size, "%d", s_heart_rate);
+      else snprintf(buffer, size, "---");
+      break;
+    case METRIC_BATTERY:
+      snprintf(buffer, size, "%d", s_battery.charge_percent);
+      break;
+    case METRIC_CALORIES:
+      format_compact(s_calories, s_calories_available, buffer, size);
+      break;
+    case METRIC_STEPS:
+      format_compact(s_steps, s_steps_available, buffer, size);
+      break;
+    default:
+      snprintf(buffer, size, "");
+      break;
+  }
+}
+
+static int get_visible_metrics(MetricType visible[4]) {
+  int count = 0;
+  for (int i = 0; i < 4; i++) {
+    if (s_settings.slot_metrics[i] != METRIC_NONE) {
+      visible[count++] = s_settings.slot_metrics[i];
+    }
+  }
+  return count;
+}
+
+static void format_time(char *hour, size_t hour_size, char *minute, size_t minute_size, char *date, size_t date_size) {
+  time_t now = time(NULL);
+  struct tm *tick_time = localtime(&now);
+  int hour_value = tick_time->tm_hour;
+  if (!clock_is_24h_style()) {
+    hour_value = hour_value % 12;
+    if (hour_value == 0) hour_value = 12;
+  }
+  if (s_settings.show_leading_zero) snprintf(hour, hour_size, "%02d", hour_value);
+  else snprintf(hour, hour_size, "%d", hour_value);
+  snprintf(minute, minute_size, "%02d", tick_time->tm_min);
+  strftime(date, date_size, "%a, %b %d", tick_time);
+}
+
+static void draw_metric(GContext *ctx, DayMateTheme theme, MetricType metric, GRect box) {
+  GColor metric_color = color_for_metric(theme, metric);
+  graphics_context_set_text_color(ctx, metric_color);
+  graphics_draw_text(ctx, icon_for_metric(metric), s_font_metric, GRect(box.origin.x, box.origin.y, box.size.w, 18), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+  char value[8];
+  value_for_metric(metric, value, sizeof(value));
+  graphics_draw_text(ctx, value, s_font_metric, GRect(box.origin.x, box.origin.y + 22, box.size.w, 22), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+}
+
+static void draw_clock(GContext *ctx, DayMateTheme theme, GRect panel) {
+  char hour[4], minute[4], date[18];
+  format_time(hour, sizeof(hour), minute, sizeof(minute), date, sizeof(date));
+  graphics_context_set_fill_color(ctx, theme.clock_panel);
+  graphics_fill_rect(ctx, panel, CLOCK_PANEL_RADIUS, GCornersAll);
+  graphics_context_set_text_color(ctx, theme.clock_text);
+  int time_y = panel.origin.y + 18;
+  graphics_draw_text(ctx, hour, s_font_time, GRect(panel.origin.x, time_y, panel.size.w, 72), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+  graphics_draw_text(ctx, minute, s_font_time, GRect(panel.origin.x, time_y + 66, panel.size.w, 72), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+  graphics_draw_text(ctx, date, s_font_date, GRect(panel.origin.x, panel.origin.y + panel.size.h - 34, panel.size.w, 24), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+}
+
+static void canvas_update_proc(Layer *layer, GContext *ctx) {
+  DayMateTheme theme = get_theme();
+  graphics_context_set_fill_color(ctx, theme.background);
+  graphics_fill_rect(ctx, GRect(0, 0, SCREEN_W, SCREEN_H), 0, GCornerNone);
+
+  MetricType visible[4];
+  int count = get_visible_metrics(visible);
+
+  if (count == 0) {
+    draw_clock(ctx, theme, GRect(OUTER_PAD, OUTER_PAD, SCREEN_W - (OUTER_PAD * 2), SCREEN_H - (OUTER_PAD * 2)));
+    return;
+  }
+
+  draw_clock(ctx, theme, GRect(OUTER_PAD + METRIC_TRAY_W + GAP_W, OUTER_PAD, CLOCK_PANEL_W, CLOCK_PANEL_H));
+
+  int tray_x = OUTER_PAD;
+  int tray_y = OUTER_PAD;
+  int tray_h = CLOCK_PANEL_H;
+  int item_h = 48;
+  int total_h = count * item_h;
+  int gap = count > 1 ? (tray_h - total_h) / (count - 1) : 0;
+  int y = count == 1 ? tray_y + (tray_h - item_h) / 2 : tray_y;
+
+  for (int i = 0; i < count; i++) {
+    draw_metric(ctx, theme, visible[i], GRect(tray_x, y, METRIC_TRAY_W, item_h));
+    y += item_h + gap;
+  }
+}
+
+static void save_settings(void) {
+  persist_write_int(STORAGE_KEY_THEME, s_settings.theme);
+  persist_write_int(STORAGE_KEY_SLOT_1_METRIC, s_settings.slot_metrics[0]);
+  persist_write_int(STORAGE_KEY_SLOT_2_METRIC, s_settings.slot_metrics[1]);
+  persist_write_int(STORAGE_KEY_SLOT_3_METRIC, s_settings.slot_metrics[2]);
+  persist_write_int(STORAGE_KEY_SLOT_4_METRIC, s_settings.slot_metrics[3]);
+  persist_write_bool(STORAGE_KEY_SHOW_LEADING_ZERO, s_settings.show_leading_zero);
+}
+
+static int read_int_or_default(int key, int fallback) {
+  return persist_exists(key) ? persist_read_int(key) : fallback;
+}
+
+static void load_settings(void) {
+  s_settings.theme = (ThemeType)read_int_or_default(STORAGE_KEY_THEME, THEME_DEFAULT);
+  s_settings.slot_metrics[0] = (MetricType)read_int_or_default(STORAGE_KEY_SLOT_1_METRIC, METRIC_WEATHER);
+  s_settings.slot_metrics[1] = (MetricType)read_int_or_default(STORAGE_KEY_SLOT_2_METRIC, METRIC_HEART_RATE);
+  s_settings.slot_metrics[2] = (MetricType)read_int_or_default(STORAGE_KEY_SLOT_3_METRIC, METRIC_BATTERY);
+  s_settings.slot_metrics[3] = (MetricType)read_int_or_default(STORAGE_KEY_SLOT_4_METRIC, METRIC_STEPS);
+  s_settings.show_leading_zero = persist_exists(STORAGE_KEY_SHOW_LEADING_ZERO) ? persist_read_bool(STORAGE_KEY_SHOW_LEADING_ZERO) : true;
+}
+
+static void inbox_received(DictionaryIterator *iter, void *context) {
+  Tuple *t;
+  if ((t = dict_find(iter, 0))) s_settings.theme = (ThemeType)t->value->int32;
+  if ((t = dict_find(iter, 1))) s_settings.slot_metrics[0] = (MetricType)t->value->int32;
+  if ((t = dict_find(iter, 2))) s_settings.slot_metrics[1] = (MetricType)t->value->int32;
+  if ((t = dict_find(iter, 3))) s_settings.slot_metrics[2] = (MetricType)t->value->int32;
+  if ((t = dict_find(iter, 4))) s_settings.slot_metrics[3] = (MetricType)t->value->int32;
+  if ((t = dict_find(iter, 5))) s_settings.show_leading_zero = t->value->int32 == 1;
+  if ((t = dict_find(iter, 10))) s_weather_temp = t->value->int32;
+  if ((t = dict_find(iter, 11))) s_weather_condition = (WeatherCondition)t->value->int32;
+  if ((t = dict_find(iter, 12))) s_weather_available = t->value->int32 == 1;
+  save_settings();
+  layer_mark_dirty(s_canvas_layer);
+}
+
+static void request_weather(void) {
+  DictionaryIterator *iter;
+  app_message_outbox_begin(&iter);
+  if (iter) {
+    dict_write_uint8(iter, 20, 1);
+    app_message_outbox_send();
+  }
+}
+
+static void battery_handler(BatteryChargeState state) {
+  s_battery = state;
+  layer_mark_dirty(s_canvas_layer);
+}
+
+static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
+  layer_mark_dirty(s_canvas_layer);
+}
+
+static void main_window_load(Window *window) {
+  s_canvas_layer = layer_create(GRect(0, 0, SCREEN_W, SCREEN_H));
+  layer_set_update_proc(s_canvas_layer, canvas_update_proc);
+  layer_add_child(window_get_root_layer(window), s_canvas_layer);
+}
+
+static void main_window_unload(Window *window) {
+  layer_destroy(s_canvas_layer);
+}
+
+static void init(void) {
+  load_settings();
+  s_battery = battery_state_service_peek();
+  s_font_time = fonts_get_system_font(FONT_KEY_BITHAM_42_BOLD);
+  s_font_metric = fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD);
+  s_font_date = fonts_get_system_font(FONT_KEY_GOTHIC_18);
+  s_window = window_create();
+  window_set_window_handlers(s_window, (WindowHandlers){.load = main_window_load, .unload = main_window_unload});
+  window_stack_push(s_window, true);
+  tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
+  battery_state_service_subscribe(battery_handler);
+  app_message_register_inbox_received(inbox_received);
+  app_message_open(512, 512);
+  request_weather();
+}
+
+static void deinit(void) {
+  tick_timer_service_unsubscribe();
+  battery_state_service_unsubscribe();
+  window_destroy(s_window);
+}
+
+int main(void) {
+  init();
+  app_event_loop();
+  deinit();
+}
