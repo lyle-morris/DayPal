@@ -1,0 +1,19 @@
+# Pebble / Rebble build output
+build/
+*.pbw
+*.pbl
+*.elf
+*.o
+*.map
+
+# Dependencies
+node_modules/
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Local notes
+*.local.md
