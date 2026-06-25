@@ -1,4 +1,5 @@
 #include <pebble.h>
+#include <string.h>
 
 #define SCREEN_W 200
 #define SCREEN_H 228
@@ -145,13 +146,27 @@ static const char *icon_for_metric(MetricType metric) {
   }
 }
 
+static void write_text(char *buffer, size_t size, const char *text) {
+  if (size == 0) return;
+  snprintf(buffer, size, "%s", text);
+}
+
 static void format_compact(int value, bool available, char *buffer, size_t size) {
+  if (size == 0) return;
+
   if (!available || value < 0) {
-    snprintf(buffer, size, "---");
+    write_text(buffer, size, "---");
   } else if (value < 10000) {
     snprintf(buffer, size, "%d", value);
   } else {
-    snprintf(buffer, size, "%dk", value / 1000);
+    int thousands = value / 1000;
+    if (thousands > 999) thousands = 999;
+    snprintf(buffer, size, "%d", thousands);
+    size_t len = strlen(buffer);
+    if (len < size - 1) {
+      buffer[len] = 'k';
+      buffer[len + 1] = '\0';
+    }
   }
 }
 
@@ -159,11 +174,11 @@ static void value_for_metric(MetricType metric, char *buffer, size_t size) {
   switch (metric) {
     case METRIC_WEATHER:
       if (s_weather_available) snprintf(buffer, size, "%d", s_weather_temp);
-      else snprintf(buffer, size, "---");
+      else write_text(buffer, size, "---");
       break;
     case METRIC_HEART_RATE:
       if (s_heart_available) snprintf(buffer, size, "%d", s_heart_rate);
-      else snprintf(buffer, size, "---");
+      else write_text(buffer, size, "---");
       break;
     case METRIC_BATTERY:
       snprintf(buffer, size, "%d", s_battery.charge_percent);
@@ -175,7 +190,7 @@ static void value_for_metric(MetricType metric, char *buffer, size_t size) {
       format_compact(s_steps, s_steps_available, buffer, size);
       break;
     default:
-      snprintf(buffer, size, "");
+      if (size > 0) buffer[0] = '\0';
       break;
   }
 }
@@ -208,7 +223,7 @@ static void draw_metric(GContext *ctx, DayMateTheme theme, MetricType metric, GR
   GColor metric_color = color_for_metric(theme, metric);
   graphics_context_set_text_color(ctx, metric_color);
   graphics_draw_text(ctx, icon_for_metric(metric), s_font_metric, GRect(box.origin.x, box.origin.y, box.size.w, 18), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
-  char value[8];
+  char value[12];
   value_for_metric(metric, value, sizeof(value));
   graphics_draw_text(ctx, value, s_font_metric, GRect(box.origin.x, box.origin.y + 22, box.size.w, 22), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
 }
