@@ -29,6 +29,25 @@
     "settings_ready": 21
   },
   "resources": {
-    "media": []
+    "media": [
+      {
+        "type": "font",
+        "name": "FONT_ROBOTO_BLACK_90",
+        "file": "fonts/Roboto-Black.ttf",
+        "characterRegex": "[0-9]"
+      },
+      {
+        "type": "font",
+        "name": "FONT_ROBOTO_BOLD_16",
+        "file": "fonts/Roboto-Bold.ttf",
+        "characterRegex": "[0-9k\\-]"
+      },
+      {
+        "type": "font",
+        "name": "FONT_ROBOTO_REGULAR_16",
+        "file": "fonts/Roboto-Regular.ttf",
+        "characterRegex": "[A-Za-z0-9, ]"
+      }
+    ]
   }
 }
