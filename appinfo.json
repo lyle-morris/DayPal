@@ -1,0 +1,34 @@
+{
+  "uuid": "64d3ca97-9d6a-47d0-98e5-0cb9530ad920",
+  "shortName": "DayMate",
+  "longName": "DayMate",
+  "companyName": "Lyle Morris",
+  "versionLabel": "1.7.0",
+  "sdkVersion": "3",
+  "targetPlatforms": [
+    "emery"
+  ],
+  "watchapp": {
+    "watchface": true
+  },
+  "capabilities": [
+    "location",
+    "health"
+  ],
+  "appKeys": {
+    "theme": 0,
+    "slot_1_metric": 1,
+    "slot_2_metric": 2,
+    "slot_3_metric": 3,
+    "slot_4_metric": 4,
+    "show_leading_zero": 5,
+    "weather_temp": 10,
+    "weather_code": 11,
+    "weather_valid": 12,
+    "request_weather": 20,
+    "settings_ready": 21
+  },
+  "resources": {
+    "media": []
+  }
+}
