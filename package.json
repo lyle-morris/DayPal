@@ -36,7 +36,7 @@
       "media": [
         {
           "type": "font",
-          "name": "FONT_ROBOTO_BLACK_90",
+          "name": "FONT_ROBOTO_BLACK_78",
           "file": "fonts/Roboto-Black.ttf",
           "characterRegex": "[0-9]"
         },
