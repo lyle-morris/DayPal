@@ -363,19 +363,20 @@ static void draw_metric(GContext *ctx, DayMateTheme theme, MetricType metric, GR
   graphics_context_set_text_color(ctx, metric_color);
   char value[12];
   value_for_metric(metric, value, sizeof(value));
-  graphics_draw_text(ctx, value, s_font_metric, GRect(box.origin.x, box.origin.y + 31, box.size.w, 22), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+  graphics_draw_text(ctx, value, s_font_metric, GRect(box.origin.x, box.origin.y + 30, box.size.w, 22), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
 }
 
 static void draw_clock(GContext *ctx, DayMateTheme theme, GRect panel) {
   char hour[4], minute[4], date[18];
   format_time(hour, sizeof(hour), minute, sizeof(minute), date, sizeof(date));
+
   graphics_context_set_fill_color(ctx, theme.clock_panel);
   graphics_fill_rect(ctx, panel, CLOCK_PANEL_RADIUS, GCornersAll);
+
   graphics_context_set_text_color(ctx, theme.clock_text);
-  int time_y = panel.origin.y + 14;
-  graphics_draw_text(ctx, hour, s_font_time, GRect(panel.origin.x, time_y, panel.size.w, 90), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
-  graphics_draw_text(ctx, minute, s_font_time, GRect(panel.origin.x, time_y + 76, panel.size.w, 90), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
-  graphics_draw_text(ctx, date, s_font_date, GRect(panel.origin.x, panel.origin.y + panel.size.h - 34, panel.size.w, 24), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+  graphics_draw_text(ctx, hour, s_font_time, GRect(panel.origin.x, panel.origin.y + 10, panel.size.w, 76), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+  graphics_draw_text(ctx, minute, s_font_time, GRect(panel.origin.x, panel.origin.y + 82, panel.size.w, 76), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+  graphics_draw_text(ctx, date, s_font_date, GRect(panel.origin.x, panel.origin.y + 166, panel.size.w, 24), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
 }
 
 static void canvas_update_proc(Layer *layer, GContext *ctx) {
@@ -394,16 +395,15 @@ static void canvas_update_proc(Layer *layer, GContext *ctx) {
   draw_clock(ctx, theme, GRect(OUTER_PAD + METRIC_TRAY_W + GAP_W, OUTER_PAD, CLOCK_PANEL_W, CLOCK_PANEL_H));
 
   int tray_x = OUTER_PAD;
-  int tray_y = OUTER_PAD;
-  int tray_h = CLOCK_PANEL_H;
-  int item_h = 52;
-  int total_h = count * item_h;
-  int gap = count > 1 ? (tray_h - total_h) / (count - 1) : 0;
-  int y = count == 1 ? tray_y + (tray_h - item_h) / 2 : tray_y;
+  int slot_y[4] = {10, 61, 112, 163};
 
-  for (int i = 0; i < count; i++) {
-    draw_metric(ctx, theme, visible[i], GRect(tray_x, y, METRIC_TRAY_W, item_h));
-    y += item_h + gap;
+  if (count == 1) {
+    draw_metric(ctx, theme, visible[0], GRect(tray_x, 88, METRIC_TRAY_W, 48));
+  } else {
+    for (int i = 0; i < count; i++) {
+      int y = count == 4 ? slot_y[i] : 10 + ((CLOCK_PANEL_H - 48) * i) / (count - 1);
+      draw_metric(ctx, theme, visible[i], GRect(tray_x, y, METRIC_TRAY_W, 48));
+    }
   }
 }
 
@@ -591,7 +591,7 @@ static void main_window_unload(Window *window) {
 static void init(void) {
   load_settings();
   s_battery = battery_state_service_peek();
-  s_font_time = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ROBOTO_BLACK_90));
+  s_font_time = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ROBOTO_BLACK_78));
   s_font_metric = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ROBOTO_BOLD_16));
   s_font_date = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ROBOTO_REGULAR_16));
   load_images();
