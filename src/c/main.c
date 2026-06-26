@@ -3,15 +3,14 @@
 
 #define SCREEN_W 200
 #define SCREEN_H 228
-#define OUTER_PAD 8
-#define METRIC_TRAY_W 42
-#define GAP_W 8
-#define CLOCK_PANEL_W 134
-#define CLOCK_PANEL_H 212
-#define CLOCK_PANEL_RADIUS 4
+#define METRIC_TRAY_W 58
+#define DIVIDER_X 58
+#define DIVIDER_W 1
+#define CLOCK_X 59
+#define CLOCK_W 141
 #define ICON_SIZE 32
-#define METRIC_ROW_H 48
-#define METRIC_ICON_X_OFFSET 5
+#define METRIC_ROW_H 52
+#define METRIC_ICON_X 13
 #define METRIC_VALUE_Y_OFFSET 30
 #define DAYMATE_QA_DUMMY_DATA 1
 
@@ -69,7 +68,7 @@ typedef struct {
 
 typedef struct {
   GColor background;
-  GColor clock_panel;
+  GColor divider;
   GColor clock_text;
   GColor metric_text;
   GColor unavailable_text;
@@ -107,24 +106,24 @@ static int s_calories = 1520;
 static DayMateTheme get_theme(void) {
   switch (s_settings.theme) {
     case THEME_BLUE:
-      return (DayMateTheme){GColorBlue, GColorFromHEX(0x202734), GColorWhite, GColorWhite, GColorFromHEX(0x666666), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
+      return (DayMateTheme){GColorBlue, GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0x666666), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
     case THEME_PINK:
-      return (DayMateTheme){GColorMagenta, GColorFromHEX(0x30202C), GColorWhite, GColorWhite, GColorFromHEX(0x666666), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
+      return (DayMateTheme){GColorMagenta, GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0x666666), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
     case THEME_GREEN:
-      return (DayMateTheme){GColorKellyGreen, GColorFromHEX(0x1B291F), GColorWhite, GColorWhite, GColorFromHEX(0x666666), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
+      return (DayMateTheme){GColorKellyGreen, GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0x666666), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
     case THEME_WHITE:
-      return (DayMateTheme){GColorWhite, GColorFromHEX(0xF0F0F0), GColorBlack, GColorBlack, GColorDarkGray, GColorBlack, GColorBlack, GColorBlack, GColorBlack, GColorBlack, false};
+      return (DayMateTheme){GColorWhite, GColorBlack, GColorBlack, GColorBlack, GColorDarkGray, GColorBlack, GColorBlack, GColorBlack, GColorBlack, GColorBlack, false};
     case THEME_ORANGE:
-      return (DayMateTheme){GColorOrange, GColorFromHEX(0x33241B), GColorWhite, GColorWhite, GColorFromHEX(0x666666), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
+      return (DayMateTheme){GColorOrange, GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0x666666), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
     case THEME_DARK_BLUE:
-      return (DayMateTheme){GColorDukeBlue, GColorFromHEX(0x171E2B), GColorWhite, GColorWhite, GColorFromHEX(0x666666), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
+      return (DayMateTheme){GColorDukeBlue, GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0x666666), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
     case THEME_BLACK:
-      return (DayMateTheme){GColorBlack, GColorFromHEX(0x333333), GColorWhite, GColorWhite, GColorFromHEX(0x666666), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
+      return (DayMateTheme){GColorBlack, GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0x666666), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
     case THEME_DEFAULT:
     default:
       return (DayMateTheme){
         GColorBlack,
-        GColorFromHEX(0x333333),
+        GColorWhite,
         GColorWhite,
         GColorWhite,
         GColorFromHEX(0x777777),
@@ -357,7 +356,7 @@ static void draw_metric(GContext *ctx, DayMateTheme theme, MetricType metric, GR
     GBitmap *bitmap = gbitmap_create_with_resource(resource_id);
     if (bitmap) {
       graphics_context_set_compositing_mode(ctx, GCompOpSet);
-      graphics_draw_bitmap_in_rect(ctx, bitmap, GRect(box.origin.x + METRIC_ICON_X_OFFSET, box.origin.y, ICON_SIZE, ICON_SIZE));
+      graphics_draw_bitmap_in_rect(ctx, bitmap, GRect(METRIC_ICON_X, box.origin.y, ICON_SIZE, ICON_SIZE));
       gbitmap_destroy(bitmap);
     }
   }
@@ -365,24 +364,21 @@ static void draw_metric(GContext *ctx, DayMateTheme theme, MetricType metric, GR
   graphics_context_set_text_color(ctx, metric_color);
   char value[12];
   value_for_metric(metric, value, sizeof(value));
-  graphics_draw_text(ctx, value, s_font_metric, GRect(box.origin.x, box.origin.y + METRIC_VALUE_Y_OFFSET, box.size.w, 18), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+  graphics_draw_text(ctx, value, s_font_metric, GRect(0, box.origin.y + METRIC_VALUE_Y_OFFSET, METRIC_TRAY_W, 20), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
 }
 
 static void draw_clock_text(GContext *ctx, const char *text, GFont font, GRect box) {
   graphics_draw_text(ctx, text, font, box, GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
 }
 
-static void draw_clock(GContext *ctx, DayMateTheme theme, GRect panel) {
+static void draw_clock(GContext *ctx, DayMateTheme theme) {
   char hour[4], minute[4], date[18];
   format_time(hour, sizeof(hour), minute, sizeof(minute), date, sizeof(date));
 
-  graphics_context_set_fill_color(ctx, theme.clock_panel);
-  graphics_fill_rect(ctx, panel, CLOCK_PANEL_RADIUS, GCornersAll);
-
   graphics_context_set_text_color(ctx, theme.clock_text);
-  draw_clock_text(ctx, hour, s_font_time, GRect(panel.origin.x, panel.origin.y + 10, panel.size.w, 76));
-  draw_clock_text(ctx, minute, s_font_time, GRect(panel.origin.x, panel.origin.y + 86, panel.size.w, 76));
-  draw_clock_text(ctx, date, s_font_date, GRect(panel.origin.x, panel.origin.y + 172, panel.size.w, 24));
+  draw_clock_text(ctx, hour, s_font_time, GRect(CLOCK_X, -18, CLOCK_W, 112));
+  draw_clock_text(ctx, minute, s_font_time, GRect(CLOCK_X, 66, CLOCK_W, 112));
+  draw_clock_text(ctx, date, s_font_date, GRect(CLOCK_X, 198, CLOCK_W, 26));
 }
 
 static void canvas_update_proc(Layer *layer, GContext *ctx) {
@@ -394,23 +390,25 @@ static void canvas_update_proc(Layer *layer, GContext *ctx) {
   int count = get_visible_metrics(visible);
 
   if (count == 0) {
-    draw_clock(ctx, theme, GRect(OUTER_PAD, OUTER_PAD, SCREEN_W - (OUTER_PAD * 2), SCREEN_H - (OUTER_PAD * 2)));
+    draw_clock(ctx, theme);
     return;
   }
 
-  draw_clock(ctx, theme, GRect(OUTER_PAD + METRIC_TRAY_W + GAP_W, OUTER_PAD, CLOCK_PANEL_W, CLOCK_PANEL_H));
+  graphics_context_set_fill_color(ctx, theme.divider);
+  graphics_fill_rect(ctx, GRect(DIVIDER_X, 0, DIVIDER_W, SCREEN_H), 0, GCornerNone);
 
-  int tray_x = OUTER_PAD;
-  int slot_y[4] = {8, 60, 112, 164};
+  int slot_y[4] = {7, 61, 115, 169};
 
   if (count == 1) {
-    draw_metric(ctx, theme, visible[0], GRect(tray_x, 90, METRIC_TRAY_W, METRIC_ROW_H));
+    draw_metric(ctx, theme, visible[0], GRect(0, 88, METRIC_TRAY_W, METRIC_ROW_H));
   } else {
     for (int i = 0; i < count; i++) {
-      int y = count == 4 ? slot_y[i] : 8 + ((CLOCK_PANEL_H - METRIC_ROW_H) * i) / (count - 1);
-      draw_metric(ctx, theme, visible[i], GRect(tray_x, y, METRIC_TRAY_W, METRIC_ROW_H));
+      int y = count == 4 ? slot_y[i] : 7 + ((SCREEN_H - METRIC_ROW_H - 14) * i) / (count - 1);
+      draw_metric(ctx, theme, visible[i], GRect(0, y, METRIC_TRAY_W, METRIC_ROW_H));
     }
   }
+
+  draw_clock(ctx, theme);
 }
 
 static void save_settings(void) {
@@ -481,9 +479,9 @@ static void main_window_unload(Window *window) {
 static void init(void) {
   load_settings();
   s_battery = battery_state_service_peek();
-  s_font_time = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ROBOTO_BLACK_78));
+  s_font_time = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ROBOTO_BLACK_110));
   s_font_metric = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ROBOTO_BOLD_16));
-  s_font_date = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ROBOTO_REGULAR_16));
+  s_font_date = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ROBOTO_BOLD_20));
   s_window = window_create();
   window_set_window_handlers(s_window, (WindowHandlers){.load = main_window_load, .unload = main_window_unload});
   window_stack_push(s_window, true);
