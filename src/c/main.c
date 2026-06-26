@@ -107,19 +107,19 @@ static int s_calories = 1520;
 static DayMateTheme get_theme(void) {
   switch (s_settings.theme) {
     case THEME_BLUE:
-      return (DayMateTheme){GColorBlue, GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0x666666), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
+      return (DayMateTheme){GColorFromHEX(0x0055FF), GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0xFFFFFF), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
     case THEME_PINK:
-      return (DayMateTheme){GColorMagenta, GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0x666666), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
+      return (DayMateTheme){GColorFromHEX(0xFF00AA), GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0xFFFFFF), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
     case THEME_GREEN:
-      return (DayMateTheme){GColorKellyGreen, GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0x666666), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
+      return (DayMateTheme){GColorFromHEX(0x00AA55), GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0xFFFFFF), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
     case THEME_WHITE:
       return (DayMateTheme){GColorWhite, GColorBlack, GColorBlack, GColorBlack, GColorDarkGray, GColorBlack, GColorBlack, GColorBlack, GColorBlack, GColorBlack, false};
     case THEME_ORANGE:
-      return (DayMateTheme){GColorOrange, GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0x666666), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
+      return (DayMateTheme){GColorFromHEX(0xFF5500), GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0xFFFFFF), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
     case THEME_DARK_BLUE:
-      return (DayMateTheme){GColorDukeBlue, GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0x666666), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
+      return (DayMateTheme){GColorFromHEX(0x001A55), GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0xFFFFFF), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
     case THEME_BLACK:
-      return (DayMateTheme){GColorBlack, GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0x666666), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
+      return (DayMateTheme){GColorBlack, GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0xFFFFFF), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
     case THEME_DEFAULT:
     default:
       return (DayMateTheme){GColorBlack, GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0x777777), GColorFromHEX(0xFFFF00), GColorFromHEX(0x00FF00), GColorFromHEX(0xAA55FF), GColorFromHEX(0xFF5500), GColorFromHEX(0x00AAFF), true};
