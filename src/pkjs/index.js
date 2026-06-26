@@ -33,13 +33,26 @@ function saveSettings(settings) {
 }
 
 function sendSettings(settings) {
+  var theme = Number(settings.theme);
+  var slot1 = Number(settings.slot_1_metric);
+  var slot2 = Number(settings.slot_2_metric);
+  var slot3 = Number(settings.slot_3_metric);
+  var slot4 = Number(settings.slot_4_metric);
+  var leadingZero = settings.show_leading_zero ? 1 : 0;
+
   var payload = {
-    theme: Number(settings.theme),
-    slot_1_metric: Number(settings.slot_1_metric),
-    slot_2_metric: Number(settings.slot_2_metric),
-    slot_3_metric: Number(settings.slot_3_metric),
-    slot_4_metric: Number(settings.slot_4_metric),
-    show_leading_zero: settings.show_leading_zero ? 1 : 0
+    0: theme,
+    1: slot1,
+    2: slot2,
+    3: slot3,
+    4: slot4,
+    5: leadingZero,
+    theme: theme,
+    slot_1_metric: slot1,
+    slot_2_metric: slot2,
+    slot_3_metric: slot3,
+    slot_4_metric: slot4,
+    show_leading_zero: leadingZero
   };
 
   Pebble.sendAppMessage(payload, function() {
@@ -61,6 +74,7 @@ function weatherCodeToCondition(code) {
 
 function sendWeatherUnavailable() {
   Pebble.sendAppMessage({
+    12: 0,
     weather_valid: 0
   });
 }
@@ -98,6 +112,9 @@ function requestWeather() {
           return;
         }
         Pebble.sendAppMessage({
+          10: temp,
+          11: condition,
+          12: 1,
           weather_temp: temp,
           weather_code: condition,
           weather_valid: 1
