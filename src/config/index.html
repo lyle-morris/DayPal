@@ -1,0 +1,251 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DayMate Settings</title>
+  <style>
+    :root {
+      --bg: #111111;
+      --card: #1f1f1f;
+      --text: #ffffff;
+      --muted: #b8b8b8;
+      --border: #333333;
+      --accent: #00aaff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.4;
+    }
+
+    h1 {
+      margin: 0 0 4px;
+      font-size: 28px;
+      font-weight: 800;
+    }
+
+    .subtitle {
+      margin: 0 0 20px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      margin: 0 0 12px;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    label {
+      display: block;
+      margin: 14px 0 6px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #0f0f0f;
+      color: var(--text);
+      font-size: 16px;
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .toggle-copy {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    input[type="checkbox"] {
+      width: 24px;
+      height: 24px;
+      accent-color: var(--accent);
+    }
+
+    .preview {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .swatch {
+      min-height: 52px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .actions {
+      position: sticky;
+      bottom: 0;
+      padding-top: 12px;
+      background: linear-gradient(transparent, var(--bg) 30%);
+    }
+
+    button {
+      width: 100%;
+      padding: 14px 16px;
+      border: 0;
+      border-radius: 12px;
+      background: var(--accent);
+      color: #001018;
+      font-size: 17px;
+      font-weight: 800;
+    }
+  </style>
+</head>
+<body>
+  <h1>DayMate</h1>
+  <p class="subtitle">Choose a friendly look for your Pebble Time 2 watchface.</p>
+
+  <div class="card">
+    <p class="section-title">Theme</p>
+    <label for="theme">Color theme</label>
+    <select id="theme">
+      <option value="0">Default — colorful metrics</option>
+      <option value="1">Blue</option>
+      <option value="2">Pink</option>
+      <option value="3">Green</option>
+      <option value="4">White</option>
+      <option value="5">Orange</option>
+      <option value="6">Dark Blue</option>
+      <option value="7">Black</option>
+    </select>
+
+    <div class="preview">
+      <div class="swatch" style="background:#000;color:#fff">Default</div>
+      <div class="swatch" style="background:#0055ff;color:#fff">Blue</div>
+      <div class="swatch" style="background:#ff00aa;color:#fff">Pink</div>
+      <div class="swatch" style="background:#00aa55;color:#fff">Green</div>
+      <div class="swatch" style="background:#fff;color:#000">White</div>
+      <div class="swatch" style="background:#ff5500;color:#fff">Orange</div>
+      <div class="swatch" style="background:#001a55;color:#fff">Dark Blue</div>
+      <div class="swatch" style="background:#000;color:#fff">Black</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="section-title">Clock</p>
+    <div class="toggle-row">
+      <div>
+        <strong>Leading zero</strong>
+        <div class="toggle-copy">Show times like 08 instead of 8.</div>
+      </div>
+      <input id="show_leading_zero" type="checkbox">
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="section-title">Metric slots</p>
+    <label for="slot_1_metric">Slot 1</label>
+    <select id="slot_1_metric"></select>
+    <label for="slot_2_metric">Slot 2</label>
+    <select id="slot_2_metric"></select>
+    <label for="slot_3_metric">Slot 3</label>
+    <select id="slot_3_metric"></select>
+    <label for="slot_4_metric">Slot 4</label>
+    <select id="slot_4_metric"></select>
+  </div>
+
+  <div class="actions">
+    <button id="save">Save Settings</button>
+  </div>
+
+  <script>
+    var DEFAULT_SETTINGS = {
+      theme: 0,
+      slot_1_metric: 0,
+      slot_2_metric: 1,
+      slot_3_metric: 2,
+      slot_4_metric: 4,
+      show_leading_zero: true
+    };
+
+    var METRICS = [
+      { value: 0, label: 'Weather' },
+      { value: 1, label: 'Heart Rate' },
+      { value: 2, label: 'Battery' },
+      { value: 3, label: 'Calories' },
+      { value: 4, label: 'Steps' },
+      { value: 5, label: 'None' }
+    ];
+
+    function getQuerySettings() {
+      var match = window.location.search.match(/[?&]settings=([^&]+)/);
+      if (!match) return DEFAULT_SETTINGS;
+      try {
+        return Object.assign({}, DEFAULT_SETTINGS, JSON.parse(decodeURIComponent(match[1])));
+      } catch (e) {
+        return DEFAULT_SETTINGS;
+      }
+    }
+
+    function populateMetricSelect(id) {
+      var select = document.getElementById(id);
+      METRICS.forEach(function(metric) {
+        var option = document.createElement('option');
+        option.value = metric.value;
+        option.textContent = metric.label;
+        select.appendChild(option);
+      });
+    }
+
+    ['slot_1_metric', 'slot_2_metric', 'slot_3_metric', 'slot_4_metric'].forEach(populateMetricSelect);
+
+    var settings = getQuerySettings();
+    document.getElementById('theme').value = Number(settings.theme);
+    document.getElementById('slot_1_metric').value = Number(settings.slot_1_metric);
+    document.getElementById('slot_2_metric').value = Number(settings.slot_2_metric);
+    document.getElementById('slot_3_metric').value = Number(settings.slot_3_metric);
+    document.getElementById('slot_4_metric').value = Number(settings.slot_4_metric);
+    document.getElementById('show_leading_zero').checked = !!settings.show_leading_zero;
+
+    document.getElementById('save').addEventListener('click', function() {
+      var result = {
+        theme: Number(document.getElementById('theme').value),
+        slot_1_metric: Number(document.getElementById('slot_1_metric').value),
+        slot_2_metric: Number(document.getElementById('slot_2_metric').value),
+        slot_3_metric: Number(document.getElementById('slot_3_metric').value),
+        slot_4_metric: Number(document.getElementById('slot_4_metric').value),
+        show_leading_zero: document.getElementById('show_leading_zero').checked
+      };
+
+      document.location = 'pebblejs://close#' + encodeURIComponent(JSON.stringify(result));
+    });
+  </script>
+</body>
+</html>
