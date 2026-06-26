@@ -11,7 +11,7 @@
     "sdkVersion": "3",
     "targetPlatforms": ["emery"],
     "watchapp": {"watchface": true},
-    "capabilities": ["location", "health"],
+    "capabilities": ["configurable", "location", "health"],
     "messageKeys": {
       "theme": 0,
       "slot_1_metric": 1,
