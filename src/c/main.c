@@ -9,7 +9,7 @@
 #define CLOCK_PANEL_W 134
 #define CLOCK_PANEL_H 212
 #define CLOCK_PANEL_RADIUS 4
-#define ICON_SIZE 32
+#define ICON_SIZE 22
 
 #define STORAGE_KEY_THEME 100
 #define STORAGE_KEY_SLOT_1_METRIC 101
@@ -346,7 +346,7 @@ static void format_time(char *hour, size_t hour_size, char *minute, size_t minut
   if (s_settings.show_leading_zero) snprintf(hour, hour_size, "%02d", hour_value);
   else snprintf(hour, hour_size, "%d", hour_value);
   snprintf(minute, minute_size, "%02d", tick_time->tm_min);
-  strftime(date, date_size, "%a, %b %d", tick_time);
+  strftime(date, date_size, "%b %d, %a", tick_time);
 }
 
 static void draw_metric(GContext *ctx, DayMateTheme theme, MetricType metric, GRect box) {
@@ -363,7 +363,7 @@ static void draw_metric(GContext *ctx, DayMateTheme theme, MetricType metric, GR
   graphics_context_set_text_color(ctx, metric_color);
   char value[12];
   value_for_metric(metric, value, sizeof(value));
-  graphics_draw_text(ctx, value, s_font_metric, GRect(box.origin.x, box.origin.y + 30, box.size.w, 22), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+  graphics_draw_text(ctx, value, s_font_metric, GRect(box.origin.x, box.origin.y + 22, box.size.w, 22), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
 }
 
 static void draw_clock(GContext *ctx, DayMateTheme theme, GRect panel) {
@@ -374,9 +374,9 @@ static void draw_clock(GContext *ctx, DayMateTheme theme, GRect panel) {
   graphics_fill_rect(ctx, panel, CLOCK_PANEL_RADIUS, GCornersAll);
 
   graphics_context_set_text_color(ctx, theme.clock_text);
-  graphics_draw_text(ctx, hour, s_font_time, GRect(panel.origin.x, panel.origin.y + 10, panel.size.w, 76), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
-  graphics_draw_text(ctx, minute, s_font_time, GRect(panel.origin.x, panel.origin.y + 82, panel.size.w, 76), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
-  graphics_draw_text(ctx, date, s_font_date, GRect(panel.origin.x, panel.origin.y + 166, panel.size.w, 24), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+  graphics_draw_text(ctx, hour, s_font_time, GRect(panel.origin.x, panel.origin.y + 9, panel.size.w, 76), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+  graphics_draw_text(ctx, minute, s_font_time, GRect(panel.origin.x, panel.origin.y + 79, panel.size.w, 76), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+  graphics_draw_text(ctx, date, s_font_date, GRect(panel.origin.x, panel.origin.y + 172, panel.size.w, 24), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
 }
 
 static void canvas_update_proc(Layer *layer, GContext *ctx) {
@@ -395,14 +395,14 @@ static void canvas_update_proc(Layer *layer, GContext *ctx) {
   draw_clock(ctx, theme, GRect(OUTER_PAD + METRIC_TRAY_W + GAP_W, OUTER_PAD, CLOCK_PANEL_W, CLOCK_PANEL_H));
 
   int tray_x = OUTER_PAD;
-  int slot_y[4] = {10, 61, 112, 163};
+  int slot_y[4] = {14, 58, 102, 146};
 
   if (count == 1) {
-    draw_metric(ctx, theme, visible[0], GRect(tray_x, 88, METRIC_TRAY_W, 48));
+    draw_metric(ctx, theme, visible[0], GRect(tray_x, 92, METRIC_TRAY_W, 42));
   } else {
     for (int i = 0; i < count; i++) {
-      int y = count == 4 ? slot_y[i] : 10 + ((CLOCK_PANEL_H - 48) * i) / (count - 1);
-      draw_metric(ctx, theme, visible[i], GRect(tray_x, y, METRIC_TRAY_W, 48));
+      int y = count == 4 ? slot_y[i] : 14 + ((CLOCK_PANEL_H - 42) * i) / (count - 1);
+      draw_metric(ctx, theme, visible[i], GRect(tray_x, y, METRIC_TRAY_W, 42));
     }
   }
 }
