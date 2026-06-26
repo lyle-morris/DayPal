@@ -325,7 +325,7 @@ static void draw_clock(GContext *ctx, DayMateTheme theme) {
   graphics_context_set_text_color(ctx, theme.clock_text);
   draw_clock_text(ctx, hour, s_font_time, GRect(CLOCK_X, -11, CLOCK_W, 104));
   draw_clock_text(ctx, minute, s_font_time, GRect(CLOCK_X, 71, CLOCK_W, 104));
-  draw_clock_text(ctx, date, s_font_date, GRect(CLOCK_X, 198, CLOCK_W, 26));
+  draw_clock_text(ctx, date, s_font_date, GRect(CLOCK_X, 186, CLOCK_W, 26));
 }
 
 static void canvas_update_proc(Layer *layer, GContext *ctx) {
