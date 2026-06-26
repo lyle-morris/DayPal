@@ -121,19 +121,7 @@ static DayMateTheme get_theme(void) {
       return (DayMateTheme){GColorBlack, GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0x666666), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
     case THEME_DEFAULT:
     default:
-      return (DayMateTheme){
-        GColorBlack,
-        GColorWhite,
-        GColorWhite,
-        GColorWhite,
-        GColorFromHEX(0x777777),
-        GColorFromHEX(0xFFFF00),
-        GColorFromHEX(0x00FF00),
-        GColorFromHEX(0xAA55FF),
-        GColorFromHEX(0xFF5500),
-        GColorFromHEX(0x00AAFF),
-        true
-      };
+      return (DayMateTheme){GColorBlack, GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0x777777), GColorFromHEX(0xFFFF00), GColorFromHEX(0x00FF00), GColorFromHEX(0xAA55FF), GColorFromHEX(0xFF5500), GColorFromHEX(0x00AAFF), true};
   }
 }
 
@@ -216,18 +204,15 @@ static int battery_bucket(void) {
 static uint32_t battery_resource_id(void) {
   bool charging = s_battery.is_charging;
   int bucket = battery_bucket();
-
 #if DAYMATE_QA_DUMMY_DATA
   charging = false;
 #endif
-
   if (charging) {
     if (bucket == 0) return choose_variant(RESOURCE_ID_IMAGE_BATTERY_CHARGING_0_BLACK, RESOURCE_ID_IMAGE_BATTERY_CHARGING_0_PURPLE, RESOURCE_ID_IMAGE_BATTERY_CHARGING_0_WHITE);
     if (bucket == 25) return choose_variant(RESOURCE_ID_IMAGE_BATTERY_CHARGING_25_BLACK, RESOURCE_ID_IMAGE_BATTERY_CHARGING_25_PURPLE, RESOURCE_ID_IMAGE_BATTERY_CHARGING_25_WHITE);
     if (bucket == 50) return choose_variant(RESOURCE_ID_IMAGE_BATTERY_CHARGING_50_BLACK, RESOURCE_ID_IMAGE_BATTERY_CHARGING_50_PURPLE, RESOURCE_ID_IMAGE_BATTERY_CHARGING_50_WHITE);
     return choose_variant(RESOURCE_ID_IMAGE_BATTERY_CHARGING_100_BLACK, RESOURCE_ID_IMAGE_BATTERY_CHARGING_100_PURPLE, RESOURCE_ID_IMAGE_BATTERY_CHARGING_100_WHITE);
   }
-
   if (bucket == 0) return choose_variant(RESOURCE_ID_IMAGE_BATTERY_0_BLACK, RESOURCE_ID_IMAGE_BATTERY_0_PURPLE, RESOURCE_ID_IMAGE_BATTERY_0_WHITE);
   if (bucket == 25) return choose_variant(RESOURCE_ID_IMAGE_BATTERY_25_BLACK, RESOURCE_ID_IMAGE_BATTERY_25_PURPLE, RESOURCE_ID_IMAGE_BATTERY_25_WHITE);
   if (bucket == 50) return choose_variant(RESOURCE_ID_IMAGE_BATTERY_50_BLACK, RESOURCE_ID_IMAGE_BATTERY_50_PURPLE, RESOURCE_ID_IMAGE_BATTERY_50_WHITE);
@@ -236,18 +221,12 @@ static uint32_t battery_resource_id(void) {
 
 static uint32_t resource_id_for_metric(MetricType metric) {
   switch (metric) {
-    case METRIC_WEATHER:
-      return weather_resource_id();
-    case METRIC_HEART_RATE:
-      return choose_variant(RESOURCE_ID_IMAGE_HEART_RATE_BLACK, RESOURCE_ID_IMAGE_HEART_RATE_GREEN, RESOURCE_ID_IMAGE_HEART_RATE_WHITE);
-    case METRIC_BATTERY:
-      return battery_resource_id();
-    case METRIC_CALORIES:
-      return choose_variant(RESOURCE_ID_IMAGE_CALORIES_BLACK, RESOURCE_ID_IMAGE_CALORIES_ORANGE, RESOURCE_ID_IMAGE_CALORIES_WHITE);
-    case METRIC_STEPS:
-      return choose_variant(RESOURCE_ID_IMAGE_STEPS_BLACK, RESOURCE_ID_IMAGE_STEPS_BLUE, RESOURCE_ID_IMAGE_STEPS_WHITE);
-    default:
-      return 0;
+    case METRIC_WEATHER: return weather_resource_id();
+    case METRIC_HEART_RATE: return choose_variant(RESOURCE_ID_IMAGE_HEART_RATE_BLACK, RESOURCE_ID_IMAGE_HEART_RATE_GREEN, RESOURCE_ID_IMAGE_HEART_RATE_WHITE);
+    case METRIC_BATTERY: return battery_resource_id();
+    case METRIC_CALORIES: return choose_variant(RESOURCE_ID_IMAGE_CALORIES_BLACK, RESOURCE_ID_IMAGE_CALORIES_ORANGE, RESOURCE_ID_IMAGE_CALORIES_WHITE);
+    case METRIC_STEPS: return choose_variant(RESOURCE_ID_IMAGE_STEPS_BLACK, RESOURCE_ID_IMAGE_STEPS_BLUE, RESOURCE_ID_IMAGE_STEPS_WHITE);
+    default: return 0;
   }
 }
 
@@ -258,7 +237,6 @@ static void write_text(char *buffer, size_t size, const char *text) {
 
 static void format_compact(int value, bool available, char *buffer, size_t size) {
   if (size == 0) return;
-
   if (!available || value < 0) {
     write_text(buffer, size, "---");
   } else if (value < 10000) {
@@ -278,47 +256,21 @@ static void format_compact(int value, bool available, char *buffer, size_t size)
 static void value_for_metric(MetricType metric, char *buffer, size_t size) {
 #if DAYMATE_QA_DUMMY_DATA
   switch (metric) {
-    case METRIC_WEATHER:
-      snprintf(buffer, size, "95");
-      break;
-    case METRIC_HEART_RATE:
-      snprintf(buffer, size, "110");
-      break;
-    case METRIC_BATTERY:
-      snprintf(buffer, size, "50");
-      break;
-    case METRIC_CALORIES:
-      snprintf(buffer, size, "1520");
-      break;
-    case METRIC_STEPS:
-      snprintf(buffer, size, "8542");
-      break;
-    default:
-      if (size > 0) buffer[0] = '\0';
-      break;
+    case METRIC_WEATHER: snprintf(buffer, size, "95"); break;
+    case METRIC_HEART_RATE: snprintf(buffer, size, "110"); break;
+    case METRIC_BATTERY: snprintf(buffer, size, "50"); break;
+    case METRIC_CALORIES: snprintf(buffer, size, "1520"); break;
+    case METRIC_STEPS: snprintf(buffer, size, "8542"); break;
+    default: if (size > 0) buffer[0] = '\0'; break;
   }
 #else
   switch (metric) {
-    case METRIC_WEATHER:
-      if (s_weather_available) snprintf(buffer, size, "%d", s_weather_temp);
-      else write_text(buffer, size, "---");
-      break;
-    case METRIC_HEART_RATE:
-      if (s_heart_available) snprintf(buffer, size, "%d", s_heart_rate);
-      else write_text(buffer, size, "---");
-      break;
-    case METRIC_BATTERY:
-      snprintf(buffer, size, "%d", s_battery.charge_percent);
-      break;
-    case METRIC_CALORIES:
-      format_compact(s_calories, s_calories_available, buffer, size);
-      break;
-    case METRIC_STEPS:
-      format_compact(s_steps, s_steps_available, buffer, size);
-      break;
-    default:
-      if (size > 0) buffer[0] = '\0';
-      break;
+    case METRIC_WEATHER: if (s_weather_available) snprintf(buffer, size, "%d", s_weather_temp); else write_text(buffer, size, "---"); break;
+    case METRIC_HEART_RATE: if (s_heart_available) snprintf(buffer, size, "%d", s_heart_rate); else write_text(buffer, size, "---"); break;
+    case METRIC_BATTERY: snprintf(buffer, size, "%d", s_battery.charge_percent); break;
+    case METRIC_CALORIES: format_compact(s_calories, s_calories_available, buffer, size); break;
+    case METRIC_STEPS: format_compact(s_steps, s_steps_available, buffer, size); break;
+    default: if (size > 0) buffer[0] = '\0'; break;
   }
 #endif
 }
@@ -326,9 +278,7 @@ static void value_for_metric(MetricType metric, char *buffer, size_t size) {
 static int get_visible_metrics(MetricType visible[4]) {
   int count = 0;
   for (int i = 0; i < 4; i++) {
-    if (s_settings.slot_metrics[i] != METRIC_NONE) {
-      visible[count++] = s_settings.slot_metrics[i];
-    }
+    if (s_settings.slot_metrics[i] != METRIC_NONE) visible[count++] = s_settings.slot_metrics[i];
   }
   return count;
 }
@@ -351,7 +301,6 @@ static void draw_metric(GContext *ctx, DayMateTheme theme, MetricType metric, GR
   bool available = metric_available(metric);
   GColor metric_color = color_for_metric(theme, metric, available);
   uint32_t resource_id = resource_id_for_metric(metric);
-
   if (resource_id) {
     GBitmap *bitmap = gbitmap_create_with_resource(resource_id);
     if (bitmap) {
@@ -360,7 +309,6 @@ static void draw_metric(GContext *ctx, DayMateTheme theme, MetricType metric, GR
       gbitmap_destroy(bitmap);
     }
   }
-
   graphics_context_set_text_color(ctx, metric_color);
   char value[12];
   value_for_metric(metric, value, sizeof(value));
@@ -374,10 +322,9 @@ static void draw_clock_text(GContext *ctx, const char *text, GFont font, GRect b
 static void draw_clock(GContext *ctx, DayMateTheme theme) {
   char hour[4], minute[4], date[18];
   format_time(hour, sizeof(hour), minute, sizeof(minute), date, sizeof(date));
-
   graphics_context_set_text_color(ctx, theme.clock_text);
-  draw_clock_text(ctx, hour, s_font_time, GRect(CLOCK_X, -18, CLOCK_W, 112));
-  draw_clock_text(ctx, minute, s_font_time, GRect(CLOCK_X, 66, CLOCK_W, 112));
+  draw_clock_text(ctx, hour, s_font_time, GRect(CLOCK_X, -11, CLOCK_W, 104));
+  draw_clock_text(ctx, minute, s_font_time, GRect(CLOCK_X, 71, CLOCK_W, 104));
   draw_clock_text(ctx, date, s_font_date, GRect(CLOCK_X, 198, CLOCK_W, 26));
 }
 
@@ -385,20 +332,15 @@ static void canvas_update_proc(Layer *layer, GContext *ctx) {
   DayMateTheme theme = get_theme();
   graphics_context_set_fill_color(ctx, theme.background);
   graphics_fill_rect(ctx, GRect(0, 0, SCREEN_W, SCREEN_H), 0, GCornerNone);
-
   MetricType visible[4];
   int count = get_visible_metrics(visible);
-
   if (count == 0) {
     draw_clock(ctx, theme);
     return;
   }
-
   graphics_context_set_fill_color(ctx, theme.divider);
   graphics_fill_rect(ctx, GRect(DIVIDER_X, 0, DIVIDER_W, SCREEN_H), 0, GCornerNone);
-
   int slot_y[4] = {7, 61, 115, 169};
-
   if (count == 1) {
     draw_metric(ctx, theme, visible[0], GRect(0, 88, METRIC_TRAY_W, METRIC_ROW_H));
   } else {
@@ -407,7 +349,6 @@ static void canvas_update_proc(Layer *layer, GContext *ctx) {
       draw_metric(ctx, theme, visible[i], GRect(0, y, METRIC_TRAY_W, METRIC_ROW_H));
     }
   }
-
   draw_clock(ctx, theme);
 }
 
@@ -479,7 +420,7 @@ static void main_window_unload(Window *window) {
 static void init(void) {
   load_settings();
   s_battery = battery_state_service_peek();
-  s_font_time = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ROBOTO_BLACK_110));
+  s_font_time = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ROBOTO_BLACK_102));
   s_font_metric = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ROBOTO_BOLD_16));
   s_font_date = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ROBOTO_BOLD_20));
   s_window = window_create();
