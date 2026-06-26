@@ -1,4 +1,4 @@
-var CONFIG_URL = 'config/index.html';
+var CONFIG_URL = 'https://lyle-morris.github.io/DayMate-config/';
 
 var KEYS = {
   theme: 0,
