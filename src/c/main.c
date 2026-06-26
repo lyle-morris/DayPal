@@ -13,6 +13,7 @@
 #define METRIC_ROW_H 48
 #define METRIC_ICON_X_OFFSET 5
 #define METRIC_VALUE_Y_OFFSET 30
+#define DAYMATE_QA_DUMMY_DATA 1
 
 #define STORAGE_KEY_THEME 100
 #define STORAGE_KEY_SLOT_1_METRIC 101
@@ -95,7 +96,7 @@ static DayMateSettings s_settings = {
 static BatteryChargeState s_battery;
 static bool s_weather_available = false;
 static int s_weather_temp = 95;
-static WeatherCondition s_weather_condition = WEATHER_PARTLY_CLOUDY;
+static WeatherCondition s_weather_condition = WEATHER_SUNNY;
 static bool s_steps_available = false;
 static int s_steps = 8542;
 static bool s_heart_available = false;
@@ -126,6 +127,9 @@ static DayMateTheme get_theme(void) {
 }
 
 static bool metric_available(MetricType metric) {
+#if DAYMATE_QA_DUMMY_DATA
+  return metric != METRIC_NONE;
+#else
   switch (metric) {
     case METRIC_WEATHER: return s_weather_available;
     case METRIC_HEART_RATE: return s_heart_available;
@@ -134,6 +138,7 @@ static bool metric_available(MetricType metric) {
     case METRIC_STEPS: return s_steps_available;
     default: return false;
   }
+#endif
 }
 
 static GColor color_for_metric(DayMateTheme theme, MetricType metric, bool available) {
@@ -165,6 +170,9 @@ static uint32_t choose_variant(uint32_t black, uint32_t color, uint32_t white) {
 }
 
 static uint32_t weather_resource_id(void) {
+#if DAYMATE_QA_DUMMY_DATA
+  return choose_variant(RESOURCE_ID_IMAGE_WEATHER_SUNNY_BLACK, RESOURCE_ID_IMAGE_WEATHER_SUNNY_YELLOW, RESOURCE_ID_IMAGE_WEATHER_SUNNY_WHITE);
+#else
   switch (s_weather_condition) {
     case WEATHER_SUNNY:
       return choose_variant(RESOURCE_ID_IMAGE_WEATHER_SUNNY_BLACK, RESOURCE_ID_IMAGE_WEATHER_SUNNY_YELLOW, RESOURCE_ID_IMAGE_WEATHER_SUNNY_WHITE);
@@ -180,18 +188,27 @@ static uint32_t weather_resource_id(void) {
     default:
       return choose_variant(RESOURCE_ID_IMAGE_WEATHER_PARTLY_CLOUDY_BLACK, RESOURCE_ID_IMAGE_WEATHER_PARTLY_CLOUDY_YELLOW, RESOURCE_ID_IMAGE_WEATHER_PARTLY_CLOUDY_WHITE);
   }
+#endif
 }
 
 static int battery_bucket(void) {
+#if DAYMATE_QA_DUMMY_DATA
+  return 50;
+#else
   if (s_battery.charge_percent <= 0) return 0;
   if (s_battery.charge_percent < 50) return 25;
   if (s_battery.charge_percent < 100) return 50;
   return 100;
+#endif
 }
 
 static uint32_t battery_resource_id(void) {
   bool charging = s_battery.is_charging;
   int bucket = battery_bucket();
+
+#if DAYMATE_QA_DUMMY_DATA
+  charging = false;
+#endif
 
   if (charging) {
     if (bucket == 0) return choose_variant(RESOURCE_ID_IMAGE_BATTERY_CHARGING_0_BLACK, RESOURCE_ID_IMAGE_BATTERY_CHARGING_0_PURPLE, RESOURCE_ID_IMAGE_BATTERY_CHARGING_0_WHITE);
@@ -248,6 +265,28 @@ static void format_compact(int value, bool available, char *buffer, size_t size)
 }
 
 static void value_for_metric(MetricType metric, char *buffer, size_t size) {
+#if DAYMATE_QA_DUMMY_DATA
+  switch (metric) {
+    case METRIC_WEATHER:
+      snprintf(buffer, size, "95");
+      break;
+    case METRIC_HEART_RATE:
+      snprintf(buffer, size, "110");
+      break;
+    case METRIC_BATTERY:
+      snprintf(buffer, size, "50");
+      break;
+    case METRIC_CALORIES:
+      snprintf(buffer, size, "1520");
+      break;
+    case METRIC_STEPS:
+      snprintf(buffer, size, "8542");
+      break;
+    default:
+      if (size > 0) buffer[0] = '\0';
+      break;
+  }
+#else
   switch (metric) {
     case METRIC_WEATHER:
       if (s_weather_available) snprintf(buffer, size, "%d", s_weather_temp);
@@ -270,6 +309,7 @@ static void value_for_metric(MetricType metric, char *buffer, size_t size) {
       if (size > 0) buffer[0] = '\0';
       break;
   }
+#endif
 }
 
 static int get_visible_metrics(MetricType visible[4]) {
