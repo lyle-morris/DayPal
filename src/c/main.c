@@ -13,6 +13,7 @@
 #define METRIC_ICON_X 13
 #define METRIC_VALUE_Y_OFFSET 30
 #define DAYMATE_QA_DUMMY_DATA 1
+#define DAYMATE_QA_TIME_STRESS_TEST 1
 
 #define STORAGE_KEY_THEME 100
 #define STORAGE_KEY_SLOT_1_METRIC 101
@@ -284,6 +285,11 @@ static int get_visible_metrics(MetricType visible[4]) {
 }
 
 static void format_time(char *hour, size_t hour_size, char *minute, size_t minute_size, char *date, size_t date_size) {
+#if DAYMATE_QA_TIME_STRESS_TEST
+  snprintf(hour, hour_size, "88");
+  snprintf(minute, minute_size, "88");
+  write_text(date, date_size, "Jun 26, Fri");
+#else
   time_t now = time(NULL);
   struct tm *tick_time = localtime(&now);
   int hour_value = tick_time->tm_hour;
@@ -295,6 +301,7 @@ static void format_time(char *hour, size_t hour_size, char *minute, size_t minut
   else snprintf(hour, hour_size, "%d", hour_value);
   snprintf(minute, minute_size, "%02d", tick_time->tm_min);
   strftime(date, date_size, "%b %d, %a", tick_time);
+#endif
 }
 
 static void draw_metric(GContext *ctx, DayMateTheme theme, MetricType metric, GRect box) {
