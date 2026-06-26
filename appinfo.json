@@ -23,9 +23,9 @@
   },
   "resources": {
     "media": [
-      {"type":"font","name":"FONT_ROBOTO_BLACK_78","file":"fonts/Roboto-Black.ttf","characterRegex":"[0-9]"},
+      {"type":"font","name":"FONT_ROBOTO_BLACK_110","file":"fonts/Roboto-Black.ttf","characterRegex":"[0-9]"},
       {"type":"font","name":"FONT_ROBOTO_BOLD_16","file":"fonts/Roboto-Bold.ttf","characterRegex":"[0-9k\\-]"},
-      {"type":"font","name":"FONT_ROBOTO_REGULAR_16","file":"fonts/Roboto-Regular.ttf","characterRegex":"[A-Za-z0-9, ]"},
+      {"type":"font","name":"FONT_ROBOTO_BOLD_20","file":"fonts/Roboto-Bold.ttf","characterRegex":"[A-Za-z0-9, ]"},
       {"type":"png","name":"IMAGE_WEATHER_SUNNY_BLACK","file":"images/weather/sunny_32_000000.png"},
       {"type":"png","name":"IMAGE_WEATHER_SUNNY_YELLOW","file":"images/weather/sunny_32_FFFF00.png"},
       {"type":"png","name":"IMAGE_WEATHER_SUNNY_WHITE","file":"images/weather/sunny_32_FFFFFF.png"},
