@@ -1,19 +1,5 @@
 var CONFIG_URL = 'https://lyle-morris.github.io/DayMate-config/';
 
-var KEYS = {
-  theme: 0,
-  slot_1_metric: 1,
-  slot_2_metric: 2,
-  slot_3_metric: 3,
-  slot_4_metric: 4,
-  show_leading_zero: 5,
-  weather_temp: 10,
-  weather_code: 11,
-  weather_valid: 12,
-  request_weather: 20,
-  settings_ready: 21
-};
-
 var DEFAULT_SETTINGS = {
   theme: 0,
   slot_1_metric: 0,
@@ -23,12 +9,20 @@ var DEFAULT_SETTINGS = {
   show_leading_zero: true
 };
 
+function mergeSettings(base, saved) {
+  var result = {};
+  var key;
+  for (key in base) result[key] = base[key];
+  if (saved) for (key in saved) result[key] = saved[key];
+  return result;
+}
+
 function loadSettings() {
   var raw = localStorage.getItem('daymate_settings');
   if (!raw) return DEFAULT_SETTINGS;
   try {
     var saved = JSON.parse(raw);
-    return Object.assign({}, DEFAULT_SETTINGS, saved);
+    return mergeSettings(DEFAULT_SETTINGS, saved);
   } catch (e) {
     return DEFAULT_SETTINGS;
   }
@@ -39,13 +33,19 @@ function saveSettings(settings) {
 }
 
 function sendSettings(settings) {
-  Pebble.sendAppMessage({
-    0: Number(settings.theme),
-    1: Number(settings.slot_1_metric),
-    2: Number(settings.slot_2_metric),
-    3: Number(settings.slot_3_metric),
-    4: Number(settings.slot_4_metric),
-    5: settings.show_leading_zero ? 1 : 0
+  var payload = {
+    theme: Number(settings.theme),
+    slot_1_metric: Number(settings.slot_1_metric),
+    slot_2_metric: Number(settings.slot_2_metric),
+    slot_3_metric: Number(settings.slot_3_metric),
+    slot_4_metric: Number(settings.slot_4_metric),
+    show_leading_zero: settings.show_leading_zero ? 1 : 0
+  };
+
+  Pebble.sendAppMessage(payload, function() {
+    console.log('DayMate settings sent: ' + JSON.stringify(payload));
+  }, function(error) {
+    console.log('DayMate settings send failed: ' + JSON.stringify(error));
   });
 }
 
@@ -61,7 +61,7 @@ function weatherCodeToCondition(code) {
 
 function sendWeatherUnavailable() {
   Pebble.sendAppMessage({
-    12: 0
+    weather_valid: 0
   });
 }
 
@@ -98,9 +98,9 @@ function requestWeather() {
           return;
         }
         Pebble.sendAppMessage({
-          10: temp,
-          11: condition,
-          12: 1
+          weather_temp: temp,
+          weather_code: condition,
+          weather_valid: 1
         });
       } catch (e) {
         sendWeatherUnavailable();
@@ -121,7 +121,7 @@ Pebble.addEventListener('ready', function() {
 });
 
 Pebble.addEventListener('appmessage', function(e) {
-  if (e.payload && e.payload.request_weather) {
+  if (e.payload && (e.payload.request_weather || e.payload['20'])) {
     requestWeather();
   }
 });
@@ -134,11 +134,12 @@ Pebble.addEventListener('showConfiguration', function() {
 Pebble.addEventListener('webviewclosed', function(e) {
   if (!e || !e.response) return;
   try {
-    var settings = JSON.parse(decodeURIComponent(e.response));
+    var response = decodeURIComponent(e.response);
+    var settings = JSON.parse(response);
     saveSettings(settings);
     sendSettings(settings);
     requestWeather();
   } catch (err) {
-    // Ignore cancelled or invalid configuration responses.
+    console.log('DayMate config response ignored: ' + err);
   }
 });
