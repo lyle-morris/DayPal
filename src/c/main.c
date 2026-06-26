@@ -122,7 +122,19 @@ static DayMateTheme get_theme(void) {
       return (DayMateTheme){GColorBlack, GColorFromHEX(0x333333), GColorWhite, GColorWhite, GColorFromHEX(0x666666), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
     case THEME_DEFAULT:
     default:
-      return (DayMateTheme){GColorBlack, GColorFromHEX(0x333333), GColorWhite, GColorWhite, GColorFromHEX(0x777777), GColorYellow, GColorGreen, GColorVividViolet, GColorOrange, GColorCyan, true};
+      return (DayMateTheme){
+        GColorBlack,
+        GColorFromHEX(0x333333),
+        GColorWhite,
+        GColorWhite,
+        GColorFromHEX(0x777777),
+        GColorFromHEX(0xFFFF00),
+        GColorFromHEX(0x00FF00),
+        GColorFromHEX(0xAA55FF),
+        GColorFromHEX(0xFF5500),
+        GColorFromHEX(0x00AAFF),
+        true
+      };
   }
 }
 
@@ -368,8 +380,8 @@ static void draw_clock(GContext *ctx, DayMateTheme theme, GRect panel) {
   graphics_fill_rect(ctx, panel, CLOCK_PANEL_RADIUS, GCornersAll);
 
   graphics_context_set_text_color(ctx, theme.clock_text);
-  draw_clock_text(ctx, hour, s_font_time, GRect(panel.origin.x, panel.origin.y + 14, panel.size.w, 76));
-  draw_clock_text(ctx, minute, s_font_time, GRect(panel.origin.x, panel.origin.y + 72, panel.size.w, 76));
+  draw_clock_text(ctx, hour, s_font_time, GRect(panel.origin.x, panel.origin.y + 10, panel.size.w, 76));
+  draw_clock_text(ctx, minute, s_font_time, GRect(panel.origin.x, panel.origin.y + 86, panel.size.w, 76));
   draw_clock_text(ctx, date, s_font_date, GRect(panel.origin.x, panel.origin.y + 172, panel.size.w, 24));
 }
 
