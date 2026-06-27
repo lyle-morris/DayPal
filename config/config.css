@@ -1,0 +1,95 @@
+:root {
+  color-scheme: light dark;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #f4f4f5;
+  color: #111827;
+}
+
+.page {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+.header {
+  margin-bottom: 18px;
+}
+
+.header h1 {
+  margin: 0 0 6px;
+  font-size: 28px;
+}
+
+.header p {
+  margin: 0;
+  color: #4b5563;
+  line-height: 1.4;
+}
+
+.card {
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #374151;
+}
+
+select {
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  font-size: 16px;
+  background: #ffffff;
+}
+
+.toggle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 44px;
+  margin-top: 4px;
+}
+
+.toggle-row input {
+  width: 22px;
+  height: 22px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+button {
+  min-height: 44px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.primary {
+  background: #111827;
+  color: #ffffff;
+}
+
+.secondary {
+  background: #e5e7eb;
+  color: #111827;
+}
