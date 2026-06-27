@@ -357,12 +357,10 @@ static void canvas_update_proc(Layer *layer, GContext *ctx) {
   graphics_context_set_fill_color(ctx, theme.divider);
   graphics_fill_rect(ctx, GRect(DIVIDER_X, 0, DIVIDER_W, SCREEN_H), 0, GCornerNone);
   int slot_y[4] = {7, 61, 115, 169};
-  if (count == 1) {
-    draw_metric(ctx, theme, visible[0], GRect(0, 88, METRIC_TRAY_W, METRIC_ROW_H));
-  } else {
-    for (int i = 0; i < count; i++) {
-      int y = count == 4 ? slot_y[i] : 7 + ((SCREEN_H - METRIC_ROW_H - 14) * i) / (count - 1);
-      draw_metric(ctx, theme, visible[i], GRect(0, y, METRIC_TRAY_W, METRIC_ROW_H));
+  for (int i = 0; i < 4; i++) {
+    MetricType metric = s_settings.slot_metrics[i];
+    if (metric != METRIC_NONE) {
+      draw_metric(ctx, theme, metric, GRect(0, slot_y[i], METRIC_TRAY_W, METRIC_ROW_H));
     }
   }
   draw_clock(ctx, theme, CLOCK_X, CLOCK_W);
