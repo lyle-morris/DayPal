@@ -8,6 +8,9 @@
 #define DIVIDER_W 1
 #define CLOCK_X 59
 #define CLOCK_W 141
+#define CLOCK_FULL_X 0
+#define CLOCK_FULL_W 200
+#define SINGLE_DIGIT_HOUR_X_OFFSET 28
 #define ICON_SIZE 32
 #define METRIC_ROW_H 52
 #define METRIC_ICON_X 13
@@ -328,13 +331,17 @@ static void draw_clock_text(GContext *ctx, const char *text, GFont font, GRect b
   graphics_draw_text(ctx, text, font, box, GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
 }
 
-static void draw_clock(GContext *ctx, DayMateTheme theme) {
+static void draw_clock(GContext *ctx, DayMateTheme theme, int clock_x, int clock_w) {
   char hour[4], minute[4], date[18];
   format_time(hour, sizeof(hour), minute, sizeof(minute), date, sizeof(date));
+  int hour_x = clock_x;
+  if (!s_settings.show_leading_zero && strlen(hour) == 1) {
+    hour_x += SINGLE_DIGIT_HOUR_X_OFFSET;
+  }
   graphics_context_set_text_color(ctx, theme.clock_text);
-  draw_clock_text(ctx, hour, s_font_time, GRect(CLOCK_X, -11, CLOCK_W, 104));
-  draw_clock_text(ctx, minute, s_font_time, GRect(CLOCK_X, 71, CLOCK_W, 104));
-  draw_clock_text(ctx, date, s_font_date, GRect(CLOCK_X, 186, CLOCK_W, 26));
+  draw_clock_text(ctx, hour, s_font_time, GRect(hour_x, -11, clock_w, 104));
+  draw_clock_text(ctx, minute, s_font_time, GRect(clock_x, 71, clock_w, 104));
+  draw_clock_text(ctx, date, s_font_date, GRect(clock_x, 186, clock_w, 26));
 }
 
 static void canvas_update_proc(Layer *layer, GContext *ctx) {
@@ -344,7 +351,7 @@ static void canvas_update_proc(Layer *layer, GContext *ctx) {
   MetricType visible[4];
   int count = get_visible_metrics(visible);
   if (count == 0) {
-    draw_clock(ctx, theme);
+    draw_clock(ctx, theme, CLOCK_FULL_X, CLOCK_FULL_W);
     return;
   }
   graphics_context_set_fill_color(ctx, theme.divider);
@@ -358,7 +365,7 @@ static void canvas_update_proc(Layer *layer, GContext *ctx) {
       draw_metric(ctx, theme, visible[i], GRect(0, y, METRIC_TRAY_W, METRIC_ROW_H));
     }
   }
-  draw_clock(ctx, theme);
+  draw_clock(ctx, theme, CLOCK_X, CLOCK_W);
 }
 
 static void save_settings(void) {
