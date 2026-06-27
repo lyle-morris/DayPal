@@ -1,4 +1,6 @@
 var CONFIG_URL = 'https://lyle-morris.github.io/DayMate-config/';
+var WEATHER_CACHE_KEY = 'daymate_weather';
+var WEATHER_CACHE_MAX_AGE_MS = 1000 * 60 * 60;
 
 var DEFAULT_SETTINGS = {
   theme: 0,
@@ -90,19 +92,54 @@ function weatherCodeToCondition(code) {
   return 6;
 }
 
-function sendWeatherUnavailable() {
+function saveWeatherCache(temp, condition) {
+  localStorage.setItem(WEATHER_CACHE_KEY, JSON.stringify({
+    temp: temp,
+    condition: condition,
+    timestamp: Date.now()
+  }));
+}
+
+function sendWeather(temp, condition) {
   Pebble.sendAppMessage({
-    12: 0,
-    weather_valid: 0
+    10: temp,
+    11: condition,
+    12: 1
+  }, function() {
+    console.log('DayMate weather sent: ' + temp + ', condition ' + condition);
+  }, function(error) {
+    console.log('DayMate weather send failed: ' + JSON.stringify(error));
+  });
+}
+
+function sendCachedWeather() {
+  var raw = localStorage.getItem(WEATHER_CACHE_KEY);
+  if (!raw) return false;
+  try {
+    var cached = JSON.parse(raw);
+    if (!cached || Date.now() - Number(cached.timestamp) > WEATHER_CACHE_MAX_AGE_MS) return false;
+    sendWeather(Number(cached.temp), Number(cached.condition));
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+function sendWeatherUnavailable() {
+  if (sendCachedWeather()) return;
+  Pebble.sendAppMessage({
+    12: 0
   });
 }
 
 function requestWeather() {
   if (!navigator.geolocation) {
+    console.log('DayMate weather unavailable: no geolocation');
     sendWeatherUnavailable();
     return;
   }
 
+  console.log('DayMate requesting weather');
   navigator.geolocation.getCurrentPosition(function(position) {
     var lat = position.coords.latitude;
     var lon = position.coords.longitude;
@@ -114,36 +151,37 @@ function requestWeather() {
     xhr.open('GET', url, true);
     xhr.onload = function() {
       if (xhr.status < 200 || xhr.status >= 300) {
+        console.log('DayMate weather HTTP failure: ' + xhr.status);
         sendWeatherUnavailable();
         return;
       }
       try {
         var data = JSON.parse(xhr.responseText);
         if (!data.current || typeof data.current.temperature_2m === 'undefined' || typeof data.current.weather_code === 'undefined') {
+          console.log('DayMate weather response missing current values');
           sendWeatherUnavailable();
           return;
         }
         var temp = Math.round(data.current.temperature_2m);
         var condition = weatherCodeToCondition(Number(data.current.weather_code));
         if (condition === 6) {
+          console.log('DayMate weather condition unsupported: ' + data.current.weather_code);
           sendWeatherUnavailable();
           return;
         }
-        Pebble.sendAppMessage({
-          10: temp,
-          11: condition,
-          12: 1,
-          weather_temp: temp,
-          weather_code: condition,
-          weather_valid: 1
-        });
+        saveWeatherCache(temp, condition);
+        sendWeather(temp, condition);
       } catch (e) {
+        console.log('DayMate weather parse failed: ' + e);
         sendWeatherUnavailable();
       }
     };
     xhr.onerror = sendWeatherUnavailable;
     xhr.send();
-  }, sendWeatherUnavailable, {
+  }, function(error) {
+    console.log('DayMate weather geolocation failed: ' + JSON.stringify(error));
+    sendWeatherUnavailable();
+  }, {
     timeout: 15000,
     maximumAge: 1000 * 60 * 15
   });

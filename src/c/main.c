@@ -109,6 +109,13 @@ static int s_heart_rate = 110;
 static bool s_calories_available = false;
 static int s_calories = 1520;
 
+static bool has_metric_configured(MetricType metric) {
+  for (int i = 0; i < 4; i++) {
+    if (s_settings.slot_metrics[i] == metric) return true;
+  }
+  return false;
+}
+
 static DayMateTheme get_theme(void) {
   switch (s_settings.theme) {
     case THEME_BLUE:
@@ -281,6 +288,37 @@ static void value_for_metric(MetricType metric, char *buffer, size_t size) {
 #endif
 }
 
+static time_t day_start_time(void) {
+  time_t now = time(NULL);
+  struct tm *today = localtime(&now);
+  today->tm_hour = 0;
+  today->tm_min = 0;
+  today->tm_sec = 0;
+  return mktime(today);
+}
+
+static bool health_metric_available(HealthMetric metric, time_t start, time_t end) {
+  return health_service_metric_accessible(metric, start, end) & HealthServiceAccessibilityMaskAvailable;
+}
+
+static void update_health_metrics(void) {
+  time_t now = time(NULL);
+  time_t start = day_start_time();
+
+  s_steps_available = health_metric_available(HealthMetricStepCount, start, now);
+  if (s_steps_available) s_steps = (int)health_service_sum(HealthMetricStepCount, start, now);
+
+  s_calories_available = health_metric_available(HealthMetricActiveKCalories, start, now);
+  if (s_calories_available) s_calories = (int)health_service_sum(HealthMetricActiveKCalories, start, now);
+
+  s_heart_available = health_metric_available(HealthMetricHeartRateBPM, now - 30 * 60, now);
+  if (s_heart_available) {
+    HealthValue heart_rate = health_service_peek_current_value(HealthMetricHeartRateBPM);
+    if (heart_rate > 0) s_heart_rate = (int)heart_rate;
+    else s_heart_available = false;
+  }
+}
+
 static int get_visible_metrics(MetricType visible[4]) {
   int count = 0;
   for (int i = 0; i < 4; i++) {
@@ -375,6 +413,12 @@ static void save_settings(void) {
   persist_write_bool(STORAGE_KEY_SHOW_LEADING_ZERO, s_settings.show_leading_zero);
 }
 
+static void save_weather(void) {
+  persist_write_int(STORAGE_KEY_WEATHER_TEMP, s_weather_temp);
+  persist_write_int(STORAGE_KEY_WEATHER_CODE, s_weather_condition);
+  persist_write_bool(STORAGE_KEY_WEATHER_VALID, s_weather_available);
+}
+
 static int read_int_or_default(int key, int fallback) {
   return persist_exists(key) ? persist_read_int(key) : fallback;
 }
@@ -386,6 +430,12 @@ static void load_settings(void) {
   s_settings.slot_metrics[2] = (MetricType)read_int_or_default(STORAGE_KEY_SLOT_3_METRIC, METRIC_BATTERY);
   s_settings.slot_metrics[3] = (MetricType)read_int_or_default(STORAGE_KEY_SLOT_4_METRIC, METRIC_STEPS);
   s_settings.show_leading_zero = persist_exists(STORAGE_KEY_SHOW_LEADING_ZERO) ? persist_read_bool(STORAGE_KEY_SHOW_LEADING_ZERO) : true;
+}
+
+static void load_weather(void) {
+  s_weather_temp = read_int_or_default(STORAGE_KEY_WEATHER_TEMP, s_weather_temp);
+  s_weather_condition = (WeatherCondition)read_int_or_default(STORAGE_KEY_WEATHER_CODE, s_weather_condition);
+  s_weather_available = persist_exists(STORAGE_KEY_WEATHER_VALID) ? persist_read_bool(STORAGE_KEY_WEATHER_VALID) : false;
 }
 
 static void send_settings_ready(void) {
@@ -400,16 +450,20 @@ static void send_settings_ready(void) {
 static void inbox_received(DictionaryIterator *iter, void *context) {
   Tuple *t;
   bool settings_changed = false;
+  bool weather_changed = false;
   if ((t = dict_find(iter, 0))) { s_settings.theme = (ThemeType)t->value->int32; settings_changed = true; }
   if ((t = dict_find(iter, 1))) { s_settings.slot_metrics[0] = (MetricType)t->value->int32; settings_changed = true; }
   if ((t = dict_find(iter, 2))) { s_settings.slot_metrics[1] = (MetricType)t->value->int32; settings_changed = true; }
   if ((t = dict_find(iter, 3))) { s_settings.slot_metrics[2] = (MetricType)t->value->int32; settings_changed = true; }
   if ((t = dict_find(iter, 4))) { s_settings.slot_metrics[3] = (MetricType)t->value->int32; settings_changed = true; }
   if ((t = dict_find(iter, 5))) { s_settings.show_leading_zero = t->value->int32 == 1; settings_changed = true; }
-  if ((t = dict_find(iter, 10))) s_weather_temp = t->value->int32;
-  if ((t = dict_find(iter, 11))) s_weather_condition = (WeatherCondition)t->value->int32;
-  if ((t = dict_find(iter, 12))) s_weather_available = t->value->int32 == 1;
+  if ((t = dict_find(iter, 10))) { s_weather_temp = t->value->int32; weather_changed = true; }
+  if ((t = dict_find(iter, 11))) { s_weather_condition = (WeatherCondition)t->value->int32; weather_changed = true; }
+  if ((t = dict_find(iter, 12))) { s_weather_available = t->value->int32 == 1; weather_changed = true; }
   layer_mark_dirty(s_canvas_layer);
+  if (weather_changed) {
+    save_weather();
+  }
   if (settings_changed) {
     save_settings();
     send_settings_ready();
@@ -431,6 +485,15 @@ static void battery_handler(BatteryChargeState state) {
 }
 
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
+  if (tick_time->tm_min % 30 == 0 && has_metric_configured(METRIC_WEATHER)) {
+    request_weather();
+  }
+  update_health_metrics();
+  layer_mark_dirty(s_canvas_layer);
+}
+
+static void health_handler(HealthEventType event, void *context) {
+  update_health_metrics();
   layer_mark_dirty(s_canvas_layer);
 }
 
@@ -446,6 +509,8 @@ static void main_window_unload(Window *window) {
 
 static void init(void) {
   load_settings();
+  load_weather();
+  update_health_metrics();
   s_battery = battery_state_service_peek();
   s_font_time = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ROBOTO_BLACK_102));
   s_font_metric = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ROBOTO_BOLD_16));
@@ -455,6 +520,7 @@ static void init(void) {
   window_stack_push(s_window, true);
   tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
   battery_state_service_subscribe(battery_handler);
+  health_service_events_subscribe(health_handler, NULL);
   app_message_register_inbox_received(inbox_received);
   app_message_open(512, 512);
   request_weather();
@@ -463,6 +529,7 @@ static void init(void) {
 static void deinit(void) {
   tick_timer_service_unsubscribe();
   battery_state_service_unsubscribe();
+  health_service_events_unsubscribe();
   fonts_unload_custom_font(s_font_time);
   fonts_unload_custom_font(s_font_metric);
   fonts_unload_custom_font(s_font_date);
