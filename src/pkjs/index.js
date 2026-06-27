@@ -57,11 +57,11 @@ function sendSettings(settings) {
     5: normalized.show_leading_zero ? 1 : 0
   };
 
-  console.log('DayMate sending settings: ' + JSON.stringify(normalized));
+  console.log('DayPal sending settings: ' + JSON.stringify(normalized));
   Pebble.sendAppMessage(payload, function() {
-    console.log('DayMate settings sent: ' + JSON.stringify(payload));
+    console.log('DayPal settings sent: ' + JSON.stringify(payload));
   }, function(error) {
-    console.log('DayMate settings send failed: ' + JSON.stringify(error));
+    console.log('DayPal settings send failed: ' + JSON.stringify(error));
   });
 }
 
@@ -75,7 +75,7 @@ function parseConfigResponse(rawResponse) {
   try {
     response = decodeURIComponent(response);
   } catch (e) {
-    console.log('DayMate config response decode failed, trying raw response: ' + e);
+    console.log('DayPal config response decode failed, trying raw response: ' + e);
   }
 
   if (!response || response === 'CANCELLED') return null;
@@ -106,9 +106,9 @@ function sendWeather(temp, condition) {
     11: condition,
     12: 1
   }, function() {
-    console.log('DayMate weather sent: ' + temp + ', condition ' + condition);
+    console.log('DayPal weather sent: ' + temp + ', condition ' + condition);
   }, function(error) {
-    console.log('DayMate weather send failed: ' + JSON.stringify(error));
+    console.log('DayPal weather send failed: ' + JSON.stringify(error));
   });
 }
 
@@ -134,12 +134,12 @@ function sendWeatherUnavailable() {
 
 function requestWeather() {
   if (!navigator.geolocation) {
-    console.log('DayMate weather unavailable: no geolocation');
+    console.log('DayPal weather unavailable: no geolocation');
     sendWeatherUnavailable();
     return;
   }
 
-  console.log('DayMate requesting weather');
+  console.log('DayPal requesting weather');
   navigator.geolocation.getCurrentPosition(function(position) {
     var lat = position.coords.latitude;
     var lon = position.coords.longitude;
@@ -151,35 +151,35 @@ function requestWeather() {
     xhr.open('GET', url, true);
     xhr.onload = function() {
       if (xhr.status < 200 || xhr.status >= 300) {
-        console.log('DayMate weather HTTP failure: ' + xhr.status);
+        console.log('DayPal weather HTTP failure: ' + xhr.status);
         sendWeatherUnavailable();
         return;
       }
       try {
         var data = JSON.parse(xhr.responseText);
         if (!data.current || typeof data.current.temperature_2m === 'undefined' || typeof data.current.weather_code === 'undefined') {
-          console.log('DayMate weather response missing current values');
+          console.log('DayPal weather response missing current values');
           sendWeatherUnavailable();
           return;
         }
         var temp = Math.round(data.current.temperature_2m);
         var condition = weatherCodeToCondition(Number(data.current.weather_code));
         if (condition === 6) {
-          console.log('DayMate weather condition unsupported: ' + data.current.weather_code);
+          console.log('DayPal weather condition unsupported: ' + data.current.weather_code);
           sendWeatherUnavailable();
           return;
         }
         saveWeatherCache(temp, condition);
         sendWeather(temp, condition);
       } catch (e) {
-        console.log('DayMate weather parse failed: ' + e);
+        console.log('DayPal weather parse failed: ' + e);
         sendWeatherUnavailable();
       }
     };
     xhr.onerror = sendWeatherUnavailable;
     xhr.send();
   }, function(error) {
-    console.log('DayMate weather geolocation failed: ' + JSON.stringify(error));
+    console.log('DayPal weather geolocation failed: ' + JSON.stringify(error));
     sendWeatherUnavailable();
   }, {
     timeout: 15000,
@@ -189,14 +189,14 @@ function requestWeather() {
 
 Pebble.addEventListener('ready', function() {
   var settings = loadSettings();
-  console.log('DayMate ready with settings: ' + JSON.stringify(settings));
+  console.log('DayPal ready with settings: ' + JSON.stringify(settings));
   sendSettings(settings);
   requestWeather();
 });
 
 Pebble.addEventListener('appmessage', function(e) {
   if (e.payload && (e.payload.settings_ready || e.payload['21'])) {
-    console.log('DayMate settings applied on watch');
+    console.log('DayPal settings applied on watch');
   }
   if (e.payload && (e.payload.request_weather || e.payload['20'])) {
     requestWeather();
@@ -205,26 +205,26 @@ Pebble.addEventListener('appmessage', function(e) {
 
 Pebble.addEventListener('showConfiguration', function() {
   var settings = encodeURIComponent(JSON.stringify(loadSettings()));
-  console.log('DayMate opening config: ' + CONFIG_URL);
+  console.log('DayPal opening config: ' + CONFIG_URL);
   Pebble.openURL(CONFIG_URL + '?settings=' + settings);
 });
 
 Pebble.addEventListener('webviewclosed', function(e) {
   if (!e || !e.response) {
-    console.log('DayMate config closed without response');
+    console.log('DayPal config closed without response');
     return;
   }
   try {
-    console.log('DayMate config response: ' + e.response);
+    console.log('DayPal config response: ' + e.response);
     var settings = parseConfigResponse(e.response);
     if (!settings) {
-      console.log('DayMate config response had no settings');
+      console.log('DayPal config response had no settings');
       return;
     }
     saveSettings(settings);
     sendSettings(settings);
     requestWeather();
   } catch (err) {
-    console.log('DayMate config response ignored: ' + err);
+    console.log('DayPal config response ignored: ' + err);
   }
 });

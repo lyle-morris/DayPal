@@ -1,12 +1,12 @@
 {
-  "name": "daymate",
-  "version": "1.7.0",
-  "description": "A friendly configurable Pebble Time 2 watchface.",
+  "name": "daypal",
+  "version": "1.0.0",
+  "description": "A configurable Pebble Time 2 watchface for glanceable daily context.",
   "author": "Lyle Morris",
   "license": "UNLICENSED",
   "private": true,
   "pebble": {
-    "displayName": "DayMate",
+    "displayName": "DayPal",
     "uuid": "64d3ca97-9d6a-47d0-98e5-0cb9530ad920",
     "sdkVersion": "3",
     "targetPlatforms": ["emery"],

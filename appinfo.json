@@ -1,9 +1,9 @@
 {
   "uuid": "64d3ca97-9d6a-47d0-98e5-0cb9530ad920",
-  "shortName": "DayMate",
-  "longName": "DayMate",
+  "shortName": "DayPal",
+  "longName": "DayPal",
   "companyName": "Lyle Morris",
-  "versionLabel": "1.7.0",
+  "versionLabel": "1.0.0",
   "sdkVersion": "3",
   "targetPlatforms": ["emery"],
   "watchapp": {"watchface": true},

@@ -1,37 +1,69 @@
-# DayMate v1.7.0 Implementation Log
+# DayPal 1.0.0 Implementation Log
 
-## Started
+## Release
+
+Product name: **DayPal**
+
+Release title: **DayPal 1.0.0**
 
 Development branch: `daymate-1.7.0-dev`
 
-## Completed foundation tasks
+The repository and branch names still reflect the original DayMate development project. The public product name for this release is DayPal.
 
-- Added Pebble project metadata.
-- Added DayMate app naming and v1.7.0 version metadata.
-- Added C watchface foundation.
-- Added metric enum and theme enum.
-- Added settings model with four metric slots.
-- Added duplicate metric support through slot rendering.
-- Added `None` metric support.
-- Added collapsed metric layout behavior.
-- Added clock-only layout behavior when all slots are `None`.
-- Added leading-zero setting logic.
-- Added Open-Meteo phone-side JavaScript integration.
-- Added simple Pebble configuration page.
-- Added settings persistence through phone-side localStorage and watch persistent storage.
+## Completed
 
-## Current implementation notes
+- Added Pebble SDK 3 watchface metadata for Pebble Time 2 / Emery.
+- Added DayPal app naming and 1.0.0 release metadata.
+- Added native C watchface foundation.
+- Added bold stacked clock layout.
+- Added centered date rendering.
+- Added full-height metric divider.
+- Added fixed 58 px metric tray.
+- Added four configurable metric slots.
+- Added duplicate metric support.
+- Added `None` support for hiding individual metric slots.
+- Added fixed slot positioning so each metric remains anchored to its configured slot row.
+- Added clock-only layout when all slots are `None`.
+- Added full-screen centered clock mode for clock-only layout.
+- Added leading-zero toggle.
+- Added right-positioned single-digit hour behavior when leading zero is disabled.
+- Added eight selectable themes.
+- Added themed weather, battery, heart rate, calories, and steps icon resources.
+- Added phone-side PebbleKit JS settings bridge.
+- Added hosted configuration page support.
+- Added settings persistence on phone and watch.
+- Added Open-Meteo weather integration.
+- Added weather fallback cache.
+- Added persisted weather state on watch.
+- Added live Pebble Health reads for steps, heart rate, and active calories.
+- Added battery percentage and charging-state handling.
 
-- The C foundation uses Pebble system fonts for now.
-- Roboto font files need to be added locally under `resources/fonts/`.
-- Production bitmap icons need to be added under `resources/images/`.
-- The current watchface uses text placeholders for metric icons.
-- Health metrics are scaffolded as placeholder values and still need live Pebble Health integration.
+## Validated On Hardware
 
-## Next tasks
+- CloudPebble build succeeds.
+- Theme selection propagates from configuration page to watchface.
+- Theme changes repaint immediately.
+- Settings persist after watchface restart.
+- Blue, Orange, Black, and White themes have been validated.
+- Clock-only mode centers correctly.
+- Single-digit hour alignment works with leading zero disabled.
+- Metric slots remain in their configured row positions.
+- Heart rate reads correctly.
+- Steps read correctly.
+- Battery reads correctly.
+- UI layout is holding with current validated metric and theme combinations.
 
-1. Validate the project builds in the Pebble/Rebble environment.
-2. Add Roboto font resources and wire them into `package.json` / `appinfo.json`.
-3. Replace text placeholder icons with production bitmap resources.
-4. Add live Pebble Health data for steps, heart rate, and calories.
-5. Tune visual alignment against the v1.7.0 wireframes.
+## Pending Validation
+
+- Weather location permission and first successful weather fetch.
+- Weather cached fallback after restart or temporary network/location failure.
+- Active calories availability and display on target hardware.
+- Full theme and slot matrix smoke test.
+- One-day beta wear test for battery usage and refresh behavior.
+
+## Notes
+
+- Preserve the approved 200 x 228 layout.
+- Do not redesign the clock, tray, divider, typography, or slot spacing unless fixing a verified defect.
+- Keep commits small and buildable.
+- CloudPebble remains the current compile gate for this workspace.
