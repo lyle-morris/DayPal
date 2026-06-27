@@ -25,6 +25,8 @@
 #define STORAGE_KEY_WEATHER_CODE 107
 #define STORAGE_KEY_WEATHER_VALID 108
 
+#define APP_KEY_SETTINGS_READY 21
+
 typedef enum {
   METRIC_WEATHER = 0,
   METRIC_HEART_RATE = 1,
@@ -381,19 +383,32 @@ static void load_settings(void) {
   s_settings.show_leading_zero = persist_exists(STORAGE_KEY_SHOW_LEADING_ZERO) ? persist_read_bool(STORAGE_KEY_SHOW_LEADING_ZERO) : true;
 }
 
+static void send_settings_ready(void) {
+  DictionaryIterator *iter;
+  app_message_outbox_begin(&iter);
+  if (iter) {
+    dict_write_uint8(iter, APP_KEY_SETTINGS_READY, 1);
+    app_message_outbox_send();
+  }
+}
+
 static void inbox_received(DictionaryIterator *iter, void *context) {
   Tuple *t;
-  if ((t = dict_find(iter, 0))) s_settings.theme = (ThemeType)t->value->int32;
-  if ((t = dict_find(iter, 1))) s_settings.slot_metrics[0] = (MetricType)t->value->int32;
-  if ((t = dict_find(iter, 2))) s_settings.slot_metrics[1] = (MetricType)t->value->int32;
-  if ((t = dict_find(iter, 3))) s_settings.slot_metrics[2] = (MetricType)t->value->int32;
-  if ((t = dict_find(iter, 4))) s_settings.slot_metrics[3] = (MetricType)t->value->int32;
-  if ((t = dict_find(iter, 5))) s_settings.show_leading_zero = t->value->int32 == 1;
+  bool settings_changed = false;
+  if ((t = dict_find(iter, 0))) { s_settings.theme = (ThemeType)t->value->int32; settings_changed = true; }
+  if ((t = dict_find(iter, 1))) { s_settings.slot_metrics[0] = (MetricType)t->value->int32; settings_changed = true; }
+  if ((t = dict_find(iter, 2))) { s_settings.slot_metrics[1] = (MetricType)t->value->int32; settings_changed = true; }
+  if ((t = dict_find(iter, 3))) { s_settings.slot_metrics[2] = (MetricType)t->value->int32; settings_changed = true; }
+  if ((t = dict_find(iter, 4))) { s_settings.slot_metrics[3] = (MetricType)t->value->int32; settings_changed = true; }
+  if ((t = dict_find(iter, 5))) { s_settings.show_leading_zero = t->value->int32 == 1; settings_changed = true; }
   if ((t = dict_find(iter, 10))) s_weather_temp = t->value->int32;
   if ((t = dict_find(iter, 11))) s_weather_condition = (WeatherCondition)t->value->int32;
   if ((t = dict_find(iter, 12))) s_weather_available = t->value->int32 == 1;
-  save_settings();
   layer_mark_dirty(s_canvas_layer);
+  if (settings_changed) {
+    save_settings();
+    send_settings_ready();
+  }
 }
 
 static void request_weather(void) {

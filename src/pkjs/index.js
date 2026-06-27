@@ -32,34 +32,52 @@ function saveSettings(settings) {
   localStorage.setItem('daymate_settings', JSON.stringify(settings));
 }
 
+function normalizeSettings(settings) {
+  return {
+    theme: Number(settings.theme),
+    slot_1_metric: Number(settings.slot_1_metric),
+    slot_2_metric: Number(settings.slot_2_metric),
+    slot_3_metric: Number(settings.slot_3_metric),
+    slot_4_metric: Number(settings.slot_4_metric),
+    show_leading_zero: !!settings.show_leading_zero
+  };
+}
+
 function sendSettings(settings) {
-  var theme = Number(settings.theme);
-  var slot1 = Number(settings.slot_1_metric);
-  var slot2 = Number(settings.slot_2_metric);
-  var slot3 = Number(settings.slot_3_metric);
-  var slot4 = Number(settings.slot_4_metric);
-  var leadingZero = settings.show_leading_zero ? 1 : 0;
+  var normalized = normalizeSettings(settings);
 
   var payload = {
-    0: theme,
-    1: slot1,
-    2: slot2,
-    3: slot3,
-    4: slot4,
-    5: leadingZero,
-    theme: theme,
-    slot_1_metric: slot1,
-    slot_2_metric: slot2,
-    slot_3_metric: slot3,
-    slot_4_metric: slot4,
-    show_leading_zero: leadingZero
+    0: normalized.theme,
+    1: normalized.slot_1_metric,
+    2: normalized.slot_2_metric,
+    3: normalized.slot_3_metric,
+    4: normalized.slot_4_metric,
+    5: normalized.show_leading_zero ? 1 : 0
   };
 
+  console.log('DayMate sending settings: ' + JSON.stringify(normalized));
   Pebble.sendAppMessage(payload, function() {
     console.log('DayMate settings sent: ' + JSON.stringify(payload));
   }, function(error) {
     console.log('DayMate settings send failed: ' + JSON.stringify(error));
   });
+}
+
+function parseConfigResponse(rawResponse) {
+  if (!rawResponse) return null;
+
+  var response = rawResponse;
+  var hashIndex = response.indexOf('#');
+  if (hashIndex >= 0) response = response.substring(hashIndex + 1);
+
+  try {
+    response = decodeURIComponent(response);
+  } catch (e) {
+    console.log('DayMate config response decode failed, trying raw response: ' + e);
+  }
+
+  if (!response || response === 'CANCELLED') return null;
+  return normalizeSettings(JSON.parse(response));
 }
 
 function weatherCodeToCondition(code) {
@@ -133,11 +151,15 @@ function requestWeather() {
 
 Pebble.addEventListener('ready', function() {
   var settings = loadSettings();
+  console.log('DayMate ready with settings: ' + JSON.stringify(settings));
   sendSettings(settings);
   requestWeather();
 });
 
 Pebble.addEventListener('appmessage', function(e) {
+  if (e.payload && (e.payload.settings_ready || e.payload['21'])) {
+    console.log('DayMate settings applied on watch');
+  }
   if (e.payload && (e.payload.request_weather || e.payload['20'])) {
     requestWeather();
   }
@@ -145,14 +167,22 @@ Pebble.addEventListener('appmessage', function(e) {
 
 Pebble.addEventListener('showConfiguration', function() {
   var settings = encodeURIComponent(JSON.stringify(loadSettings()));
+  console.log('DayMate opening config: ' + CONFIG_URL);
   Pebble.openURL(CONFIG_URL + '?settings=' + settings);
 });
 
 Pebble.addEventListener('webviewclosed', function(e) {
-  if (!e || !e.response) return;
+  if (!e || !e.response) {
+    console.log('DayMate config closed without response');
+    return;
+  }
   try {
-    var response = decodeURIComponent(e.response);
-    var settings = JSON.parse(response);
+    console.log('DayMate config response: ' + e.response);
+    var settings = parseConfigResponse(e.response);
+    if (!settings) {
+      console.log('DayMate config response had no settings');
+      return;
+    }
     saveSettings(settings);
     sendSettings(settings);
     requestWeather();
