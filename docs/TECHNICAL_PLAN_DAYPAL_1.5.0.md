@@ -2,7 +2,7 @@
 
 ## Scope
 
-This release updates the DayPal watchface theme system, configuration page, and icon resource set while preserving the approved 200 x 228 watchface layout and existing metric slot behavior.
+DayPal 1.5.0 updates the watchface theme system, resource manifest, weather mapping, battery state mapping, and hosted configuration page while preserving the approved 200 x 228 watchface layout and metric slot behavior.
 
 ## Repositories
 
@@ -13,7 +13,7 @@ This release updates the DayPal watchface theme system, configuration page, and 
 
 ## Theme Values
 
-Keep numeric theme values stable where possible:
+Keep numeric values stable to protect existing saved settings:
 
 - `0` Default / Multi-Color
 - `1` Blue
@@ -24,10 +24,10 @@ Keep numeric theme values stable where possible:
 - `7` Black
 - `8` Red
 - `9` Yellow
-- `10` Legacy Yellow alias for prior Khaki work
+- `10` Legacy Khaki value; normalize to Yellow when encountered
 - `11` Gray
 
-## Final Theme Palette
+## Theme Palette
 
 | Theme | Background | Text/Icon | Border |
 |---|---:|---:|---:|
@@ -42,82 +42,58 @@ Keep numeric theme values stable where possible:
 | Gray | `#AAAAAA` | `#000000` | `#000000` |
 | White | `#FFFFFF` | `#000000` | `#000000` |
 
-## `src/c/main.c`
+## Runtime Implementation
 
-Implementation requirements:
-
-- Use `black_text_theme()` helper for Blue, Orange, Green, Pink, Yellow, Red, Gray, and White.
-- Use `white_text_theme()` helper for Black.
-- Keep Default as individual metric colors:
+- `main.c` should use helper functions for black text and white text themes to avoid repeated color tuples.
+- The Default theme keeps individual metric colors:
   - Weather `#FFFF00`
-  - Heart rate `#FF0000`
+  - Heart Rate `#FF0000`
   - Battery `#00FF00`
-  - Steps `#00AAFF`
   - Calories `#FF5500`
-- Normalize legacy Khaki theme value `10` to Yellow behavior.
-- Use black icon variants for all black-text themes.
-- Use white icon variants for Black.
-- Use color icon variants for Default.
+  - Steps `#00AAFF`
+- All non-default themes use a single foreground color for all text and icons.
+- Blue, Orange, Green, Pink, Yellow, Red, Gray, and White use black icons.
+- Black uses white icons.
 
-## Battery Logic
+## Battery Mapping
 
-Battery buckets:
+- `0%` -> `battery_0`
+- `1-25%` -> `battery_25`
+- `26-50%` -> `battery_50`
+- `52-80%` -> `battery_75`
+- `81-100%` -> `battery_100`
 
-- `0%` => 0
-- `1-25%` => 25
-- `26-50%` => 50
-- `52-80%` => 75
-- `81-100%` => 100
+Charging must use the matching `battery_charging_*` icon.
 
-Charging states must follow the same bucket mapping.
+## Weather Mapping
 
-## Weather Logic
+Weather code mapping must support:
 
-Weather condition values:
+- Sunny
+- Partly Cloudy
+- Cloudy
+- Rain
+- Storm
+- Snow
+- Fog
 
-- `0` Sunny
-- `1` Partly Cloudy
-- `2` Rain
-- `3` Storm
-- `4` Snow
-- `5` Fog
-- `6` Cloudy
-- `7` Unknown / unsupported
-
-Open-Meteo weather code `3` should map to Cloudy.
+Open-Meteo overcast code `3` maps to Cloudy.
 
 ## Configuration Page
 
-Hosted URL remains:
+- Hosted from `DayMate-config/index.html`.
+- The watch app opens `https://lyle-morris.github.io/DayMate-config/`.
+- Theme selector uses tiles instead of a dropdown.
+- Selected tile uses a centered checkmark overlay.
+- Save settings is fixed to the footer.
+- Khaki is renamed to Yellow.
+- Legacy theme value `10` should be saved back as `9`.
 
-`https://lyle-morris.github.io/DayMate-config/`
+## Validation
 
-Implementation requirements:
-
-- Remove theme dropdown.
-- Render color tiles.
-- Add centered checkmark overlay on selected tile.
-- Rename Khaki to Yellow.
-- Use fixed Save settings footer.
-- Keep Reset layout as secondary action in Metric slots.
-- Normalize incoming theme value `10` to Yellow value `9`.
-
-## Resource Manifest
-
-Declare resources in both `appinfo.json` and `package.json` when required by the active build/import path.
-
-Required resource families:
-
-- Weather: sunny, partly cloudy, cloudy, rainy, storm, snow, fog in black/yellow/white.
-- Battery: 0, 25, 50, 75, 100 and charging 0, 25, 50, 75, 100 in black/green/white.
-- Heart rate: black/red/white.
-- Calories: black/orange/white.
-- Steps: black/blue/white.
-
-## Build Validation
-
-- Import `daypal-1.5.0-dev` into CloudPebble.
-- Confirm no manifest asset errors.
+- Import branch into CloudPebble.
 - Build for Emery.
-- Open settings page and confirm tile UI, checkmark selected state, Yellow naming, and fixed Save footer.
-- Save each theme and verify watchface colors update.
+- Open Settings and verify the new hosted config page appears.
+- Change each theme and confirm foreground/icon contrast.
+- Verify battery 75 state resources compile and render.
+- Verify Cloudy weather resource compiles and renders.
