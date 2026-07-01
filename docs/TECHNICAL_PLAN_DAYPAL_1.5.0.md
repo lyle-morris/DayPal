@@ -2,134 +2,122 @@
 
 ## Scope
 
-This release updates visual resources and color constants only. The implementation should avoid changes to layout geometry, app message keys, settings persistence, weather fetching, health reads, or configuration UI behavior.
+This release updates the DayPal watchface theme system, configuration page, and icon resource set while preserving the approved 200 x 228 watchface layout and existing metric slot behavior.
 
-## Current Implementation Notes
+## Repositories
 
-- Main watchface rendering is in `src/c/main.c`.
-- Resource declarations are in `appinfo.json`.
-- Weather assets live in `resources/images/weather/`.
-- Battery assets live in `resources/images/battery/`.
-- Heart rate assets live in `resources/images/heart_rate/`.
-- Date text currently loads `RESOURCE_ID_FONT_ROBOTO_BOLD_20` from `Roboto-Bold.ttf`, which satisfies the bold `700` validation target.
+| Repo | Files | Purpose |
+|---|---|---|
+| `lyle-morris/DayPal` | `src/c/main.c`, `src/pkjs/index.js`, `appinfo.json`, `package.json` | Watchface runtime, weather mapping, resources |
+| `lyle-morris/DayMate-config` | `index.html` | Hosted settings/configuration page |
 
-## Asset Updates
+## Theme Values
 
-### Weather
+Keep numeric theme values stable where possible:
 
-Replace outlined weather PNGs with filled PNGs while preserving existing filenames and resource names where possible:
+- `0` Default / Multi-Color
+- `1` Blue
+- `2` Pink
+- `3` Green
+- `4` White
+- `5` Orange
+- `7` Black
+- `8` Red
+- `9` Yellow
+- `10` Legacy Yellow alias for prior Khaki work
+- `11` Gray
 
-- `sunny_32_000000.png`
-- `sunny_32_FFFF00.png`
-- `sunny_32_FFFFFF.png`
-- `partly_cloudy_32_000000.png`
-- `partly_cloudy_32_FFFF00.png`
-- `partly_cloudy_32_FFFFFF.png`
-- `rainy_32_000000.png`
-- `rainy_32_FFFF00.png`
-- `rainy_32_FFFFFF.png`
-- `storm_32_000000.png`
-- `storm_32_FFFF00.png`
-- `storm_32_FFFFFF.png`
-- `snow_32_000000.png`
-- `snow_32_FFFF00.png`
-- `snow_32_FFFFFF.png`
-- `fog_32_000000.png`
-- `fog_32_FFFF00.png`
-- `fog_32_FFFFFF.png`
+## Final Theme Palette
 
-Keeping filenames stable for weather minimizes code churn because the color naming does not change.
+| Theme | Background | Text/Icon | Border |
+|---|---:|---:|---:|
+| Default / Multi-Color | `#000000` | `#FFFFFF` | `#555555` |
+| Blue | `#0055FF` | `#000000` | `#000000` |
+| Orange | `#FF5500` | `#000000` | `#000000` |
+| Green | `#00AA55` | `#000000` | `#000000` |
+| Pink | `#FF00AA` | `#000000` | `#000000` |
+| Yellow | `#FFCC55` | `#000000` | `#000000` |
+| Red | `#FF0055` | `#000000` | `#000000` |
+| Black | `#000000` | `#FFFFFF` | `#FFFFFF` |
+| Gray | `#AAAAAA` | `#000000` | `#000000` |
+| White | `#FFFFFF` | `#000000` | `#000000` |
 
-### Battery
+## `src/c/main.c`
 
-Create green default battery assets and update resource references from purple to green.
+Implementation requirements:
 
-New/renamed filenames:
+- Use `black_text_theme()` helper for Blue, Orange, Green, Pink, Yellow, Red, Gray, and White.
+- Use `white_text_theme()` helper for Black.
+- Keep Default as individual metric colors:
+  - Weather `#FFFF00`
+  - Heart rate `#FF0000`
+  - Battery `#00FF00`
+  - Steps `#00AAFF`
+  - Calories `#FF5500`
+- Normalize legacy Khaki theme value `10` to Yellow behavior.
+- Use black icon variants for all black-text themes.
+- Use white icon variants for Black.
+- Use color icon variants for Default.
 
-- `battery_0_32_00FF00.png`
-- `battery_25_32_00FF00.png`
-- `battery_50_32_00FF00.png`
-- `battery_100_32_00FF00.png`
-- `battery_charging_0_32_00FF00.png`
-- `battery_charging_25_32_00FF00.png`
-- `battery_charging_50_32_00FF00.png`
-- `battery_charging_100_32_00FF00.png`
+## Battery Logic
 
-Recommended resource name changes in `appinfo.json`:
+Battery buckets:
 
-- `IMAGE_BATTERY_0_PURPLE` -> `IMAGE_BATTERY_0_GREEN`
-- `IMAGE_BATTERY_25_PURPLE` -> `IMAGE_BATTERY_25_GREEN`
-- `IMAGE_BATTERY_50_PURPLE` -> `IMAGE_BATTERY_50_GREEN`
-- `IMAGE_BATTERY_100_PURPLE` -> `IMAGE_BATTERY_100_GREEN`
-- `IMAGE_BATTERY_CHARGING_0_PURPLE` -> `IMAGE_BATTERY_CHARGING_0_GREEN`
-- `IMAGE_BATTERY_CHARGING_25_PURPLE` -> `IMAGE_BATTERY_CHARGING_25_GREEN`
-- `IMAGE_BATTERY_CHARGING_50_PURPLE` -> `IMAGE_BATTERY_CHARGING_50_GREEN`
-- `IMAGE_BATTERY_CHARGING_100_PURPLE` -> `IMAGE_BATTERY_CHARGING_100_GREEN`
+- `0%` => 0
+- `1-25%` => 25
+- `26-50%` => 50
+- `52-80%` => 75
+- `81-100%` => 100
 
-Update `battery_resource_id()` in `src/c/main.c` to reference the new `GREEN` resource identifiers.
+Charging states must follow the same bucket mapping.
 
-### Heart Rate
+## Weather Logic
 
-Create red default heart rate asset and update resource references from green to red.
+Weather condition values:
 
-New/renamed filename:
+- `0` Sunny
+- `1` Partly Cloudy
+- `2` Rain
+- `3` Storm
+- `4` Snow
+- `5` Fog
+- `6` Cloudy
+- `7` Unknown / unsupported
 
-- `heart_rate_32_FF0000.png`
+Open-Meteo weather code `3` should map to Cloudy.
 
-Recommended resource name change in `appinfo.json`:
+## Configuration Page
 
-- `IMAGE_HEART_RATE_GREEN` -> `IMAGE_HEART_RATE_RED`
+Hosted URL remains:
 
-Update `resource_id_for_metric()` in `src/c/main.c` to reference `RESOURCE_ID_IMAGE_HEART_RATE_RED`.
+`https://lyle-morris.github.io/DayMate-config/`
 
-## Color Updates
+Implementation requirements:
 
-Update the default theme in `get_theme()`:
+- Remove theme dropdown.
+- Render color tiles.
+- Add centered checkmark overlay on selected tile.
+- Rename Khaki to Yellow.
+- Use fixed Save settings footer.
+- Keep Reset layout as secondary action in Metric slots.
+- Normalize incoming theme value `10` to Yellow value `9`.
 
-- `heart_rate`: `GColorFromHEX(0x00FF00)` -> `GColorFromHEX(0xFF0000)`
-- `battery`: `GColorFromHEX(0xAA55FF)` -> `GColorFromHEX(0x00FF00)`
-- `divider`: `GColorWhite` or `GColorFromHEX(0xFFFFFF)` -> `GColorFromHEX(0x555555)`
+## Resource Manifest
 
-Apply the divider change consistently to themes that currently use a white divider. The white theme may also use `#555555` if visual QA confirms it remains readable on a white background; otherwise document any theme-specific exception before implementation.
+Declare resources in both `appinfo.json` and `package.json` when required by the active build/import path.
 
-## Date Font Validation
+Required resource families:
 
-Validate that `s_font_date` is loaded from `RESOURCE_ID_FONT_ROBOTO_BOLD_20` and that `appinfo.json` maps that resource to `fonts/Roboto-Bold.ttf`.
+- Weather: sunny, partly cloudy, cloudy, rainy, storm, snow, fog in black/yellow/white.
+- Battery: 0, 25, 50, 75, 100 and charging 0, 25, 50, 75, 100 in black/green/white.
+- Heart rate: black/red/white.
+- Calories: black/orange/white.
+- Steps: black/blue/white.
 
-Current expected mapping:
+## Build Validation
 
-```text
-FONT_ROBOTO_BOLD_20 -> fonts/Roboto-Bold.ttf
-```
-
-No code change is required if this remains true.
-
-## Implementation Checklist
-
-- Add filled weather PNG artwork.
-- Add green battery PNG artwork.
-- Add red heart rate PNG artwork.
-- Update `appinfo.json` battery resource names and file paths.
-- Update `appinfo.json` heart rate resource name and file path.
-- Update `src/c/main.c` battery resource identifiers.
-- Update `src/c/main.c` heart rate resource identifier.
-- Update `src/c/main.c` default battery text color to `#00FF00`.
-- Update `src/c/main.c` default heart rate text color to `#FF0000`.
-- Update `src/c/main.c` divider color to `#555555`.
-- Validate date font mapping remains bold.
-- Build in CloudPebble or compatible Pebble SDK.
-
-## Validation Plan
-
-- Build succeeds with all renamed resources.
-- Default theme screenshot or hardware view confirms:
-  - Weather icons are filled.
-  - Battery icon and text are green.
-  - Heart rate icon and text are red.
-  - Divider is gray.
-  - Date appears bold.
-- White theme confirms black icons still render correctly.
-- One solid-color theme confirms white icons still render correctly.
-- Battery charging and non-charging icon states each resolve to valid resources.
-- Weather condition mapping still resolves all supported conditions to valid resources.
-
+- Import `daypal-1.5.0-dev` into CloudPebble.
+- Confirm no manifest asset errors.
+- Build for Emery.
+- Open settings page and confirm tile UI, checkmark selected state, Yellow naming, and fixed Save footer.
+- Save each theme and verify watchface colors update.
