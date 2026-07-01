@@ -49,8 +49,8 @@ typedef enum {
   THEME_DARK_BLUE = 6,
   THEME_BLACK = 7,
   THEME_RED = 8,
-  THEME_KHAKI_WHITE = 9,
-  THEME_KHAKI_BLACK = 10,
+  THEME_YELLOW = 9,
+  THEME_LEGACY_KHAKI = 10,
   THEME_GRAY = 11
 } ThemeType;
 
@@ -114,6 +114,11 @@ static int s_heart_rate = 110;
 static bool s_calories_available = false;
 static int s_calories = 1520;
 
+static ThemeType normalize_theme(ThemeType theme) {
+  if (theme == THEME_LEGACY_KHAKI) return THEME_YELLOW;
+  return theme;
+}
+
 static bool has_metric_configured(MetricType metric) {
   for (int i = 0; i < 4; i++) {
     if (s_settings.slot_metrics[i] == metric) return true;
@@ -130,32 +135,30 @@ static DayMateTheme white_text_theme(GColor background) {
 }
 
 static DayMateTheme get_theme(void) {
-  switch (s_settings.theme) {
+  switch (normalize_theme(s_settings.theme)) {
     case THEME_BLUE:
-      return black_text_theme(GColorFromHEX(0x2F6BCC));
+      return black_text_theme(GColorFromHEX(0x0055FF));
     case THEME_PINK:
-      return black_text_theme(GColorFromHEX(0xE16AA3));
+      return black_text_theme(GColorFromHEX(0xFF00AA));
     case THEME_GREEN:
-      return black_text_theme(GColorFromHEX(0x5E9860));
+      return black_text_theme(GColorFromHEX(0x00AA55));
     case THEME_WHITE:
       return black_text_theme(GColorWhite);
     case THEME_ORANGE:
-      return black_text_theme(GColorFromHEX(0xE66E6B));
+      return black_text_theme(GColorFromHEX(0xFF5500));
     case THEME_DARK_BLUE:
       return white_text_theme(GColorFromHEX(0x001A55));
     case THEME_BLACK:
       return white_text_theme(GColorBlack);
     case THEME_RED:
-      return black_text_theme(GColorFromHEX(0xE35462));
-    case THEME_KHAKI_WHITE:
-      return white_text_theme(GColorFromHEX(0xAEA382));
-    case THEME_KHAKI_BLACK:
-      return black_text_theme(GColorFromHEX(0xAEA382));
+      return black_text_theme(GColorFromHEX(0xFF0055));
+    case THEME_YELLOW:
+      return black_text_theme(GColorFromHEX(0xFFCC55));
     case THEME_GRAY:
       return black_text_theme(GColorFromHEX(0xAAAAAA));
     case THEME_DEFAULT:
     default:
-      return (DayMateTheme){GColorBlack, GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0x777777), GColorFromHEX(0xFFFF00), GColorFromHEX(0xFF0000), GColorFromHEX(0x00FF00), GColorFromHEX(0xFF5500), GColorFromHEX(0x00AAFF), true};
+      return (DayMateTheme){GColorBlack, GColorFromHEX(0x555555), GColorWhite, GColorWhite, GColorFromHEX(0x777777), GColorFromHEX(0xFFFF00), GColorFromHEX(0xFF0000), GColorFromHEX(0x00FF00), GColorFromHEX(0xFF5500), GColorFromHEX(0x00AAFF), true};
   }
 }
 
@@ -188,14 +191,15 @@ static GColor color_for_metric(DayMateTheme theme, MetricType metric, bool avail
 }
 
 static bool uses_black_icons(void) {
-  return s_settings.theme == THEME_WHITE ||
-         s_settings.theme == THEME_BLUE ||
-         s_settings.theme == THEME_ORANGE ||
-         s_settings.theme == THEME_GREEN ||
-         s_settings.theme == THEME_PINK ||
-         s_settings.theme == THEME_RED ||
-         s_settings.theme == THEME_KHAKI_BLACK ||
-         s_settings.theme == THEME_GRAY;
+  ThemeType theme = normalize_theme(s_settings.theme);
+  return theme == THEME_WHITE ||
+         theme == THEME_BLUE ||
+         theme == THEME_ORANGE ||
+         theme == THEME_GREEN ||
+         theme == THEME_PINK ||
+         theme == THEME_RED ||
+         theme == THEME_YELLOW ||
+         theme == THEME_GRAY;
 }
 
 static IconVariant icon_variant_for_theme(void) {
@@ -444,6 +448,7 @@ static void canvas_update_proc(Layer *layer, GContext *ctx) {
 }
 
 static void save_settings(void) {
+  s_settings.theme = normalize_theme(s_settings.theme);
   persist_write_int(STORAGE_KEY_THEME, s_settings.theme);
   persist_write_int(STORAGE_KEY_SLOT_1_METRIC, s_settings.slot_metrics[0]);
   persist_write_int(STORAGE_KEY_SLOT_2_METRIC, s_settings.slot_metrics[1]);
@@ -463,7 +468,7 @@ static int read_int_or_default(int key, int fallback) {
 }
 
 static void load_settings(void) {
-  s_settings.theme = (ThemeType)read_int_or_default(STORAGE_KEY_THEME, THEME_DEFAULT);
+  s_settings.theme = normalize_theme((ThemeType)read_int_or_default(STORAGE_KEY_THEME, THEME_DEFAULT));
   s_settings.slot_metrics[0] = (MetricType)read_int_or_default(STORAGE_KEY_SLOT_1_METRIC, METRIC_WEATHER);
   s_settings.slot_metrics[1] = (MetricType)read_int_or_default(STORAGE_KEY_SLOT_2_METRIC, METRIC_HEART_RATE);
   s_settings.slot_metrics[2] = (MetricType)read_int_or_default(STORAGE_KEY_SLOT_3_METRIC, METRIC_BATTERY);
@@ -490,7 +495,7 @@ static void inbox_received(DictionaryIterator *iter, void *context) {
   Tuple *t;
   bool settings_changed = false;
   bool weather_changed = false;
-  if ((t = dict_find(iter, 0))) { s_settings.theme = (ThemeType)t->value->int32; settings_changed = true; }
+  if ((t = dict_find(iter, 0))) { s_settings.theme = normalize_theme((ThemeType)t->value->int32); settings_changed = true; }
   if ((t = dict_find(iter, 1))) { s_settings.slot_metrics[0] = (MetricType)t->value->int32; settings_changed = true; }
   if ((t = dict_find(iter, 2))) { s_settings.slot_metrics[1] = (MetricType)t->value->int32; settings_changed = true; }
   if ((t = dict_find(iter, 3))) { s_settings.slot_metrics[2] = (MetricType)t->value->int32; settings_changed = true; }
