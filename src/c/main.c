@@ -121,30 +121,38 @@ static bool has_metric_configured(MetricType metric) {
   return false;
 }
 
+static DayMateTheme black_text_theme(GColor background) {
+  return (DayMateTheme){background, GColorBlack, GColorBlack, GColorBlack, GColorDarkGray, GColorBlack, GColorBlack, GColorBlack, GColorBlack, GColorBlack, false};
+}
+
+static DayMateTheme white_text_theme(GColor background) {
+  return (DayMateTheme){background, GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0xFFFFFF), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
+}
+
 static DayMateTheme get_theme(void) {
   switch (s_settings.theme) {
     case THEME_BLUE:
-      return (DayMateTheme){GColorFromHEX(0x2F6BCC), GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0xFFFFFF), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
+      return black_text_theme(GColorFromHEX(0x2F6BCC));
     case THEME_PINK:
-      return (DayMateTheme){GColorFromHEX(0xE16AA3), GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0xFFFFFF), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
+      return black_text_theme(GColorFromHEX(0xE16AA3));
     case THEME_GREEN:
-      return (DayMateTheme){GColorFromHEX(0x5E9860), GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0xFFFFFF), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
+      return black_text_theme(GColorFromHEX(0x5E9860));
     case THEME_WHITE:
-      return (DayMateTheme){GColorWhite, GColorBlack, GColorBlack, GColorBlack, GColorDarkGray, GColorBlack, GColorBlack, GColorBlack, GColorBlack, GColorBlack, false};
+      return black_text_theme(GColorWhite);
     case THEME_ORANGE:
-      return (DayMateTheme){GColorFromHEX(0xE66E6B), GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0xFFFFFF), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
+      return black_text_theme(GColorFromHEX(0xE66E6B));
     case THEME_DARK_BLUE:
-      return (DayMateTheme){GColorFromHEX(0x001A55), GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0xFFFFFF), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
+      return white_text_theme(GColorFromHEX(0x001A55));
     case THEME_BLACK:
-      return (DayMateTheme){GColorBlack, GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0xFFFFFF), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
+      return white_text_theme(GColorBlack);
     case THEME_RED:
-      return (DayMateTheme){GColorFromHEX(0xE35462), GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0xFFFFFF), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
+      return black_text_theme(GColorFromHEX(0xE35462));
     case THEME_KHAKI_WHITE:
-      return (DayMateTheme){GColorFromHEX(0xAEA382), GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0xFFFFFF), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
+      return white_text_theme(GColorFromHEX(0xAEA382));
     case THEME_KHAKI_BLACK:
-      return (DayMateTheme){GColorFromHEX(0xAEA382), GColorBlack, GColorBlack, GColorBlack, GColorDarkGray, GColorBlack, GColorBlack, GColorBlack, GColorBlack, GColorBlack, false};
+      return black_text_theme(GColorFromHEX(0xAEA382));
     case THEME_GRAY:
-      return (DayMateTheme){GColorFromHEX(0xAAAAAA), GColorBlack, GColorBlack, GColorBlack, GColorDarkGray, GColorBlack, GColorBlack, GColorBlack, GColorBlack, GColorBlack, false};
+      return black_text_theme(GColorFromHEX(0xAAAAAA));
     case THEME_DEFAULT:
     default:
       return (DayMateTheme){GColorBlack, GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0x777777), GColorFromHEX(0xFFFF00), GColorFromHEX(0xFF0000), GColorFromHEX(0x00FF00), GColorFromHEX(0xFF5500), GColorFromHEX(0x00AAFF), true};
@@ -179,8 +187,19 @@ static GColor color_for_metric(DayMateTheme theme, MetricType metric, bool avail
   }
 }
 
+static bool uses_black_icons(void) {
+  return s_settings.theme == THEME_WHITE ||
+         s_settings.theme == THEME_BLUE ||
+         s_settings.theme == THEME_ORANGE ||
+         s_settings.theme == THEME_GREEN ||
+         s_settings.theme == THEME_PINK ||
+         s_settings.theme == THEME_RED ||
+         s_settings.theme == THEME_KHAKI_BLACK ||
+         s_settings.theme == THEME_GRAY;
+}
+
 static IconVariant icon_variant_for_theme(void) {
-  if (s_settings.theme == THEME_WHITE || s_settings.theme == THEME_KHAKI_BLACK || s_settings.theme == THEME_GRAY) return ICON_VARIANT_BLACK;
+  if (uses_black_icons()) return ICON_VARIANT_BLACK;
   if (s_settings.theme == THEME_DEFAULT) return ICON_VARIANT_DEFAULT;
   return ICON_VARIANT_WHITE;
 }
