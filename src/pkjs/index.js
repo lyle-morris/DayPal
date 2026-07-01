@@ -83,13 +83,14 @@ function parseConfigResponse(rawResponse) {
 }
 
 function weatherCodeToCondition(code) {
-  if (code === 0) return 0;
-  if (code === 1 || code === 2 || code === 3) return 1;
-  if (code === 45 || code === 48) return 5;
-  if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) return 2;
-  if ((code >= 71 && code <= 77) || code === 85 || code === 86) return 4;
-  if (code === 95 || code === 96 || code === 99) return 3;
-  return 6;
+  if (code === 0) return 0; // Sunny
+  if (code === 1 || code === 2) return 1; // Partly cloudy
+  if (code === 3) return 6; // Cloudy / overcast
+  if (code === 45 || code === 48) return 5; // Fog
+  if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) return 2; // Rain
+  if ((code >= 71 && code <= 77) || code === 85 || code === 86) return 4; // Snow
+  if (code === 95 || code === 96 || code === 99) return 3; // Storm
+  return 7; // Unknown / unsupported
 }
 
 function saveWeatherCache(temp, condition) {
@@ -164,7 +165,7 @@ function requestWeather() {
         }
         var temp = Math.round(data.current.temperature_2m);
         var condition = weatherCodeToCondition(Number(data.current.weather_code));
-        if (condition === 6) {
+        if (condition === 7) {
           console.log('DayPal weather condition unsupported: ' + data.current.weather_code);
           sendWeatherUnavailable();
           return;
