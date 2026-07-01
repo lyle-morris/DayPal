@@ -47,7 +47,11 @@ typedef enum {
   THEME_WHITE = 4,
   THEME_ORANGE = 5,
   THEME_DARK_BLUE = 6,
-  THEME_BLACK = 7
+  THEME_BLACK = 7,
+  THEME_RED = 8,
+  THEME_KHAKI_WHITE = 9,
+  THEME_KHAKI_BLACK = 10,
+  THEME_GRAY = 11
 } ThemeType;
 
 typedef enum {
@@ -57,7 +61,8 @@ typedef enum {
   WEATHER_STORM = 3,
   WEATHER_SNOW = 4,
   WEATHER_FOG = 5,
-  WEATHER_UNKNOWN = 6
+  WEATHER_CLOUDY = 6,
+  WEATHER_UNKNOWN = 7
 } WeatherCondition;
 
 typedef enum {
@@ -119,22 +124,30 @@ static bool has_metric_configured(MetricType metric) {
 static DayMateTheme get_theme(void) {
   switch (s_settings.theme) {
     case THEME_BLUE:
-      return (DayMateTheme){GColorFromHEX(0x0055FF), GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0xFFFFFF), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
+      return (DayMateTheme){GColorFromHEX(0x2F6BCC), GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0xFFFFFF), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
     case THEME_PINK:
-      return (DayMateTheme){GColorFromHEX(0xFF00AA), GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0xFFFFFF), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
+      return (DayMateTheme){GColorFromHEX(0xE16AA3), GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0xFFFFFF), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
     case THEME_GREEN:
-      return (DayMateTheme){GColorFromHEX(0x00AA55), GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0xFFFFFF), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
+      return (DayMateTheme){GColorFromHEX(0x5E9860), GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0xFFFFFF), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
     case THEME_WHITE:
       return (DayMateTheme){GColorWhite, GColorBlack, GColorBlack, GColorBlack, GColorDarkGray, GColorBlack, GColorBlack, GColorBlack, GColorBlack, GColorBlack, false};
     case THEME_ORANGE:
-      return (DayMateTheme){GColorFromHEX(0xFF5500), GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0xFFFFFF), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
+      return (DayMateTheme){GColorFromHEX(0xE66E6B), GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0xFFFFFF), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
     case THEME_DARK_BLUE:
       return (DayMateTheme){GColorFromHEX(0x001A55), GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0xFFFFFF), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
     case THEME_BLACK:
       return (DayMateTheme){GColorBlack, GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0xFFFFFF), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
+    case THEME_RED:
+      return (DayMateTheme){GColorFromHEX(0xE35462), GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0xFFFFFF), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
+    case THEME_KHAKI_WHITE:
+      return (DayMateTheme){GColorFromHEX(0xAEA382), GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0xFFFFFF), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
+    case THEME_KHAKI_BLACK:
+      return (DayMateTheme){GColorFromHEX(0xAEA382), GColorBlack, GColorBlack, GColorBlack, GColorDarkGray, GColorBlack, GColorBlack, GColorBlack, GColorBlack, GColorBlack, false};
+    case THEME_GRAY:
+      return (DayMateTheme){GColorFromHEX(0xAAAAAA), GColorBlack, GColorBlack, GColorBlack, GColorDarkGray, GColorBlack, GColorBlack, GColorBlack, GColorBlack, GColorBlack, false};
     case THEME_DEFAULT:
     default:
-      return (DayMateTheme){GColorBlack, GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0x777777), GColorFromHEX(0xFFFF00), GColorFromHEX(0x00FF00), GColorFromHEX(0xAA55FF), GColorFromHEX(0xFF5500), GColorFromHEX(0x00AAFF), true};
+      return (DayMateTheme){GColorBlack, GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0x777777), GColorFromHEX(0xFFFF00), GColorFromHEX(0xFF0000), GColorFromHEX(0x00FF00), GColorFromHEX(0xFF5500), GColorFromHEX(0x00AAFF), true};
   }
 }
 
@@ -167,7 +180,7 @@ static GColor color_for_metric(DayMateTheme theme, MetricType metric, bool avail
 }
 
 static IconVariant icon_variant_for_theme(void) {
-  if (s_settings.theme == THEME_WHITE) return ICON_VARIANT_BLACK;
+  if (s_settings.theme == THEME_WHITE || s_settings.theme == THEME_KHAKI_BLACK || s_settings.theme == THEME_GRAY) return ICON_VARIANT_BLACK;
   if (s_settings.theme == THEME_DEFAULT) return ICON_VARIANT_DEFAULT;
   return ICON_VARIANT_WHITE;
 }
@@ -188,6 +201,10 @@ static uint32_t weather_resource_id(void) {
   switch (s_weather_condition) {
     case WEATHER_SUNNY:
       return choose_variant(RESOURCE_ID_IMAGE_WEATHER_SUNNY_BLACK, RESOURCE_ID_IMAGE_WEATHER_SUNNY_YELLOW, RESOURCE_ID_IMAGE_WEATHER_SUNNY_WHITE);
+    case WEATHER_PARTLY_CLOUDY:
+      return choose_variant(RESOURCE_ID_IMAGE_WEATHER_PARTLY_CLOUDY_BLACK, RESOURCE_ID_IMAGE_WEATHER_PARTLY_CLOUDY_YELLOW, RESOURCE_ID_IMAGE_WEATHER_PARTLY_CLOUDY_WHITE);
+    case WEATHER_CLOUDY:
+      return choose_variant(RESOURCE_ID_IMAGE_WEATHER_CLOUDY_BLACK, RESOURCE_ID_IMAGE_WEATHER_CLOUDY_YELLOW, RESOURCE_ID_IMAGE_WEATHER_CLOUDY_WHITE);
     case WEATHER_RAINY:
       return choose_variant(RESOURCE_ID_IMAGE_WEATHER_RAINY_BLACK, RESOURCE_ID_IMAGE_WEATHER_RAINY_YELLOW, RESOURCE_ID_IMAGE_WEATHER_RAINY_WHITE);
     case WEATHER_STORM:
@@ -196,7 +213,7 @@ static uint32_t weather_resource_id(void) {
       return choose_variant(RESOURCE_ID_IMAGE_WEATHER_SNOW_BLACK, RESOURCE_ID_IMAGE_WEATHER_SNOW_YELLOW, RESOURCE_ID_IMAGE_WEATHER_SNOW_WHITE);
     case WEATHER_FOG:
       return choose_variant(RESOURCE_ID_IMAGE_WEATHER_FOG_BLACK, RESOURCE_ID_IMAGE_WEATHER_FOG_YELLOW, RESOURCE_ID_IMAGE_WEATHER_FOG_WHITE);
-    case WEATHER_PARTLY_CLOUDY:
+    case WEATHER_UNKNOWN:
     default:
       return choose_variant(RESOURCE_ID_IMAGE_WEATHER_PARTLY_CLOUDY_BLACK, RESOURCE_ID_IMAGE_WEATHER_PARTLY_CLOUDY_YELLOW, RESOURCE_ID_IMAGE_WEATHER_PARTLY_CLOUDY_WHITE);
   }
@@ -205,11 +222,12 @@ static uint32_t weather_resource_id(void) {
 
 static int battery_bucket(void) {
 #if DAYMATE_QA_DUMMY_DATA
-  return 50;
+  return 75;
 #else
   if (s_battery.charge_percent <= 0) return 0;
-  if (s_battery.charge_percent < 50) return 25;
-  if (s_battery.charge_percent < 100) return 50;
+  if (s_battery.charge_percent <= 25) return 25;
+  if (s_battery.charge_percent <= 50) return 50;
+  if (s_battery.charge_percent <= 80) return 75;
   return 100;
 #endif
 }
@@ -221,21 +239,23 @@ static uint32_t battery_resource_id(void) {
   charging = false;
 #endif
   if (charging) {
-    if (bucket == 0) return choose_variant(RESOURCE_ID_IMAGE_BATTERY_CHARGING_0_BLACK, RESOURCE_ID_IMAGE_BATTERY_CHARGING_0_PURPLE, RESOURCE_ID_IMAGE_BATTERY_CHARGING_0_WHITE);
-    if (bucket == 25) return choose_variant(RESOURCE_ID_IMAGE_BATTERY_CHARGING_25_BLACK, RESOURCE_ID_IMAGE_BATTERY_CHARGING_25_PURPLE, RESOURCE_ID_IMAGE_BATTERY_CHARGING_25_WHITE);
-    if (bucket == 50) return choose_variant(RESOURCE_ID_IMAGE_BATTERY_CHARGING_50_BLACK, RESOURCE_ID_IMAGE_BATTERY_CHARGING_50_PURPLE, RESOURCE_ID_IMAGE_BATTERY_CHARGING_50_WHITE);
-    return choose_variant(RESOURCE_ID_IMAGE_BATTERY_CHARGING_100_BLACK, RESOURCE_ID_IMAGE_BATTERY_CHARGING_100_PURPLE, RESOURCE_ID_IMAGE_BATTERY_CHARGING_100_WHITE);
+    if (bucket == 0) return choose_variant(RESOURCE_ID_IMAGE_BATTERY_CHARGING_0_BLACK, RESOURCE_ID_IMAGE_BATTERY_CHARGING_0_GREEN, RESOURCE_ID_IMAGE_BATTERY_CHARGING_0_WHITE);
+    if (bucket == 25) return choose_variant(RESOURCE_ID_IMAGE_BATTERY_CHARGING_25_BLACK, RESOURCE_ID_IMAGE_BATTERY_CHARGING_25_GREEN, RESOURCE_ID_IMAGE_BATTERY_CHARGING_25_WHITE);
+    if (bucket == 50) return choose_variant(RESOURCE_ID_IMAGE_BATTERY_CHARGING_50_BLACK, RESOURCE_ID_IMAGE_BATTERY_CHARGING_50_GREEN, RESOURCE_ID_IMAGE_BATTERY_CHARGING_50_WHITE);
+    if (bucket == 75) return choose_variant(RESOURCE_ID_IMAGE_BATTERY_CHARGING_75_BLACK, RESOURCE_ID_IMAGE_BATTERY_CHARGING_75_GREEN, RESOURCE_ID_IMAGE_BATTERY_CHARGING_75_WHITE);
+    return choose_variant(RESOURCE_ID_IMAGE_BATTERY_CHARGING_100_BLACK, RESOURCE_ID_IMAGE_BATTERY_CHARGING_100_GREEN, RESOURCE_ID_IMAGE_BATTERY_CHARGING_100_WHITE);
   }
-  if (bucket == 0) return choose_variant(RESOURCE_ID_IMAGE_BATTERY_0_BLACK, RESOURCE_ID_IMAGE_BATTERY_0_PURPLE, RESOURCE_ID_IMAGE_BATTERY_0_WHITE);
-  if (bucket == 25) return choose_variant(RESOURCE_ID_IMAGE_BATTERY_25_BLACK, RESOURCE_ID_IMAGE_BATTERY_25_PURPLE, RESOURCE_ID_IMAGE_BATTERY_25_WHITE);
-  if (bucket == 50) return choose_variant(RESOURCE_ID_IMAGE_BATTERY_50_BLACK, RESOURCE_ID_IMAGE_BATTERY_50_PURPLE, RESOURCE_ID_IMAGE_BATTERY_50_WHITE);
-  return choose_variant(RESOURCE_ID_IMAGE_BATTERY_100_BLACK, RESOURCE_ID_IMAGE_BATTERY_100_PURPLE, RESOURCE_ID_IMAGE_BATTERY_100_WHITE);
+  if (bucket == 0) return choose_variant(RESOURCE_ID_IMAGE_BATTERY_0_BLACK, RESOURCE_ID_IMAGE_BATTERY_0_GREEN, RESOURCE_ID_IMAGE_BATTERY_0_WHITE);
+  if (bucket == 25) return choose_variant(RESOURCE_ID_IMAGE_BATTERY_25_BLACK, RESOURCE_ID_IMAGE_BATTERY_25_GREEN, RESOURCE_ID_IMAGE_BATTERY_25_WHITE);
+  if (bucket == 50) return choose_variant(RESOURCE_ID_IMAGE_BATTERY_50_BLACK, RESOURCE_ID_IMAGE_BATTERY_50_GREEN, RESOURCE_ID_IMAGE_BATTERY_50_WHITE);
+  if (bucket == 75) return choose_variant(RESOURCE_ID_IMAGE_BATTERY_75_BLACK, RESOURCE_ID_IMAGE_BATTERY_75_GREEN, RESOURCE_ID_IMAGE_BATTERY_75_WHITE);
+  return choose_variant(RESOURCE_ID_IMAGE_BATTERY_100_BLACK, RESOURCE_ID_IMAGE_BATTERY_100_GREEN, RESOURCE_ID_IMAGE_BATTERY_100_WHITE);
 }
 
 static uint32_t resource_id_for_metric(MetricType metric) {
   switch (metric) {
     case METRIC_WEATHER: return weather_resource_id();
-    case METRIC_HEART_RATE: return choose_variant(RESOURCE_ID_IMAGE_HEART_RATE_BLACK, RESOURCE_ID_IMAGE_HEART_RATE_GREEN, RESOURCE_ID_IMAGE_HEART_RATE_WHITE);
+    case METRIC_HEART_RATE: return choose_variant(RESOURCE_ID_IMAGE_HEART_RATE_BLACK, RESOURCE_ID_IMAGE_HEART_RATE_RED, RESOURCE_ID_IMAGE_HEART_RATE_WHITE);
     case METRIC_BATTERY: return battery_resource_id();
     case METRIC_CALORIES: return choose_variant(RESOURCE_ID_IMAGE_CALORIES_BLACK, RESOURCE_ID_IMAGE_CALORIES_ORANGE, RESOURCE_ID_IMAGE_CALORIES_WHITE);
     case METRIC_STEPS: return choose_variant(RESOURCE_ID_IMAGE_STEPS_BLACK, RESOURCE_ID_IMAGE_STEPS_BLUE, RESOURCE_ID_IMAGE_STEPS_WHITE);
@@ -271,7 +291,7 @@ static void value_for_metric(MetricType metric, char *buffer, size_t size) {
   switch (metric) {
     case METRIC_WEATHER: snprintf(buffer, size, "95"); break;
     case METRIC_HEART_RATE: snprintf(buffer, size, "110"); break;
-    case METRIC_BATTERY: snprintf(buffer, size, "50"); break;
+    case METRIC_BATTERY: snprintf(buffer, size, "75"); break;
     case METRIC_CALORIES: snprintf(buffer, size, "1520"); break;
     case METRIC_STEPS: snprintf(buffer, size, "8542"); break;
     default: if (size > 0) buffer[0] = '\0'; break;
