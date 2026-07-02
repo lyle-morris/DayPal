@@ -2,11 +2,19 @@
 
 DayPal is a configurable Pebble Time 2 watchface built for fast, glanceable daily context. It pairs a bold stacked clock with a compact metric tray, selectable high-contrast themes, and native Pebble services for weather, health, and battery status.
 
-## Current Release
+## Current Development Release
 
-**DayPal 1.5.0**
+**DayPal 1.6.0**
 
-DayPal 1.5.0 is a readability and polish release focused on stronger Pebble Time 2 contrast, updated icon states, improved battery visibility, and a cleaner configuration experience.
+Target release date: **07/05/2026**
+
+DayPal 1.6.0 is focused on expanding configuration options, improving weather-location control, adding temperature-unit flexibility, supporting reverse color behavior, and introducing anonymous analytics with a clear opt-out path.
+
+## Release History
+
+- **DayPal 1.0.0** — Released
+- **DayPal 1.5.0** — Released
+- **DayPal 1.6.0** — In development
 
 ## Platform
 
@@ -16,6 +24,26 @@ DayPal 1.5.0 is a readability and polish release focused on stronger Pebble Time
 - App type: Watchface
 - Companion: PebbleKit JS
 - Configuration: Hosted Pebble configuration page
+
+## 1.6.0 Scope
+
+DayPal 1.6.0 includes the following planned updates:
+
+- Add Use 12-hour format setting
+- Add location setting to the configuration page
+- Add Weather location setting with Current and Manual options
+- Add Manual location input using ZIP/postal code or city
+- Add Celsius temperature setting
+- Add reverse colors option
+- Add anonymous analytics
+- Add analytics opt-out section
+
+## Not in Scope for 1.6.0
+
+The following items were resolved in DayPal 1.5.0 and should not be carried into the DayPal 1.6.0 backlog:
+
+- Fix fallback/unavailable styling
+- Fix remaining time clipping/alignment issues
 
 ## Features
 
@@ -31,7 +59,7 @@ DayPal 1.5.0 is a readability and polish release focused on stronger Pebble Time
 - `None` option for hiding individual metric slots
 - Clock-only mode when all metric slots are hidden
 - Duplicate metric selections supported
-- Pebble system 12-hour and 24-hour time support
+- 12-hour and 24-hour time support
 - Optional leading zero
 - Persistent settings on the phone and watch
 - Open-Meteo weather integration with cached fallback
@@ -40,7 +68,7 @@ DayPal 1.5.0 is a readability and polish release focused on stronger Pebble Time
 
 ## Themes
 
-DayPal 1.5.0 includes a high-contrast theme palette tuned for better Pebble Time 2 visibility.
+DayPal includes a high-contrast theme palette tuned for better Pebble Time 2 visibility.
 
 | Theme | Background | Text/Icon Behavior |
 |---|---:|---|
@@ -85,12 +113,18 @@ DayPal is configured from the Pebble mobile app configuration flow. Settings are
 Configurable options:
 
 - Theme selection using color tiles
+- Use 12-hour format
 - Leading zero
+- Weather location: Current or Manual
+- Manual location: ZIP/postal code or city
+- Celsius temperature
+- Reverse colors
 - Slot 1 metric
 - Slot 2 metric
 - Slot 3 metric
 - Slot 4 metric
 - Reset layout
+- Anonymous analytics opt-out
 
 Default layout:
 
@@ -104,18 +138,18 @@ The configuration page uses a selected tile checkmark and a fixed Save settings 
 Hosted configuration repo:
 
 ```text
-https://github.com/lyle-morris/DayMate-config
+https://github.com/lyle-morris/DayPal-config
 ```
 
 Hosted configuration page:
 
 ```text
-https://lyle-morris.github.io/DayMate-config/
+https://lyle-morris.github.io/DayPal-config/
 ```
 
 ## Weather
 
-Weather uses the phone companion to request location and fetch current conditions from Open-Meteo. The watch displays the current temperature and a themed weather icon. The last valid weather result is cached so a temporary location or network failure does not immediately clear the weather display.
+Weather uses the phone companion to request location and fetch current conditions from Open-Meteo. DayPal 1.6.0 adds support for choosing either the current phone location or a manually entered location using ZIP/postal code or city. The watch displays the current temperature and a themed weather icon. The last valid weather result is cached so a temporary location or network failure does not immediately clear the weather display.
 
 Supported weather states:
 
@@ -128,8 +162,6 @@ Supported weather states:
 - Fog
 
 ## Battery
-
-DayPal 1.5.0 adds a new 75% battery icon state and matching charging icon state.
 
 Battery icon mapping:
 
@@ -149,12 +181,16 @@ DayPal reads supported Pebble Health metrics directly on the watch:
 
 If a health metric is unavailable on the device, DayPal shows `---` for that metric instead of failing or displaying stale placeholder data.
 
+## Analytics
+
+DayPal 1.6.0 includes anonymous analytics to help understand configuration usage and general adoption patterns. Analytics should not collect personally identifiable information, exact user location, health values, or unique personal data. The configuration page must include an analytics opt-out section.
+
 ## Development
 
-Primary development branch for DayPal 1.5.0:
+Primary development branch for DayPal 1.6.0:
 
 ```text
-daypal-1.5.0-dev
+daypal-1.6.0-dev
 ```
 
 The project is intended to build in CloudPebble or a compatible Pebble/Rebble SDK environment.
@@ -170,17 +206,16 @@ Required resource categories:
 
 ## Release Status
 
-DayPal 1.5.0 has been tested successfully in CloudPebble with updated themes, weather icons, battery icons, heart rate icons, configuration tile selection, fixed Save settings footer, and Yellow theme naming.
+DayPal 1.6.0 is currently in development.
 
 ## Release Notes Summary
 
-DayPal 1.5.0 includes:
+DayPal 1.6.0 planned updates include:
 
-- New high-contrast theme colors
-- Khaki renamed to Yellow
-- New Cloudy weather icon
-- Filled weather icons for improved contrast
-- Battery color changed from purple to green in Default / Multi-Color
-- Heart rate color changed from green to red in Default / Multi-Color
-- New 75% battery and charging battery icon state
-- Updated settings page with color tiles, selected checkmark, Reset layout, and fixed Save settings footer
+- Use 12-hour format setting
+- Weather location setting with Current and Manual options
+- Manual ZIP/postal code or city location input
+- Celsius temperature setting
+- Reverse colors option
+- Anonymous analytics
+- Analytics opt-out section
