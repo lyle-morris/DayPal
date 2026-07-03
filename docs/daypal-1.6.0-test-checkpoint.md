@@ -15,12 +15,24 @@ This checkpoint verifies the first 1.6.0 implementation slice:
 - Ko-fi donation URL passed to app-config
 - App-config baseline added under `app-config/index.html`
 
+## Post-checkpoint implementation slice
+
+After the Pebble Cloud test checkpoint, the `daypal-1.6.0-dev` branch includes these watchface polish updates:
+
+- Clock text drawing now uses a small horizontal bleed and `GTextOverflowModeFill` to avoid clipping the minute trailing zero.
+- Hour and minute vertical offsets are adjusted together for better visual centering.
+- Weather temperature renders as a degree-only value, for example `100°`.
+- Unavailable metric text uses the explicit fallback color `#666666`.
+- First-run 24-hour mode now falls back to the watch setting when no saved DayPal setting exists.
+
 ## Not included yet
 
 - Runtime PNG recoloring / final Icon Manager implementation
 - Icon resource cleanup
 - Real analytics service integration
 - Final repository rename from `DayMate-config` to `DayPal-config`
+- Screenshot resource for Pebble app listing metadata
+- Rain asset rename/update to `pulsecast_weather_rain_40_0165FC.png`
 
 ## Before Pebble Cloud upload
 
@@ -71,6 +83,10 @@ Expected build result:
 18. Confirm leaving ZIP/postal code and City blank shows the validation message.
 19. Confirm Donate opens Ko-fi externally from the config page.
 20. Confirm Share anonymous usage analytics can be unchecked and saved.
+21. Confirm weather text renders as `100°`-style degree-only text, not `100°F` or `100°C`.
+22. Confirm unavailable Weather, Heart Rate, Calories, or Steps text renders as `#666666` fallback text.
+23. Confirm minute values ending in zero, such as `10`, `20`, `30`, `40`, and `50`, do not clip the trailing zero.
+24. Confirm the default 24-hour behavior follows the watch setting on a fresh install before changing DayPal settings.
 
 ## Screenshots/logs to capture
 
@@ -82,9 +98,12 @@ Please capture:
 - Config page screenshot
 - Manual-location error screenshot
 - Manual-location success screenshot
+- Minute trailing-zero screenshot, ideally `10:50` or another minute ending in `0`
+- Unavailable metric fallback screenshot
 
 ## Known risks
 
 - The hosted config repo is still named `DayMate-config`; the test branch points to that working URL for now.
 - Manual ZIP/postal geocoding uses Open-Meteo geocoding search. Some postal codes may resolve better with country context in a future enhancement.
 - Icon Manager runtime recoloring is not complete in this checkpoint; existing icon variants remain in place for safety.
+- Pebble app screenshot metadata and the renamed blue rain asset still require binary asset updates.
