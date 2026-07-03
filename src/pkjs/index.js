@@ -80,14 +80,12 @@ function readSettingsFromStorage(key) {
 function loadSettings() {
   var saved = readSettingsFromStorage(SETTINGS_KEY);
   if (saved) return normalizeSettings(saved);
-
   var legacy = readSettingsFromStorage(LEGACY_SETTINGS_KEY);
   if (legacy) {
     var migrated = normalizeSettings(legacy);
     saveSettings(migrated);
     return migrated;
   }
-
   return normalizeSettings(DEFAULT_SETTINGS);
 }
 
@@ -97,39 +95,17 @@ function saveSettings(settings) {
 
 function sendSettings(settings) {
   var normalized = normalizeSettings(settings);
-
-  var payload = {
-    0: normalized.theme,
-    1: normalized.slot_1_metric,
-    2: normalized.slot_2_metric,
-    3: normalized.slot_3_metric,
-    4: normalized.slot_4_metric,
-    5: normalized.show_leading_zero ? 1 : 0,
-    6: normalized.use_24_hour ? 1 : 0,
-    7: normalized.reverse_theme ? 1 : 0
-  };
-
+  var payload = {0: normalized.theme, 1: normalized.slot_1_metric, 2: normalized.slot_2_metric, 3: normalized.slot_3_metric, 4: normalized.slot_4_metric, 5: normalized.show_leading_zero ? 1 : 0, 6: normalized.use_24_hour ? 1 : 0, 7: normalized.reverse_theme ? 1 : 0};
   console.log('DayPal sending settings: ' + JSON.stringify(normalized));
-  Pebble.sendAppMessage(payload, function() {
-    console.log('DayPal settings sent: ' + JSON.stringify(payload));
-  }, function(error) {
-    console.log('DayPal settings send failed: ' + JSON.stringify(error));
-  });
+  Pebble.sendAppMessage(payload, function() { console.log('DayPal settings sent: ' + JSON.stringify(payload)); }, function(error) { console.log('DayPal settings send failed: ' + JSON.stringify(error)); });
 }
 
 function parseConfigResponse(rawResponse) {
   if (!rawResponse) return null;
-
   var response = rawResponse;
   var hashIndex = response.indexOf('#');
   if (hashIndex >= 0) response = response.substring(hashIndex + 1);
-
-  try {
-    response = decodeURIComponent(response);
-  } catch (e) {
-    console.log('DayPal config response decode failed, trying raw response: ' + e);
-  }
-
+  try { response = decodeURIComponent(response); } catch (e) { console.log('DayPal config response decode failed, trying raw response: ' + e); }
   if (!response || response === 'CANCELLED') return null;
   return normalizeSettings(JSON.parse(response));
 }
@@ -145,43 +121,12 @@ function weatherCodeToCondition(code) {
   return 7;
 }
 
-function weatherUnit(settings) {
-  return settings.use_celsius ? 'celsius' : 'fahrenheit';
-}
+function weatherUnit(settings) { return settings.use_celsius ? 'celsius' : 'fahrenheit'; }
+function manualLocationQuery(settings) { if (settings.manual_postal_code) return settings.manual_postal_code; if (settings.manual_city) return settings.manual_city; return ''; }
+function weatherCacheId(settings) { var normalized = normalizeSettings(settings); var mode = normalized.manual_location ? 'manual' : 'current'; var query = normalized.manual_location ? manualLocationQuery(normalized).toLowerCase() : 'device'; return mode + ':' + query + ':' + weatherUnit(normalized); }
 
-function manualLocationQuery(settings) {
-  if (settings.manual_postal_code) return settings.manual_postal_code;
-  if (settings.manual_city) return settings.manual_city;
-  return '';
-}
-
-function weatherCacheId(settings) {
-  var normalized = normalizeSettings(settings);
-  var mode = normalized.manual_location ? 'manual' : 'current';
-  var query = normalized.manual_location ? manualLocationQuery(normalized).toLowerCase() : 'device';
-  return mode + ':' + query + ':' + weatherUnit(normalized);
-}
-
-function saveWeatherCache(temp, condition, settings) {
-  localStorage.setItem(WEATHER_CACHE_KEY, JSON.stringify({
-    temp: temp,
-    condition: condition,
-    cache_id: weatherCacheId(settings),
-    timestamp: Date.now()
-  }));
-}
-
-function sendWeather(temp, condition) {
-  Pebble.sendAppMessage({
-    10: temp,
-    11: condition,
-    12: 1
-  }, function() {
-    console.log('DayPal weather sent: ' + temp + ', condition ' + condition);
-  }, function(error) {
-    console.log('DayPal weather send failed: ' + JSON.stringify(error));
-  });
-}
+function saveWeatherCache(temp, condition, settings) { localStorage.setItem(WEATHER_CACHE_KEY, JSON.stringify({temp: temp, condition: condition, cache_id: weatherCacheId(settings), timestamp: Date.now()})); }
+function sendWeather(temp, condition) { Pebble.sendAppMessage({10: temp, 11: condition, 12: 1}, function() { console.log('DayPal weather sent: ' + temp + ', condition ' + condition); }, function(error) { console.log('DayPal weather send failed: ' + JSON.stringify(error)); }); }
 
 function sendCachedWeather(settings) {
   var raw = localStorage.getItem(WEATHER_CACHE_KEY);
@@ -194,219 +139,92 @@ function sendCachedWeather(settings) {
     if (!cached.cache_id && settings.use_celsius) return false;
     sendWeather(Number(cached.temp), Number(cached.condition));
     return true;
-  } catch (e) {
-    return false;
-  }
+  } catch (e) { return false; }
 }
 
-function sendWeatherUnavailable(settings) {
-  if (sendCachedWeather(settings)) return;
-  Pebble.sendAppMessage({
-    12: 0
-  });
-}
+function sendWeatherUnavailable(settings) { if (sendCachedWeather(settings)) return; Pebble.sendAppMessage({12: 0}); }
 
 function httpGetJson(url, onSuccess, onFailure) {
   var xhr = new XMLHttpRequest();
   xhr.open('GET', url, true);
   xhr.onload = function() {
-    if (xhr.status < 200 || xhr.status >= 300) {
-      console.log('DayPal HTTP failure: ' + xhr.status + ' for ' + url);
-      onFailure();
-      return;
-    }
-    try {
-      onSuccess(JSON.parse(xhr.responseText));
-    } catch (e) {
-      console.log('DayPal JSON parse failed: ' + e);
-      onFailure();
-    }
+    if (xhr.status < 200 || xhr.status >= 300) { console.log('DayPal HTTP failure: ' + xhr.status + ' for ' + url); onFailure(); return; }
+    try { onSuccess(JSON.parse(xhr.responseText)); } catch (e) { console.log('DayPal JSON parse failed: ' + e); onFailure(); }
   };
   xhr.onerror = onFailure;
   xhr.send();
 }
 
 function fetchWeatherForCoordinates(lat, lon, settings) {
-  var url = 'https://api.open-meteo.com/v1/forecast?latitude=' + encodeURIComponent(lat) +
-    '&longitude=' + encodeURIComponent(lon) +
-    '&current=temperature_2m,weather_code&temperature_unit=' + encodeURIComponent(weatherUnit(settings));
-
+  var url = 'https://api.open-meteo.com/v1/forecast?latitude=' + encodeURIComponent(lat) + '&longitude=' + encodeURIComponent(lon) + '&current=temperature_2m,weather_code&temperature_unit=' + encodeURIComponent(weatherUnit(settings));
   httpGetJson(url, function(data) {
-    if (!data.current || typeof data.current.temperature_2m === 'undefined' || typeof data.current.weather_code === 'undefined') {
-      console.log('DayPal weather response missing current values');
-      sendWeatherUnavailable(settings);
-      return;
-    }
+    if (!data.current || typeof data.current.temperature_2m === 'undefined' || typeof data.current.weather_code === 'undefined') { console.log('DayPal weather response missing current values'); sendWeatherUnavailable(settings); return; }
     var temp = Math.round(data.current.temperature_2m);
     var condition = weatherCodeToCondition(Number(data.current.weather_code));
-    if (condition === 7) {
-      console.log('DayPal weather condition unsupported: ' + data.current.weather_code);
-      sendWeatherUnavailable(settings);
-      return;
-    }
+    if (condition === 7) { console.log('DayPal weather condition unsupported: ' + data.current.weather_code); sendWeatherUnavailable(settings); return; }
     saveWeatherCache(temp, condition, settings);
     sendWeather(temp, condition);
-  }, function() {
-    sendWeatherUnavailable(settings);
-  });
+  }, function() { sendWeatherUnavailable(settings); });
 }
 
-function isCanadianPostalCode(query) {
-  return /^[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d$/.test(query);
-}
-
-function isUSPostalCode(query) {
-  return /^\d{5}(-\d{4})?$/.test(query);
-}
-
-function zippopotamCountryForQuery(query) {
-  if (isCanadianPostalCode(query)) return 'ca';
-  if (isUSPostalCode(query)) return 'us';
-  return null;
-}
+function isCanadianPostalCode(query) { return /^[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d$/.test(query) || /^[A-Za-z]\d[A-Za-z]$/.test(query); }
+function isUSPostalCode(query) { return /^\d{5}(-\d{4})?$/.test(query); }
+function zippopotamCountryForQuery(query) { if (isCanadianPostalCode(query)) return 'ca'; if (isUSPostalCode(query)) return 'us'; return null; }
+function normalizePostalFallbackQuery(query, country) { var normalized = query.toUpperCase().replace(/\s+/g, ''); if (country === 'ca') return normalized.substring(0, 3); return normalized.split('-')[0]; }
 
 function requestPostalFallbackWeather(query, settings) {
   var country = zippopotamCountryForQuery(query);
-  if (!country) {
-    sendWeatherUnavailable(settings);
-    return;
-  }
-
-  var normalizedPostal = query.toUpperCase().replace(/\s+/g, '');
-  if (country === 'ca' && normalizedPostal.length === 6) {
-    normalizedPostal = normalizedPostal.substring(0, 3) + ' ' + normalizedPostal.substring(3);
-  }
-
+  if (!country) { sendWeatherUnavailable(settings); return; }
+  var normalizedPostal = normalizePostalFallbackQuery(query, country);
   var url = 'https://api.zippopotam.us/' + country + '/' + encodeURIComponent(normalizedPostal);
   console.log('DayPal resolving postal fallback: ' + url);
   httpGetJson(url, function(data) {
-    if (!data.places || !data.places.length) {
-      console.log('DayPal postal fallback had no places');
-      sendWeatherUnavailable(settings);
-      return;
-    }
+    if (!data.places || !data.places.length) { console.log('DayPal postal fallback had no places'); sendWeatherUnavailable(settings); return; }
     fetchWeatherForCoordinates(data.places[0].latitude, data.places[0].longitude, settings);
-  }, function() {
-    sendWeatherUnavailable(settings);
-  });
+  }, function() { sendWeatherUnavailable(settings); });
 }
 
 function requestManualWeather(settings) {
   var query = manualLocationQuery(settings);
-  if (!query) {
-    console.log('DayPal manual weather unavailable: missing location query');
-    sendWeatherUnavailable(settings);
-    return;
-  }
-
-  var geocodeUrl = 'https://geocoding-api.open-meteo.com/v1/search?name=' + encodeURIComponent(query) +
-    '&count=1&language=en&format=json';
-
+  if (!query) { console.log('DayPal manual weather unavailable: missing location query'); sendWeatherUnavailable(settings); return; }
+  var geocodeUrl = 'https://geocoding-api.open-meteo.com/v1/search?name=' + encodeURIComponent(query) + '&count=1&language=en&format=json';
   console.log('DayPal resolving manual weather location: ' + query);
   httpGetJson(geocodeUrl, function(data) {
-    if (!data.results || !data.results.length) {
-      console.log('DayPal Open-Meteo geocode not found; trying postal fallback if supported');
-      requestPostalFallbackWeather(query, settings);
-      return;
-    }
+    if (!data.results || !data.results.length) { console.log('DayPal Open-Meteo geocode not found; trying postal fallback if supported'); requestPostalFallbackWeather(query, settings); return; }
     fetchWeatherForCoordinates(data.results[0].latitude, data.results[0].longitude, settings);
-  }, function() {
-    requestPostalFallbackWeather(query, settings);
-  });
+  }, function() { requestPostalFallbackWeather(query, settings); });
 }
 
 function requestCurrentLocationWeather(settings) {
-  if (!navigator.geolocation) {
-    console.log('DayPal weather unavailable: no geolocation');
-    sendWeatherUnavailable(settings);
-    return;
-  }
-
+  if (!navigator.geolocation) { console.log('DayPal weather unavailable: no geolocation'); sendWeatherUnavailable(settings); return; }
   console.log('DayPal requesting current-location weather');
-  navigator.geolocation.getCurrentPosition(function(position) {
-    fetchWeatherForCoordinates(position.coords.latitude, position.coords.longitude, settings);
-  }, function(error) {
-    console.log('DayPal weather geolocation failed: ' + JSON.stringify(error));
-    sendWeatherUnavailable(settings);
-  }, {
-    timeout: 15000,
-    maximumAge: 1000 * 60 * 15
-  });
+  navigator.geolocation.getCurrentPosition(function(position) { fetchWeatherForCoordinates(position.coords.latitude, position.coords.longitude, settings); }, function(error) { console.log('DayPal weather geolocation failed: ' + JSON.stringify(error)); sendWeatherUnavailable(settings); }, {timeout: 15000, maximumAge: 1000 * 60 * 15});
 }
 
-function requestWeather() {
-  var settings = loadSettings();
-  if (settings.manual_location) {
-    requestManualWeather(settings);
-  } else {
-    requestCurrentLocationWeather(settings);
-  }
-}
+function requestWeather() { var settings = loadSettings(); if (settings.manual_location) requestManualWeather(settings); else requestCurrentLocationWeather(settings); }
 
 function trackAnalyticsEvent(name, data) {
   var settings = loadSettings();
   if (!settings.analytics_enabled) return;
   var events = [];
-  try {
-    events = JSON.parse(localStorage.getItem('daypal_analytics_events') || '[]');
-  } catch (e) {
-    events = [];
-  }
-  events.push({
-    name: name,
-    data: data || {},
-    timestamp: new Date().toISOString()
-  });
+  try { events = JSON.parse(localStorage.getItem('daypal_analytics_events') || '[]'); } catch (e) { events = []; }
+  events.push({name: name, data: data || {}, timestamp: new Date().toISOString()});
   localStorage.setItem('daypal_analytics_events', JSON.stringify(events.slice(-200)));
   console.log('DayPal analytics test event: ' + name + ' ' + JSON.stringify(data || {}));
 }
 
-Pebble.addEventListener('ready', function() {
-  var settings = loadSettings();
-  console.log('DayPal ready with settings: ' + JSON.stringify(settings));
-  sendSettings(settings);
-  requestWeather();
-});
-
-Pebble.addEventListener('appmessage', function(e) {
-  if (e.payload && (e.payload.settings_ready || e.payload['21'])) {
-    console.log('DayPal settings applied on watch');
-  }
-  if (e.payload && (e.payload.request_weather || e.payload['20'])) {
-    requestWeather();
-  }
-});
-
-Pebble.addEventListener('showConfiguration', function() {
-  var settings = encodeURIComponent(JSON.stringify(loadSettings()));
-  console.log('DayPal opening config: ' + CONFIG_URL);
-  Pebble.openURL(CONFIG_URL + '?settings=' + settings + '&donation_url=' + encodeURIComponent(DONATION_URL));
-  trackAnalyticsEvent('config_opened');
-});
-
+Pebble.addEventListener('ready', function() { var settings = loadSettings(); console.log('DayPal ready with settings: ' + JSON.stringify(settings)); sendSettings(settings); requestWeather(); });
+Pebble.addEventListener('appmessage', function(e) { if (e.payload && (e.payload.settings_ready || e.payload['21'])) console.log('DayPal settings applied on watch'); if (e.payload && (e.payload.request_weather || e.payload['20'])) requestWeather(); });
+Pebble.addEventListener('showConfiguration', function() { var settings = encodeURIComponent(JSON.stringify(loadSettings())); console.log('DayPal opening config: ' + CONFIG_URL); Pebble.openURL(CONFIG_URL + '?settings=' + settings + '&donation_url=' + encodeURIComponent(DONATION_URL)); trackAnalyticsEvent('config_opened'); });
 Pebble.addEventListener('webviewclosed', function(e) {
-  if (!e || !e.response) {
-    console.log('DayPal config closed without response');
-    return;
-  }
+  if (!e || !e.response) { console.log('DayPal config closed without response'); return; }
   try {
     console.log('DayPal config response: ' + e.response);
     var settings = parseConfigResponse(e.response);
-    if (!settings) {
-      console.log('DayPal config response had no settings');
-      return;
-    }
+    if (!settings) { console.log('DayPal config response had no settings'); return; }
     saveSettings(settings);
     sendSettings(settings);
     requestWeather();
-    trackAnalyticsEvent('settings_saved', {
-      theme: settings.theme,
-      reverse_theme: settings.reverse_theme ? 1 : 0,
-      use_24_hour: settings.use_24_hour ? 1 : 0,
-      use_celsius: settings.use_celsius ? 1 : 0,
-      manual_location: settings.manual_location ? 1 : 0
-    });
-  } catch (err) {
-    console.log('DayPal config response ignored: ' + err);
-  }
+    trackAnalyticsEvent('settings_saved', {theme: settings.theme, reverse_theme: settings.reverse_theme ? 1 : 0, use_24_hour: settings.use_24_hour ? 1 : 0, use_celsius: settings.use_celsius ? 1 : 0, manual_location: settings.manual_location ? 1 : 0});
+  } catch (err) { console.log('DayPal config response ignored: ' + err); }
 });
