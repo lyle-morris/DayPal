@@ -6,7 +6,8 @@ This checkpoint verifies the first 1.6.0 implementation slice:
 
 - App version updated to 1.6.0
 - PebbleKit JS settings model expanded
-- DayMate storage/config references migrated to DayPal
+- DayMate storage references migrated to DayPal
+- Hosted configuration page deployed to `lyle-morris/DayMate-config`
 - Use 24-hour format setting added
 - Reverse theme colors setting added
 - Celsius weather request support added
@@ -18,20 +19,20 @@ This checkpoint verifies the first 1.6.0 implementation slice:
 
 - Runtime PNG recoloring / final Icon Manager implementation
 - Icon resource cleanup
-- Final hosted config repository update, unless `app-config/index.html` has been copied into `DayPal-config`
 - Real analytics service integration
+- Final repository rename from `DayMate-config` to `DayPal-config`
 
 ## Before Pebble Cloud upload
 
-1. Confirm `app-config/index.html` has been copied into the hosted config repo as `index.html`.
-2. Confirm this URL loads in a browser:
+1. Confirm this URL loads in a browser:
 
 ```text
-https://lyle-morris.github.io/DayPal-config/
+https://lyle-morris.github.io/DayMate-config/
 ```
 
-3. Confirm `package.json` is on version `1.6.0`.
-4. Confirm branch is `daypal-1.6.0-dev`.
+2. Confirm `package.json` is on version `1.6.0`.
+3. Confirm branch is `daypal-1.6.0-dev`.
+4. Confirm `src/pkjs/index.js` points to `https://lyle-morris.github.io/DayMate-config/` for this test checkpoint.
 
 ## Pebble Cloud smoke test
 
@@ -84,6 +85,6 @@ Please capture:
 
 ## Known risks
 
-- The app-config baseline uses CSS `:has()`. If Pebble's config webview does not support it, theme selected-state styling may need a JavaScript class fallback.
+- The hosted config repo is still named `DayMate-config`; the test branch points to that working URL for now.
 - Manual ZIP/postal geocoding uses Open-Meteo geocoding search. Some postal codes may resolve better with country context in a future enhancement.
 - Icon Manager runtime recoloring is not complete in this checkpoint; existing icon variants remain in place for safety.
