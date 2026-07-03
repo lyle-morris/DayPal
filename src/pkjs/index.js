@@ -1,4 +1,4 @@
-var CONFIG_URL = 'https://lyle-morris.github.io/DayPal-config/';
+var CONFIG_URL = 'https://lyle-morris.github.io/DayMate-config/';
 var DONATION_URL = 'https://ko-fi.com/lylemorris';
 var SETTINGS_KEY = 'daypal_settings';
 var LEGACY_SETTINGS_KEY = 'daymate_settings';
