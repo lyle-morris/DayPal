@@ -15,6 +15,13 @@
 #define METRIC_ROW_H 52
 #define METRIC_ICON_X 13
 #define METRIC_VALUE_Y_OFFSET 30
+#define CLOCK_TEXT_X_BLEED 6
+#define TIME_TEXT_H 104
+#define HOUR_TEXT_Y -7
+#define MINUTE_TEXT_Y 75
+#define DATE_TEXT_Y 186
+#define DATE_TEXT_H 26
+#define DAYPAL_UNAVAILABLE_HEX 0x666666
 #define DAYPAL_QA_DUMMY_DATA 0
 #define DAYPAL_QA_TIME_STRESS_TEST 0
 
@@ -132,6 +139,10 @@ static int s_heart_rate = 110;
 static bool s_calories_available = false;
 static int s_calories = 1520;
 
+static GColor unavailable_color(void) {
+  return GColorFromHEX(DAYPAL_UNAVAILABLE_HEX);
+}
+
 static ThemeType normalize_theme(ThemeType theme) {
   if (theme == THEME_LEGACY_KHAKI) return THEME_YELLOW;
   if (theme == THEME_DARK_BLUE) return THEME_BLUE;
@@ -146,15 +157,15 @@ static bool has_metric_configured(MetricType metric) {
 }
 
 static DayPalTheme black_text_theme(GColor background) {
-  return (DayPalTheme){background, GColorBlack, GColorBlack, GColorBlack, GColorDarkGray, GColorBlack, GColorBlack, GColorBlack, GColorBlack, GColorBlack, false};
+  return (DayPalTheme){background, GColorBlack, GColorBlack, GColorBlack, unavailable_color(), GColorBlack, GColorBlack, GColorBlack, GColorBlack, GColorBlack, false};
 }
 
 static DayPalTheme white_text_theme(GColor background) {
-  return (DayPalTheme){background, GColorWhite, GColorWhite, GColorWhite, GColorFromHEX(0xFFFFFF), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
+  return (DayPalTheme){background, GColorWhite, GColorWhite, GColorWhite, unavailable_color(), GColorWhite, GColorWhite, GColorWhite, GColorWhite, GColorWhite, false};
 }
 
 static DayPalTheme foreground_on_black_theme(GColor foreground) {
-  return (DayPalTheme){GColorBlack, foreground, foreground, foreground, GColorFromHEX(0x666666), foreground, foreground, foreground, foreground, foreground, false};
+  return (DayPalTheme){GColorBlack, foreground, foreground, foreground, unavailable_color(), foreground, foreground, foreground, foreground, foreground, false};
 }
 
 static GColor theme_color(ThemeType theme) {
@@ -174,7 +185,7 @@ static GColor theme_color(ThemeType theme) {
 }
 
 static DayPalTheme default_theme(void) {
-  return (DayPalTheme){GColorBlack, GColorFromHEX(0x555555), GColorWhite, GColorWhite, GColorFromHEX(0x777777), GColorFromHEX(0xFFFF00), GColorFromHEX(0xFF0000), GColorFromHEX(0x00FF00), GColorFromHEX(0xFF5500), GColorFromHEX(0x00AAFF), true};
+  return (DayPalTheme){GColorBlack, GColorFromHEX(0x555555), GColorWhite, GColorWhite, unavailable_color(), GColorFromHEX(0xFFFF00), GColorFromHEX(0xFF0000), GColorFromHEX(0x00FF00), GColorFromHEX(0xFF5500), GColorFromHEX(0x00AAFF), true};
 }
 
 static DayPalTheme get_theme(void) {
@@ -351,7 +362,7 @@ static void format_compact(int value, bool available, char *buffer, size_t size)
 static void value_for_metric(MetricType metric, char *buffer, size_t size) {
 #if DAYPAL_QA_DUMMY_DATA
   switch (metric) {
-    case METRIC_WEATHER: snprintf(buffer, size, "95"); break;
+    case METRIC_WEATHER: snprintf(buffer, size, "95°"); break;
     case METRIC_HEART_RATE: snprintf(buffer, size, "110"); break;
     case METRIC_BATTERY: snprintf(buffer, size, "75"); break;
     case METRIC_CALORIES: snprintf(buffer, size, "1520"); break;
@@ -360,7 +371,7 @@ static void value_for_metric(MetricType metric, char *buffer, size_t size) {
   }
 #else
   switch (metric) {
-    case METRIC_WEATHER: if (s_weather_available) snprintf(buffer, size, "%d", s_weather_temp); else write_text(buffer, size, "---"); break;
+    case METRIC_WEATHER: if (s_weather_available) snprintf(buffer, size, "%d°", s_weather_temp); else write_text(buffer, size, "---"); break;
     case METRIC_HEART_RATE: if (s_heart_available) snprintf(buffer, size, "%d", s_heart_rate); else write_text(buffer, size, "---"); break;
     case METRIC_BATTERY: snprintf(buffer, size, "%d", s_battery.charge_percent); break;
     case METRIC_CALORIES: format_compact(s_calories, s_calories_available, buffer, size); break;
@@ -448,7 +459,7 @@ static void draw_metric(GContext *ctx, DayPalTheme theme, MetricType metric, GRe
 }
 
 static void draw_clock_text(GContext *ctx, const char *text, GFont font, GRect box) {
-  graphics_draw_text(ctx, text, font, box, GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+  graphics_draw_text(ctx, text, font, box, GTextOverflowModeFill, GTextAlignmentCenter, NULL);
 }
 
 static void draw_clock(GContext *ctx, DayPalTheme theme, int clock_x, int clock_w) {
@@ -458,10 +469,15 @@ static void draw_clock(GContext *ctx, DayPalTheme theme, int clock_x, int clock_
   if (!s_settings.show_leading_zero && strlen(hour) == 1) {
     hour_x += SINGLE_DIGIT_HOUR_X_OFFSET;
   }
+
+  int text_x = clock_x - CLOCK_TEXT_X_BLEED;
+  int text_w = clock_w + (CLOCK_TEXT_X_BLEED * 2);
+  int hour_text_x = hour_x - CLOCK_TEXT_X_BLEED;
+
   graphics_context_set_text_color(ctx, theme.clock_text);
-  draw_clock_text(ctx, hour, s_font_time, GRect(hour_x, -11, clock_w, 104));
-  draw_clock_text(ctx, minute, s_font_time, GRect(clock_x, 71, clock_w, 104));
-  draw_clock_text(ctx, date, s_font_date, GRect(clock_x, 186, clock_w, 26));
+  draw_clock_text(ctx, hour, s_font_time, GRect(hour_text_x, HOUR_TEXT_Y, text_w, TIME_TEXT_H));
+  draw_clock_text(ctx, minute, s_font_time, GRect(text_x, MINUTE_TEXT_Y, text_w, TIME_TEXT_H));
+  graphics_draw_text(ctx, date, s_font_date, GRect(clock_x, DATE_TEXT_Y, clock_w, DATE_TEXT_H), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
 }
 
 static void canvas_update_proc(Layer *layer, GContext *ctx) {
@@ -515,7 +531,7 @@ static void load_settings(void) {
   s_settings.slot_metrics[2] = (MetricType)read_int_or_default(STORAGE_KEY_SLOT_3_METRIC, METRIC_BATTERY);
   s_settings.slot_metrics[3] = (MetricType)read_int_or_default(STORAGE_KEY_SLOT_4_METRIC, METRIC_STEPS);
   s_settings.show_leading_zero = persist_exists(STORAGE_KEY_SHOW_LEADING_ZERO) ? persist_read_bool(STORAGE_KEY_SHOW_LEADING_ZERO) : true;
-  s_settings.use_24_hour = persist_exists(STORAGE_KEY_USE_24_HOUR) ? persist_read_bool(STORAGE_KEY_USE_24_HOUR) : true;
+  s_settings.use_24_hour = persist_exists(STORAGE_KEY_USE_24_HOUR) ? persist_read_bool(STORAGE_KEY_USE_24_HOUR) : clock_is_24h_style();
   s_settings.reverse_theme = persist_exists(STORAGE_KEY_REVERSE_THEME) ? persist_read_bool(STORAGE_KEY_REVERSE_THEME) : false;
 }
 
