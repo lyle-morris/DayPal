@@ -86,12 +86,6 @@ typedef enum {
   WEATHER_UNKNOWN = 7
 } WeatherCondition;
 
-typedef enum {
-  ICON_VARIANT_DEFAULT = 0,
-  ICON_VARIANT_BLACK = 1,
-  ICON_VARIANT_WHITE = 2
-} IconVariant;
-
 typedef struct {
   ThemeType theme;
   MetricType slot_metrics[4];
@@ -124,7 +118,7 @@ static DayPalSettings s_settings = {
   .theme = THEME_DEFAULT,
   .slot_metrics = {METRIC_WEATHER, METRIC_HEART_RATE, METRIC_BATTERY, METRIC_STEPS},
   .show_leading_zero = true,
-  .use_24_hour = true,
+  .use_24_hour = false,
   .reverse_theme = false
 };
 
@@ -247,95 +241,6 @@ static GColor color_for_metric(DayPalTheme theme, MetricType metric, bool availa
   }
 }
 
-static bool uses_black_icons(void) {
-  DayPalTheme theme = get_theme();
-  return gcolor_equal(theme.metric_text, GColorBlack);
-}
-
-static IconVariant icon_variant_for_theme(void) {
-  if (uses_black_icons()) return ICON_VARIANT_BLACK;
-  if (s_settings.theme == THEME_DEFAULT && !s_settings.reverse_theme) return ICON_VARIANT_DEFAULT;
-  return ICON_VARIANT_WHITE;
-}
-
-static uint32_t choose_variant(uint32_t black, uint32_t color, uint32_t white) {
-  switch (icon_variant_for_theme()) {
-    case ICON_VARIANT_BLACK: return black;
-    case ICON_VARIANT_WHITE: return white;
-    case ICON_VARIANT_DEFAULT:
-    default: return color;
-  }
-}
-
-static uint32_t weather_resource_id(void) {
-#if DAYPAL_QA_DUMMY_DATA
-  return choose_variant(RESOURCE_ID_IMAGE_WEATHER_SUNNY_BLACK, RESOURCE_ID_IMAGE_WEATHER_SUNNY_YELLOW, RESOURCE_ID_IMAGE_WEATHER_SUNNY_WHITE);
-#else
-  switch (s_weather_condition) {
-    case WEATHER_SUNNY:
-      return choose_variant(RESOURCE_ID_IMAGE_WEATHER_SUNNY_BLACK, RESOURCE_ID_IMAGE_WEATHER_SUNNY_YELLOW, RESOURCE_ID_IMAGE_WEATHER_SUNNY_WHITE);
-    case WEATHER_PARTLY_CLOUDY:
-      return choose_variant(RESOURCE_ID_IMAGE_WEATHER_PARTLY_CLOUDY_BLACK, RESOURCE_ID_IMAGE_WEATHER_PARTLY_CLOUDY_YELLOW, RESOURCE_ID_IMAGE_WEATHER_PARTLY_CLOUDY_WHITE);
-    case WEATHER_CLOUDY:
-      return choose_variant(RESOURCE_ID_IMAGE_WEATHER_CLOUDY_BLACK, RESOURCE_ID_IMAGE_WEATHER_CLOUDY_YELLOW, RESOURCE_ID_IMAGE_WEATHER_CLOUDY_WHITE);
-    case WEATHER_RAINY:
-      return choose_variant(RESOURCE_ID_IMAGE_WEATHER_RAINY_BLACK, RESOURCE_ID_IMAGE_WEATHER_RAINY_YELLOW, RESOURCE_ID_IMAGE_WEATHER_RAINY_WHITE);
-    case WEATHER_STORM:
-      return choose_variant(RESOURCE_ID_IMAGE_WEATHER_STORM_BLACK, RESOURCE_ID_IMAGE_WEATHER_STORM_YELLOW, RESOURCE_ID_IMAGE_WEATHER_STORM_WHITE);
-    case WEATHER_SNOW:
-      return choose_variant(RESOURCE_ID_IMAGE_WEATHER_SNOW_BLACK, RESOURCE_ID_IMAGE_WEATHER_SNOW_YELLOW, RESOURCE_ID_IMAGE_WEATHER_SNOW_WHITE);
-    case WEATHER_FOG:
-      return choose_variant(RESOURCE_ID_IMAGE_WEATHER_FOG_BLACK, RESOURCE_ID_IMAGE_WEATHER_FOG_YELLOW, RESOURCE_ID_IMAGE_WEATHER_FOG_WHITE);
-    case WEATHER_UNKNOWN:
-    default:
-      return choose_variant(RESOURCE_ID_IMAGE_WEATHER_PARTLY_CLOUDY_BLACK, RESOURCE_ID_IMAGE_WEATHER_PARTLY_CLOUDY_YELLOW, RESOURCE_ID_IMAGE_WEATHER_PARTLY_CLOUDY_WHITE);
-  }
-#endif
-}
-
-static int battery_bucket(void) {
-#if DAYPAL_QA_DUMMY_DATA
-  return 75;
-#else
-  if (s_battery.charge_percent <= 0) return 0;
-  if (s_battery.charge_percent <= 25) return 25;
-  if (s_battery.charge_percent <= 50) return 50;
-  if (s_battery.charge_percent <= 80) return 75;
-  return 100;
-#endif
-}
-
-static uint32_t battery_resource_id(void) {
-  bool charging = s_battery.is_charging;
-  int bucket = battery_bucket();
-#if DAYPAL_QA_DUMMY_DATA
-  charging = false;
-#endif
-  if (charging) {
-    if (bucket == 0) return choose_variant(RESOURCE_ID_IMAGE_BATTERY_CHARGING_0_BLACK, RESOURCE_ID_IMAGE_BATTERY_CHARGING_0_GREEN, RESOURCE_ID_IMAGE_BATTERY_CHARGING_0_WHITE);
-    if (bucket == 25) return choose_variant(RESOURCE_ID_IMAGE_BATTERY_CHARGING_25_BLACK, RESOURCE_ID_IMAGE_BATTERY_CHARGING_25_GREEN, RESOURCE_ID_IMAGE_BATTERY_CHARGING_25_WHITE);
-    if (bucket == 50) return choose_variant(RESOURCE_ID_IMAGE_BATTERY_CHARGING_50_BLACK, RESOURCE_ID_IMAGE_BATTERY_CHARGING_50_GREEN, RESOURCE_ID_IMAGE_BATTERY_CHARGING_50_WHITE);
-    if (bucket == 75) return choose_variant(RESOURCE_ID_IMAGE_BATTERY_CHARGING_75_BLACK, RESOURCE_ID_IMAGE_BATTERY_CHARGING_75_GREEN, RESOURCE_ID_IMAGE_BATTERY_CHARGING_75_WHITE);
-    return choose_variant(RESOURCE_ID_IMAGE_BATTERY_CHARGING_100_BLACK, RESOURCE_ID_IMAGE_BATTERY_CHARGING_100_GREEN, RESOURCE_ID_IMAGE_BATTERY_CHARGING_100_WHITE);
-  }
-  if (bucket == 0) return choose_variant(RESOURCE_ID_IMAGE_BATTERY_0_BLACK, RESOURCE_ID_IMAGE_BATTERY_0_GREEN, RESOURCE_ID_IMAGE_BATTERY_0_WHITE);
-  if (bucket == 25) return choose_variant(RESOURCE_ID_IMAGE_BATTERY_25_BLACK, RESOURCE_ID_IMAGE_BATTERY_25_GREEN, RESOURCE_ID_IMAGE_BATTERY_25_WHITE);
-  if (bucket == 50) return choose_variant(RESOURCE_ID_IMAGE_BATTERY_50_BLACK, RESOURCE_ID_IMAGE_BATTERY_50_GREEN, RESOURCE_ID_IMAGE_BATTERY_50_WHITE);
-  if (bucket == 75) return choose_variant(RESOURCE_ID_IMAGE_BATTERY_75_BLACK, RESOURCE_ID_IMAGE_BATTERY_75_GREEN, RESOURCE_ID_IMAGE_BATTERY_75_WHITE);
-  return choose_variant(RESOURCE_ID_IMAGE_BATTERY_100_BLACK, RESOURCE_ID_IMAGE_BATTERY_100_GREEN, RESOURCE_ID_IMAGE_BATTERY_100_WHITE);
-}
-
-static uint32_t resource_id_for_metric(MetricType metric) {
-  switch (metric) {
-    case METRIC_WEATHER: return weather_resource_id();
-    case METRIC_HEART_RATE: return choose_variant(RESOURCE_ID_IMAGE_HEART_RATE_BLACK, RESOURCE_ID_IMAGE_HEART_RATE_RED, RESOURCE_ID_IMAGE_HEART_RATE_WHITE);
-    case METRIC_BATTERY: return battery_resource_id();
-    case METRIC_CALORIES: return choose_variant(RESOURCE_ID_IMAGE_CALORIES_BLACK, RESOURCE_ID_IMAGE_CALORIES_ORANGE, RESOURCE_ID_IMAGE_CALORIES_WHITE);
-    case METRIC_STEPS: return choose_variant(RESOURCE_ID_IMAGE_STEPS_BLACK, RESOURCE_ID_IMAGE_STEPS_BLUE, RESOURCE_ID_IMAGE_STEPS_WHITE);
-    default: return 0;
-  }
-}
-
 static void write_text(char *buffer, size_t size, const char *text) {
   if (size == 0) return;
   snprintf(buffer, size, "%s", text);
@@ -362,9 +267,9 @@ static void format_compact(int value, bool available, char *buffer, size_t size)
 static void value_for_metric(MetricType metric, char *buffer, size_t size) {
 #if DAYPAL_QA_DUMMY_DATA
   switch (metric) {
-    case METRIC_WEATHER: snprintf(buffer, size, "95°"); break;
+    case METRIC_WEATHER: snprintf(buffer, size, "100°"); break;
     case METRIC_HEART_RATE: snprintf(buffer, size, "110"); break;
-    case METRIC_BATTERY: snprintf(buffer, size, "75"); break;
+    case METRIC_BATTERY: snprintf(buffer, size, "100%%"); break;
     case METRIC_CALORIES: snprintf(buffer, size, "1520"); break;
     case METRIC_STEPS: snprintf(buffer, size, "8542"); break;
     default: if (size > 0) buffer[0] = '\0'; break;
@@ -373,12 +278,128 @@ static void value_for_metric(MetricType metric, char *buffer, size_t size) {
   switch (metric) {
     case METRIC_WEATHER: if (s_weather_available) snprintf(buffer, size, "%d°", s_weather_temp); else write_text(buffer, size, "---"); break;
     case METRIC_HEART_RATE: if (s_heart_available) snprintf(buffer, size, "%d", s_heart_rate); else write_text(buffer, size, "---"); break;
-    case METRIC_BATTERY: snprintf(buffer, size, "%d", s_battery.charge_percent); break;
+    case METRIC_BATTERY: snprintf(buffer, size, "%d%%", s_battery.charge_percent); break;
     case METRIC_CALORIES: format_compact(s_calories, s_calories_available, buffer, size); break;
     case METRIC_STEPS: format_compact(s_steps, s_steps_available, buffer, size); break;
     default: if (size > 0) buffer[0] = '\0'; break;
   }
 #endif
+}
+
+static void set_icon_color(GContext *ctx, GColor color) {
+  graphics_context_set_stroke_color(ctx, color);
+  graphics_context_set_fill_color(ctx, color);
+  graphics_context_set_stroke_width(ctx, 2);
+}
+
+static void draw_weather_icon(GContext *ctx, GRect icon_box) {
+  int cx = icon_box.origin.x + 16;
+  int cy = icon_box.origin.y + 15;
+
+  switch (s_weather_condition) {
+    case WEATHER_RAINY:
+      graphics_draw_circle(ctx, GPoint(cx - 5, cy), 6);
+      graphics_draw_circle(ctx, GPoint(cx + 4, cy - 2), 8);
+      graphics_draw_line(ctx, GPoint(cx - 13, cy + 7), GPoint(cx + 14, cy + 7));
+      graphics_draw_line(ctx, GPoint(cx - 8, cy + 12), GPoint(cx - 11, cy + 18));
+      graphics_draw_line(ctx, GPoint(cx, cy + 12), GPoint(cx - 3, cy + 18));
+      graphics_draw_line(ctx, GPoint(cx + 8, cy + 12), GPoint(cx + 5, cy + 18));
+      break;
+    case WEATHER_STORM:
+      graphics_draw_circle(ctx, GPoint(cx - 5, cy), 6);
+      graphics_draw_circle(ctx, GPoint(cx + 4, cy - 2), 8);
+      graphics_draw_line(ctx, GPoint(cx - 13, cy + 7), GPoint(cx + 14, cy + 7));
+      graphics_draw_line(ctx, GPoint(cx + 1, cy + 10), GPoint(cx - 4, cy + 18));
+      graphics_draw_line(ctx, GPoint(cx - 4, cy + 18), GPoint(cx + 4, cy + 16));
+      graphics_draw_line(ctx, GPoint(cx + 4, cy + 16), GPoint(cx - 1, cy + 25));
+      break;
+    case WEATHER_SNOW:
+      graphics_draw_line(ctx, GPoint(cx, cy - 1), GPoint(cx, cy + 23));
+      graphics_draw_line(ctx, GPoint(cx - 10, cy + 5), GPoint(cx + 10, cy + 17));
+      graphics_draw_line(ctx, GPoint(cx - 10, cy + 17), GPoint(cx + 10, cy + 5));
+      break;
+    case WEATHER_CLOUDY:
+    case WEATHER_FOG:
+    case WEATHER_PARTLY_CLOUDY:
+      graphics_draw_circle(ctx, GPoint(cx - 5, cy + 2), 6);
+      graphics_draw_circle(ctx, GPoint(cx + 4, cy), 8);
+      graphics_draw_line(ctx, GPoint(cx - 13, cy + 9), GPoint(cx + 14, cy + 9));
+      if (s_weather_condition == WEATHER_FOG) {
+        graphics_draw_line(ctx, GPoint(cx - 12, cy + 16), GPoint(cx + 12, cy + 16));
+        graphics_draw_line(ctx, GPoint(cx - 8, cy + 22), GPoint(cx + 8, cy + 22));
+      }
+      break;
+    case WEATHER_SUNNY:
+    case WEATHER_UNKNOWN:
+    default:
+      graphics_draw_circle(ctx, GPoint(cx, cy + 2), 8);
+      graphics_draw_line(ctx, GPoint(cx, cy - 12), GPoint(cx, cy - 7));
+      graphics_draw_line(ctx, GPoint(cx, cy + 16), GPoint(cx, cy + 22));
+      graphics_draw_line(ctx, GPoint(cx - 14, cy + 2), GPoint(cx - 9, cy + 2));
+      graphics_draw_line(ctx, GPoint(cx + 9, cy + 2), GPoint(cx + 14, cy + 2));
+      graphics_draw_line(ctx, GPoint(cx - 10, cy - 8), GPoint(cx - 6, cy - 4));
+      graphics_draw_line(ctx, GPoint(cx + 6, cy + 8), GPoint(cx + 10, cy + 12));
+      graphics_draw_line(ctx, GPoint(cx + 10, cy - 8), GPoint(cx + 6, cy - 4));
+      graphics_draw_line(ctx, GPoint(cx - 6, cy + 8), GPoint(cx - 10, cy + 12));
+      break;
+  }
+}
+
+static void draw_heart_icon(GContext *ctx, GRect icon_box) {
+  int x = icon_box.origin.x;
+  int y = icon_box.origin.y;
+  graphics_draw_circle(ctx, GPoint(x + 11, y + 11), 6);
+  graphics_draw_circle(ctx, GPoint(x + 21, y + 11), 6);
+  graphics_draw_line(ctx, GPoint(x + 5, y + 13), GPoint(x + 16, y + 26));
+  graphics_draw_line(ctx, GPoint(x + 27, y + 13), GPoint(x + 16, y + 26));
+  graphics_draw_line(ctx, GPoint(x + 7, y + 17), GPoint(x + 25, y + 17));
+}
+
+static void draw_battery_icon(GContext *ctx, GRect icon_box) {
+  int x = icon_box.origin.x + 3;
+  int y = icon_box.origin.y + 8;
+  graphics_draw_rect(ctx, GRect(x, y, 23, 14));
+  graphics_fill_rect(ctx, GRect(x + 24, y + 4, 3, 6), 0, GCornerNone);
+  int fill_w = 0;
+#if DAYPAL_QA_DUMMY_DATA
+  fill_w = 19;
+#else
+  fill_w = (s_battery.charge_percent < 0 ? 0 : s_battery.charge_percent) * 19 / 100;
+#endif
+  if (fill_w > 19) fill_w = 19;
+  if (fill_w > 0) graphics_fill_rect(ctx, GRect(x + 2, y + 2, fill_w, 10), 0, GCornerNone);
+}
+
+static void draw_calories_icon(GContext *ctx, GRect icon_box) {
+  int x = icon_box.origin.x;
+  int y = icon_box.origin.y;
+  graphics_draw_line(ctx, GPoint(x + 16, y + 4), GPoint(x + 8, y + 19));
+  graphics_draw_line(ctx, GPoint(x + 16, y + 4), GPoint(x + 24, y + 19));
+  graphics_draw_line(ctx, GPoint(x + 8, y + 19), GPoint(x + 16, y + 28));
+  graphics_draw_line(ctx, GPoint(x + 24, y + 19), GPoint(x + 16, y + 28));
+  graphics_draw_line(ctx, GPoint(x + 16, y + 10), GPoint(x + 13, y + 21));
+  graphics_draw_line(ctx, GPoint(x + 16, y + 10), GPoint(x + 20, y + 21));
+}
+
+static void draw_steps_icon(GContext *ctx, GRect icon_box) {
+  int x = icon_box.origin.x;
+  int y = icon_box.origin.y;
+  graphics_draw_circle(ctx, GPoint(x + 11, y + 9), 4);
+  graphics_draw_circle(ctx, GPoint(x + 21, y + 20), 4);
+  graphics_draw_rect(ctx, GRect(x + 7, y + 14, 8, 13));
+  graphics_draw_rect(ctx, GRect(x + 17, y + 4, 8, 13));
+}
+
+static void draw_metric_icon(GContext *ctx, MetricType metric, GColor color, GRect icon_box) {
+  set_icon_color(ctx, color);
+  switch (metric) {
+    case METRIC_WEATHER: draw_weather_icon(ctx, icon_box); break;
+    case METRIC_HEART_RATE: draw_heart_icon(ctx, icon_box); break;
+    case METRIC_BATTERY: draw_battery_icon(ctx, icon_box); break;
+    case METRIC_CALORIES: draw_calories_icon(ctx, icon_box); break;
+    case METRIC_STEPS: draw_steps_icon(ctx, icon_box); break;
+    default: break;
+  }
 }
 
 static time_t day_start_time(void) {
@@ -443,15 +464,7 @@ static void format_time(char *hour, size_t hour_size, char *minute, size_t minut
 static void draw_metric(GContext *ctx, DayPalTheme theme, MetricType metric, GRect box) {
   bool available = metric_available(metric);
   GColor metric_color = color_for_metric(theme, metric, available);
-  uint32_t resource_id = resource_id_for_metric(metric);
-  if (resource_id) {
-    GBitmap *bitmap = gbitmap_create_with_resource(resource_id);
-    if (bitmap) {
-      graphics_context_set_compositing_mode(ctx, GCompOpSet);
-      graphics_draw_bitmap_in_rect(ctx, bitmap, GRect(METRIC_ICON_X, box.origin.y, ICON_SIZE, ICON_SIZE));
-      gbitmap_destroy(bitmap);
-    }
-  }
+  draw_metric_icon(ctx, metric, metric_color, GRect(METRIC_ICON_X, box.origin.y, ICON_SIZE, ICON_SIZE));
   graphics_context_set_text_color(ctx, metric_color);
   char value[12];
   value_for_metric(metric, value, sizeof(value));
@@ -531,7 +544,7 @@ static void load_settings(void) {
   s_settings.slot_metrics[2] = (MetricType)read_int_or_default(STORAGE_KEY_SLOT_3_METRIC, METRIC_BATTERY);
   s_settings.slot_metrics[3] = (MetricType)read_int_or_default(STORAGE_KEY_SLOT_4_METRIC, METRIC_STEPS);
   s_settings.show_leading_zero = persist_exists(STORAGE_KEY_SHOW_LEADING_ZERO) ? persist_read_bool(STORAGE_KEY_SHOW_LEADING_ZERO) : true;
-  s_settings.use_24_hour = persist_exists(STORAGE_KEY_USE_24_HOUR) ? persist_read_bool(STORAGE_KEY_USE_24_HOUR) : clock_is_24h_style();
+  s_settings.use_24_hour = persist_exists(STORAGE_KEY_USE_24_HOUR) ? persist_read_bool(STORAGE_KEY_USE_24_HOUR) : false;
   s_settings.reverse_theme = persist_exists(STORAGE_KEY_REVERSE_THEME) ? persist_read_bool(STORAGE_KEY_REVERSE_THEME) : false;
 }
 
@@ -566,9 +579,7 @@ static void inbox_received(DictionaryIterator *iter, void *context) {
   if ((t = dict_find(iter, APP_KEY_WEATHER_CODE))) { s_weather_condition = (WeatherCondition)t->value->int32; weather_changed = true; }
   if ((t = dict_find(iter, APP_KEY_WEATHER_VALID))) { s_weather_available = t->value->int32 == 1; weather_changed = true; }
   layer_mark_dirty(s_canvas_layer);
-  if (weather_changed) {
-    save_weather();
-  }
+  if (weather_changed) save_weather();
   if (settings_changed) {
     save_settings();
     send_settings_ready();
