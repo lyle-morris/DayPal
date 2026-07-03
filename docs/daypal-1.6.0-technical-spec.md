@@ -250,7 +250,8 @@ Implementation rules:
 - Theme tiles use the documented background, text, focus-border, and focus-icon colors.
 - Manual-location fields are conditionally shown only when manual location is enabled.
 - Fixed Save settings footer behavior should match the wireframe.
-- Donation button remains non-blocking and may be hidden or disabled until a service URL is approved.
+- Donation button opens `https://ko-fi.com/lylemorris` externally.
+- No payment processing or payment data may pass through DayPal.
 
 ## 10. Analytics
 
