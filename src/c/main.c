@@ -302,19 +302,6 @@ static uint32_t resource_id_for_metric(MetricType metric) {
   }
 }
 
-static void tint_bitmap(GBitmap *bitmap, GColor color) {
-  if (!bitmap) return;
-  GRect bounds = gbitmap_get_bounds(bitmap);
-  for (int y = 0; y < bounds.size.h; y++) {
-    GBitmapDataRowInfo row = gbitmap_get_data_row_info(bitmap, y);
-    for (int x = row.min_x; x <= row.max_x; x++) {
-      if (row.data[x] != GColorClear.argb) {
-        row.data[x] = color.argb;
-      }
-    }
-  }
-}
-
 static void write_text(char *buffer, size_t size, const char *text) {
   if (size == 0) return;
   snprintf(buffer, size, "%s", text);
@@ -426,7 +413,6 @@ static void draw_metric(GContext *ctx, DayPalTheme theme, MetricType metric, GRe
   if (resource_id) {
     GBitmap *bitmap = gbitmap_create_with_resource(resource_id);
     if (bitmap) {
-      tint_bitmap(bitmap, metric_color);
       graphics_context_set_compositing_mode(ctx, GCompOpSet);
       graphics_draw_bitmap_in_rect(ctx, bitmap, GRect(METRIC_ICON_X, box.origin.y, ICON_SIZE, ICON_SIZE));
       gbitmap_destroy(bitmap);
