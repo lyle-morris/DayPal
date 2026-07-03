@@ -364,7 +364,9 @@ static void draw_battery_icon(GContext *ctx, GRect icon_box) {
 #if DAYPAL_QA_DUMMY_DATA
   fill_w = 19;
 #else
-  fill_w = (s_battery.charge_percent < 0 ? 0 : s_battery.charge_percent) * 19 / 100;
+  int charge_percent = s_battery.charge_percent;
+  if (charge_percent > 100) charge_percent = 100;
+  fill_w = charge_percent * 19 / 100;
 #endif
   if (fill_w > 19) fill_w = 19;
   if (fill_w > 0) graphics_fill_rect(ctx, GRect(x + 2, y + 2, fill_w, 10), 0, GCornerNone);
