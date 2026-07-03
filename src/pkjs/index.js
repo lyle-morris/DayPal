@@ -13,7 +13,7 @@ var DEFAULT_SETTINGS = {
   slot_3_metric: 2,
   slot_4_metric: 4,
   show_leading_zero: true,
-  use_24_hour: true,
+  use_24_hour: false,
   use_celsius: false,
   manual_location: false,
   manual_postal_code: '',
@@ -135,14 +135,14 @@ function parseConfigResponse(rawResponse) {
 }
 
 function weatherCodeToCondition(code) {
-  if (code === 0) return 0; // Sunny
-  if (code === 1 || code === 2) return 1; // Partly cloudy
-  if (code === 3) return 6; // Cloudy / overcast
-  if (code === 45 || code === 48) return 5; // Fog
-  if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) return 2; // Rain
-  if ((code >= 71 && code <= 77) || code === 85 || code === 86) return 4; // Snow
-  if (code === 95 || code === 96 || code === 99) return 3; // Storm
-  return 7; // Unknown / unsupported
+  if (code === 0) return 0;
+  if (code === 1 || code === 2) return 1;
+  if (code === 3) return 6;
+  if (code === 45 || code === 48) return 5;
+  if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) return 2;
+  if ((code >= 71 && code <= 77) || code === 85 || code === 86) return 4;
+  if (code === 95 || code === 96 || code === 99) return 3;
+  return 7;
 }
 
 function weatherUnit(settings) {
@@ -251,6 +251,46 @@ function fetchWeatherForCoordinates(lat, lon, settings) {
   });
 }
 
+function isCanadianPostalCode(query) {
+  return /^[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d$/.test(query);
+}
+
+function isUSPostalCode(query) {
+  return /^\d{5}(-\d{4})?$/.test(query);
+}
+
+function zippopotamCountryForQuery(query) {
+  if (isCanadianPostalCode(query)) return 'ca';
+  if (isUSPostalCode(query)) return 'us';
+  return null;
+}
+
+function requestPostalFallbackWeather(query, settings) {
+  var country = zippopotamCountryForQuery(query);
+  if (!country) {
+    sendWeatherUnavailable(settings);
+    return;
+  }
+
+  var normalizedPostal = query.toUpperCase().replace(/\s+/g, '');
+  if (country === 'ca' && normalizedPostal.length === 6) {
+    normalizedPostal = normalizedPostal.substring(0, 3) + ' ' + normalizedPostal.substring(3);
+  }
+
+  var url = 'https://api.zippopotam.us/' + country + '/' + encodeURIComponent(normalizedPostal);
+  console.log('DayPal resolving postal fallback: ' + url);
+  httpGetJson(url, function(data) {
+    if (!data.places || !data.places.length) {
+      console.log('DayPal postal fallback had no places');
+      sendWeatherUnavailable(settings);
+      return;
+    }
+    fetchWeatherForCoordinates(data.places[0].latitude, data.places[0].longitude, settings);
+  }, function() {
+    sendWeatherUnavailable(settings);
+  });
+}
+
 function requestManualWeather(settings) {
   var query = manualLocationQuery(settings);
   if (!query) {
@@ -265,13 +305,13 @@ function requestManualWeather(settings) {
   console.log('DayPal resolving manual weather location: ' + query);
   httpGetJson(geocodeUrl, function(data) {
     if (!data.results || !data.results.length) {
-      console.log('DayPal manual weather location not found');
-      sendWeatherUnavailable(settings);
+      console.log('DayPal Open-Meteo geocode not found; trying postal fallback if supported');
+      requestPostalFallbackWeather(query, settings);
       return;
     }
     fetchWeatherForCoordinates(data.results[0].latitude, data.results[0].longitude, settings);
   }, function() {
-    sendWeatherUnavailable(settings);
+    requestPostalFallbackWeather(query, settings);
   });
 }
 
@@ -306,7 +346,19 @@ function requestWeather() {
 function trackAnalyticsEvent(name, data) {
   var settings = loadSettings();
   if (!settings.analytics_enabled) return;
-  console.log('DayPal analytics placeholder: ' + name + ' ' + JSON.stringify(data || {}));
+  var events = [];
+  try {
+    events = JSON.parse(localStorage.getItem('daypal_analytics_events') || '[]');
+  } catch (e) {
+    events = [];
+  }
+  events.push({
+    name: name,
+    data: data || {},
+    timestamp: new Date().toISOString()
+  });
+  localStorage.setItem('daypal_analytics_events', JSON.stringify(events.slice(-200)));
+  console.log('DayPal analytics test event: ' + name + ' ' + JSON.stringify(data || {}));
 }
 
 Pebble.addEventListener('ready', function() {
