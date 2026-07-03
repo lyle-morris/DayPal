@@ -1,6 +1,6 @@
 {
   "name": "daypal",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "A configurable Pebble Time 2 watchface for glanceable daily context.",
   "author": "Lyle Morris",
   "license": "UNLICENSED",
@@ -19,6 +19,8 @@
       "slot_3_metric": 3,
       "slot_4_metric": 4,
       "show_leading_zero": 5,
+      "use_24_hour": 6,
+      "reverse_theme": 7,
       "weather_temp": 10,
       "weather_code": 11,
       "weather_valid": 12,
