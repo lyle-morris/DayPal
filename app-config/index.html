@@ -1,0 +1,684 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>DayPal Settings</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0,0&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f5f5f5;
+      --surface: #ffffff;
+      --surface-muted: #f8f8f8;
+      --text: #111111;
+      --text-muted: #666666;
+      --border: #e1e1e1;
+      --focus: #00aaff;
+      --danger: #d93025;
+      --shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.35;
+    }
+
+    .page {
+      width: min(100%, 430px);
+      margin: 0 auto;
+      padding: 20px 16px 96px;
+    }
+
+    .app-title {
+      margin: 0 0 6px;
+      font-size: 30px;
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+      font-weight: 800;
+    }
+
+    .intro {
+      margin: 0 0 18px;
+      color: var(--text-muted);
+      font-size: 15px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      margin: 0 0 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .card.compact { padding: 16px; }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 12px;
+    }
+
+    .section-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #111111;
+      color: #ffffff;
+      flex: 0 0 auto;
+    }
+
+    .material-symbols-rounded {
+      font-family: "Material Symbols Rounded";
+      font-weight: normal;
+      font-style: normal;
+      font-size: 20px;
+      line-height: 1;
+      letter-spacing: normal;
+      text-transform: none;
+      display: inline-block;
+      white-space: nowrap;
+      word-wrap: normal;
+      direction: ltr;
+      -webkit-font-feature-settings: "liga";
+      -webkit-font-smoothing: antialiased;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.15;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .section-copy {
+      margin: 0 0 14px;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .support-copy {
+      margin: 0 0 14px;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .button {
+      appearance: none;
+      border: 0;
+      min-height: 44px;
+      border-radius: 999px;
+      padding: 0 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: #111111;
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 800;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .button.secondary {
+      background: #eeeeee;
+      color: #111111;
+    }
+
+    .button.full { width: 100%; }
+
+    .setting-list {
+      display: grid;
+      gap: 2px;
+    }
+
+    .setting-row {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      min-height: 46px;
+      padding: 6px 0;
+      color: #111111;
+    }
+
+    .setting-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 650;
+    }
+
+    .setting-label .material-symbols-rounded {
+      color: #444444;
+      font-size: 22px;
+    }
+
+    input[type="checkbox"] {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .check-ui,
+    .switch-ui {
+      flex: 0 0 auto;
+      transition: 140ms ease;
+    }
+
+    .check-ui {
+      width: 24px;
+      height: 24px;
+      border-radius: 8px;
+      border: 2px solid #bbbbbb;
+      background: #ffffff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+    }
+
+    input:checked + .check-ui {
+      border-color: #111111;
+      background: #111111;
+    }
+
+    .check-ui .material-symbols-rounded {
+      font-size: 18px;
+      opacity: 0;
+    }
+
+    input:checked + .check-ui .material-symbols-rounded { opacity: 1; }
+
+    .switch-ui {
+      width: 52px;
+      height: 32px;
+      border-radius: 999px;
+      background: #d6d6d6;
+      padding: 3px;
+    }
+
+    .switch-ui::after {
+      content: "";
+      display: block;
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      background: #ffffff;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
+      transition: 140ms ease;
+    }
+
+    input:checked + .switch-ui { background: #111111; }
+    input:checked + .switch-ui::after { transform: translateX(20px); }
+
+    .theme-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .theme-tile {
+      position: relative;
+      min-height: 56px;
+      border: 3px solid transparent;
+      border-radius: var(--radius-md);
+      padding: 8px 6px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      overflow: hidden;
+    }
+
+    .theme-tile input { position: absolute; opacity: 0; }
+
+    .theme-tile.default { background: #000000; color: #ffffff; }
+    .theme-tile.blue { background: #0055ff; color: #000000; }
+    .theme-tile.orange { background: #ff5500; color: #000000; }
+    .theme-tile.green { background: #00aa55; color: #000000; }
+    .theme-tile.pink { background: #ff00aa; color: #000000; }
+    .theme-tile.red { background: #ff0055; color: #000000; }
+    .theme-tile.yellow { background: #ffcc55; color: #000000; }
+    .theme-tile.black { background: #ffffff; color: #000000; }
+
+    .theme-tile:has(input:checked) {
+      border-color: var(--focus);
+    }
+
+    .theme-check {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: var(--focus);
+      color: #ffffff;
+    }
+
+    .theme-tile.black .theme-check { color: #000000; background: var(--focus); }
+    .theme-tile:has(input:checked) .theme-check { display: flex; }
+    .theme-check .material-symbols-rounded { font-size: 15px; }
+
+    .field-grid {
+      display: grid;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .field-group { display: grid; gap: 6px; }
+
+    label.field-label {
+      font-size: 13px;
+      font-weight: 800;
+      color: #111111;
+    }
+
+    .text-field,
+    select {
+      width: 100%;
+      min-height: 46px;
+      border: 1px solid #cfcfcf;
+      border-radius: var(--radius-sm);
+      padding: 0 12px;
+      background: #ffffff;
+      color: #111111;
+      font: inherit;
+      outline: none;
+    }
+
+    .text-field:focus,
+    select:focus {
+      border-color: var(--focus);
+      box-shadow: 0 0 0 3px rgba(0, 170, 255, 0.18);
+    }
+
+    .error-summary {
+      display: none;
+      margin: 10px 0 12px;
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      background: #fff3f1;
+      color: var(--danger);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .has-error .error-summary { display: block; }
+
+    .field-error {
+      display: none;
+      color: var(--danger);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .has-error .field-error { display: block; }
+
+    .metric-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .metric-row {
+      display: grid;
+      grid-template-columns: 64px 1fr;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .metric-label {
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .sticky-actions {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 10;
+      padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+      background: rgba(245, 245, 245, 0.92);
+      backdrop-filter: blur(14px);
+      border-top: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .sticky-inner {
+      width: min(100%, 430px);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <h1 class="app-title">DayPal</h1>
+    <p class="intro">Use the settings below to customize your Pebble watchface.</p>
+
+    <section class="card compact" aria-labelledby="support-title">
+      <div class="section-header">
+        <span class="section-icon"><span class="material-symbols-rounded">favorite</span></span>
+        <h2 id="support-title">Support DayPal</h2>
+      </div>
+      <p class="support-copy">DayPal is free to use. If you enjoy it, consider leaving a small tip to support future updates and improvements.</p>
+      <a class="button" id="donateLink" href="https://ko-fi.com/lylemorris" target="_blank" rel="noopener noreferrer">
+        <span class="material-symbols-rounded">volunteer_activism</span>
+        Donate
+      </a>
+    </section>
+
+    <section class="card compact" aria-labelledby="analytics-title">
+      <div class="section-header">
+        <span class="section-icon"><span class="material-symbols-rounded">analytics</span></span>
+        <h2 id="analytics-title">Help improve DayPal</h2>
+      </div>
+      <label class="setting-row">
+        <span class="setting-label">Share anonymous usage analytics</span>
+        <input id="analyticsEnabled" type="checkbox" checked>
+        <span class="check-ui"><span class="material-symbols-rounded">check</span></span>
+      </label>
+      <p class="section-copy">Share anonymous usage data to help improve DayPal. No personal, health, or location data is collected.</p>
+    </section>
+
+    <section class="card" aria-labelledby="settings-title" id="settingsCard">
+      <div class="section-header">
+        <span class="section-icon"><span class="material-symbols-rounded">tune</span></span>
+        <h2 id="settings-title">Settings</h2>
+      </div>
+      <div class="setting-list">
+        <label class="setting-row">
+          <span class="setting-label"><span class="material-symbols-rounded">looks_one</span>Display leading zero on the hours.</span>
+          <input id="showLeadingZero" type="checkbox" checked>
+          <span class="switch-ui"></span>
+        </label>
+        <label class="setting-row">
+          <span class="setting-label"><span class="material-symbols-rounded">schedule</span>Use 24-hour format</span>
+          <input id="use24Hour" type="checkbox" checked>
+          <span class="switch-ui"></span>
+        </label>
+        <label class="setting-row">
+          <span class="setting-label"><span class="material-symbols-rounded">device_thermostat</span>Use Celsius for temperature</span>
+          <input id="useCelsius" type="checkbox">
+          <span class="switch-ui"></span>
+        </label>
+        <label class="setting-row">
+          <span class="setting-label"><span class="material-symbols-rounded">location_on</span>Set location manually</span>
+          <input id="manualLocation" type="checkbox">
+          <span class="switch-ui"></span>
+        </label>
+      </div>
+      <div class="field-grid hidden" id="manualLocationFields">
+        <div class="error-summary" id="locationError">Enter a ZIP/postal code or city to set the location manually.</div>
+        <div class="field-group">
+          <label class="field-label" for="postalCode">ZIP/postal code</label>
+          <input class="text-field" id="postalCode" type="text" inputmode="text" autocomplete="postal-code">
+          <div class="field-error">Missing/invalid information</div>
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="city">City</label>
+          <input class="text-field" id="city" type="text" autocomplete="address-level2">
+          <div class="field-error">Missing/invalid information</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="theme-title">
+      <div class="section-header">
+        <span class="section-icon"><span class="material-symbols-rounded">palette</span></span>
+        <h2 id="theme-title">Theme</h2>
+      </div>
+      <p class="section-copy">Select a color theme for your watchface.</p>
+      <div class="theme-grid" role="radiogroup" aria-label="Theme">
+        <label class="theme-tile default"><input type="radio" name="theme" value="0" checked><span class="theme-check"><span class="material-symbols-rounded">check</span></span>Default</label>
+        <label class="theme-tile blue"><input type="radio" name="theme" value="1"><span class="theme-check"><span class="material-symbols-rounded">check</span></span>Blue</label>
+        <label class="theme-tile orange"><input type="radio" name="theme" value="5"><span class="theme-check"><span class="material-symbols-rounded">check</span></span>Orange</label>
+        <label class="theme-tile green"><input type="radio" name="theme" value="3"><span class="theme-check"><span class="material-symbols-rounded">check</span></span>Green</label>
+        <label class="theme-tile pink"><input type="radio" name="theme" value="2"><span class="theme-check"><span class="material-symbols-rounded">check</span></span>Pink</label>
+        <label class="theme-tile red"><input type="radio" name="theme" value="8"><span class="theme-check"><span class="material-symbols-rounded">check</span></span>Red</label>
+        <label class="theme-tile yellow"><input type="radio" name="theme" value="9"><span class="theme-check"><span class="material-symbols-rounded">check</span></span>Yellow</label>
+        <label class="theme-tile black"><input type="radio" name="theme" value="7"><span class="theme-check"><span class="material-symbols-rounded">check</span></span>Black</label>
+      </div>
+      <label class="setting-row" style="margin-top: 14px;">
+        <span class="setting-label"><span class="material-symbols-rounded">contrast</span>Reverse theme colors</span>
+        <input id="reverseTheme" type="checkbox">
+        <span class="switch-ui"></span>
+      </label>
+    </section>
+
+    <section class="card" aria-labelledby="slots-title">
+      <div class="section-header">
+        <span class="section-icon"><span class="material-symbols-rounded">view_list</span></span>
+        <h2 id="slots-title">Metric slots</h2>
+      </div>
+      <p class="section-copy">Customize which metric goes in which slot on the watchface.</p>
+      <div class="metric-list">
+        <div class="metric-row"><span class="metric-label">Slot 1</span><select id="slot1"></select></div>
+        <div class="metric-row"><span class="metric-label">Slot 2</span><select id="slot2"></select></div>
+        <div class="metric-row"><span class="metric-label">Slot 3</span><select id="slot3"></select></div>
+        <div class="metric-row"><span class="metric-label">Slot 4</span><select id="slot4"></select></div>
+      </div>
+    </section>
+  </main>
+
+  <div class="sticky-actions">
+    <div class="sticky-inner">
+      <button class="button secondary full" id="resetButton" type="button">Reset layout</button>
+      <button class="button full" id="saveButton" type="button">Save settings</button>
+    </div>
+  </div>
+
+  <script>
+    const DEFAULT_SETTINGS = {
+      theme: 0,
+      slot_1_metric: 0,
+      slot_2_metric: 1,
+      slot_3_metric: 2,
+      slot_4_metric: 4,
+      show_leading_zero: true,
+      use_24_hour: true,
+      use_celsius: false,
+      manual_location: false,
+      manual_postal_code: '',
+      manual_city: '',
+      reverse_theme: false,
+      analytics_enabled: true
+    };
+
+    const METRICS = [
+      { value: 0, label: 'Weather' },
+      { value: 1, label: 'Heart rate' },
+      { value: 2, label: 'Battery' },
+      { value: 3, label: 'Calories' },
+      { value: 4, label: 'Steps' },
+      { value: 5, label: 'None' }
+    ];
+
+    const $ = (id) => document.getElementById(id);
+
+    function boolValue(value, fallback) {
+      if (value === true || value === 1 || value === '1' || value === 'true') return true;
+      if (value === false || value === 0 || value === '0' || value === 'false') return false;
+      return fallback;
+    }
+
+    function normalizeSettings(settings) {
+      settings = Object.assign({}, DEFAULT_SETTINGS, settings || {});
+      return {
+        theme: Number(settings.theme) || 0,
+        slot_1_metric: Number(settings.slot_1_metric),
+        slot_2_metric: Number(settings.slot_2_metric),
+        slot_3_metric: Number(settings.slot_3_metric),
+        slot_4_metric: Number(settings.slot_4_metric),
+        show_leading_zero: boolValue(settings.show_leading_zero, true),
+        use_24_hour: boolValue(settings.use_24_hour, true),
+        use_celsius: boolValue(settings.use_celsius, false),
+        manual_location: boolValue(settings.manual_location, false),
+        manual_postal_code: String(settings.manual_postal_code || '').trim(),
+        manual_city: String(settings.manual_city || '').trim(),
+        reverse_theme: boolValue(settings.reverse_theme, false),
+        analytics_enabled: boolValue(settings.analytics_enabled, true)
+      };
+    }
+
+    function parseIncomingSettings() {
+      const params = new URLSearchParams(window.location.search);
+      const raw = params.get('settings');
+      const donationUrl = params.get('donation_url');
+      if (donationUrl) $('donateLink').href = donationUrl;
+      if (!raw) return normalizeSettings(DEFAULT_SETTINGS);
+      try {
+        return normalizeSettings(JSON.parse(decodeURIComponent(raw)));
+      } catch (e) {
+        return normalizeSettings(DEFAULT_SETTINGS);
+      }
+    }
+
+    function populateMetricSelect(select, value) {
+      select.innerHTML = '';
+      METRICS.forEach((metric) => {
+        const option = document.createElement('option');
+        option.value = metric.value;
+        option.textContent = metric.label;
+        select.appendChild(option);
+      });
+      select.value = String(value);
+    }
+
+    function setThemeValue(value) {
+      const input = document.querySelector('input[name="theme"][value="' + value + '"]');
+      if (input) input.checked = true;
+      else document.querySelector('input[name="theme"][value="0"]').checked = true;
+    }
+
+    function getThemeValue() {
+      const input = document.querySelector('input[name="theme"]:checked');
+      return input ? Number(input.value) : 0;
+    }
+
+    function render(settings) {
+      $('showLeadingZero').checked = settings.show_leading_zero;
+      $('use24Hour').checked = settings.use_24_hour;
+      $('useCelsius').checked = settings.use_celsius;
+      $('manualLocation').checked = settings.manual_location;
+      $('reverseTheme').checked = settings.reverse_theme;
+      $('analyticsEnabled').checked = settings.analytics_enabled;
+      $('postalCode').value = settings.manual_postal_code;
+      $('city').value = settings.manual_city;
+      setThemeValue(settings.theme);
+      populateMetricSelect($('slot1'), settings.slot_1_metric);
+      populateMetricSelect($('slot2'), settings.slot_2_metric);
+      populateMetricSelect($('slot3'), settings.slot_3_metric);
+      populateMetricSelect($('slot4'), settings.slot_4_metric);
+      syncManualLocationVisibility();
+    }
+
+    function syncManualLocationVisibility() {
+      $('manualLocationFields').classList.toggle('hidden', !$('manualLocation').checked);
+      if (!$('manualLocation').checked) clearLocationError();
+    }
+
+    function clearLocationError() {
+      $('settingsCard').classList.remove('has-error');
+    }
+
+    function showLocationError() {
+      $('settingsCard').classList.add('has-error');
+      $('locationError').scrollIntoView({ block: 'nearest' });
+    }
+
+    function collectSettings() {
+      return normalizeSettings({
+        theme: getThemeValue(),
+        slot_1_metric: Number($('slot1').value),
+        slot_2_metric: Number($('slot2').value),
+        slot_3_metric: Number($('slot3').value),
+        slot_4_metric: Number($('slot4').value),
+        show_leading_zero: $('showLeadingZero').checked,
+        use_24_hour: $('use24Hour').checked,
+        use_celsius: $('useCelsius').checked,
+        manual_location: $('manualLocation').checked,
+        manual_postal_code: $('postalCode').value,
+        manual_city: $('city').value,
+        reverse_theme: $('reverseTheme').checked,
+        analytics_enabled: $('analyticsEnabled').checked
+      });
+    }
+
+    function validate(settings) {
+      clearLocationError();
+      if (settings.manual_location && !settings.manual_postal_code && !settings.manual_city) {
+        showLocationError();
+        return false;
+      }
+      return true;
+    }
+
+    function closeWithSettings(settings) {
+      const encoded = encodeURIComponent(JSON.stringify(settings));
+      window.location.href = 'pebblejs://close#' + encoded;
+    }
+
+    function resetLayout() {
+      const current = collectSettings();
+      render(Object.assign({}, current, {
+        theme: 0,
+        slot_1_metric: 0,
+        slot_2_metric: 1,
+        slot_3_metric: 2,
+        slot_4_metric: 4,
+        show_leading_zero: true,
+        use_24_hour: true,
+        use_celsius: false,
+        manual_location: false,
+        manual_postal_code: '',
+        manual_city: '',
+        reverse_theme: false,
+        analytics_enabled: current.analytics_enabled
+      }));
+    }
+
+    $('manualLocation').addEventListener('change', syncManualLocationVisibility);
+    $('postalCode').addEventListener('input', clearLocationError);
+    $('city').addEventListener('input', clearLocationError);
+    $('resetButton').addEventListener('click', resetLayout);
+    $('saveButton').addEventListener('click', () => {
+      const settings = collectSettings();
+      if (!validate(settings)) return;
+      closeWithSettings(settings);
+    });
+
+    render(parseIncomingSettings());
+  </script>
+</body>
+</html>
