@@ -22,7 +22,7 @@ DayPal 1.6.0 expands user configuration, weather location control, theme behavio
 - Reset layout action
 - Anonymous usage analytics
 - Visible analytics opt-out control
-- Support DayPal donation section as a non-blocking placeholder until a donation service is selected
+- Support DayPal donation section linked to Ko-fi
 - Icon Manager architecture
 - One white-on-transparent PNG source asset per icon state, recolored at runtime
 - App-config page implementation targeting approximately 98% visual fidelity to the approved wireframe
@@ -89,8 +89,10 @@ DayPal 1.6.0 expands user configuration, weather location control, theme behavio
 - Section title: Support DayPal.
 - Copy: DayPal is free to use. If you enjoy it, consider leaving a small tip to support future updates and improvements.
 - Button label: Donate.
-- Donation service is pending and must not block the 1.6.0 release.
-- Payment processing must remain external to DayPal.
+- Donation service: Ko-fi.
+- Donation URL: https://ko-fi.com/lylemorris
+- The Donate button opens the Ko-fi page externally.
+- Payment processing and payment data remain external to DayPal.
 
 ## Configuration defaults
 
