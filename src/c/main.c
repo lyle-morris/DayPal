@@ -86,6 +86,21 @@ typedef enum {
   WEATHER_UNKNOWN = 7
 } WeatherCondition;
 
+typedef enum {
+  ICON_COLOR_WHITE,
+  ICON_COLOR_BLACK,
+  ICON_COLOR_BLUE,
+  ICON_COLOR_ORANGE,
+  ICON_COLOR_GREEN,
+  ICON_COLOR_PINK,
+  ICON_COLOR_RED,
+  ICON_COLOR_YELLOW,
+  ICON_COLOR_DEFAULT_WEATHER,
+  ICON_COLOR_DEFAULT_HEART,
+  ICON_COLOR_DEFAULT_BATTERY,
+  ICON_COLOR_DEFAULT_STEPS
+} IconColor;
+
 typedef struct {
   ThemeType theme;
   MetricType slot_metrics[4];
@@ -241,22 +256,138 @@ static GColor color_for_metric(DayPalTheme theme, MetricType metric, bool availa
   }
 }
 
-static uint32_t weather_white_resource_id(void) {
-#if DAYPAL_QA_DUMMY_DATA
-  return RESOURCE_ID_IMAGE_WEATHER_SUNNY_WHITE;
-#else
-  switch (s_weather_condition) {
-    case WEATHER_SUNNY: return RESOURCE_ID_IMAGE_WEATHER_SUNNY_WHITE;
-    case WEATHER_PARTLY_CLOUDY: return RESOURCE_ID_IMAGE_WEATHER_PARTLY_CLOUDY_WHITE;
-    case WEATHER_CLOUDY: return RESOURCE_ID_IMAGE_WEATHER_CLOUDY_WHITE;
-    case WEATHER_RAINY: return RESOURCE_ID_IMAGE_WEATHER_RAINY_WHITE;
-    case WEATHER_STORM: return RESOURCE_ID_IMAGE_WEATHER_STORM_WHITE;
-    case WEATHER_SNOW: return RESOURCE_ID_IMAGE_WEATHER_SNOW_WHITE;
-    case WEATHER_FOG: return RESOURCE_ID_IMAGE_WEATHER_FOG_WHITE;
-    case WEATHER_UNKNOWN:
-    default: return RESOURCE_ID_IMAGE_WEATHER_PARTLY_CLOUDY_WHITE;
+static IconColor icon_color_for_metric(DayPalTheme theme, MetricType metric) {
+  if (theme.individual_metric_colors) {
+    switch (metric) {
+      case METRIC_WEATHER: return ICON_COLOR_DEFAULT_WEATHER;
+      case METRIC_HEART_RATE: return ICON_COLOR_DEFAULT_HEART;
+      case METRIC_BATTERY: return ICON_COLOR_DEFAULT_BATTERY;
+      case METRIC_CALORIES: return ICON_COLOR_ORANGE;
+      case METRIC_STEPS: return ICON_COLOR_DEFAULT_STEPS;
+      default: return ICON_COLOR_WHITE;
+    }
   }
+
+  ThemeType theme_type = normalize_theme(s_settings.theme);
+  if (!s_settings.reverse_theme) {
+    return ICON_COLOR_BLACK;
+  }
+
+  switch (theme_type) {
+    case THEME_BLUE: return ICON_COLOR_BLUE;
+    case THEME_PINK: return ICON_COLOR_PINK;
+    case THEME_GREEN: return ICON_COLOR_GREEN;
+    case THEME_ORANGE: return ICON_COLOR_ORANGE;
+    case THEME_RED: return ICON_COLOR_RED;
+    case THEME_YELLOW: return ICON_COLOR_YELLOW;
+    case THEME_BLACK:
+    case THEME_WHITE: return ICON_COLOR_WHITE;
+    default: return ICON_COLOR_WHITE;
+  }
+}
+
+static uint32_t weather_resource_id(IconColor color) {
+#if DAYPAL_QA_DUMMY_DATA
+  WeatherCondition condition = WEATHER_SUNNY;
+#else
+  WeatherCondition condition = s_weather_condition;
 #endif
+
+  switch (condition) {
+    case WEATHER_SUNNY:
+      switch (color) {
+        case ICON_COLOR_BLACK: return RESOURCE_ID_IMAGE_WEATHER_SUNNY_BLACK;
+        case ICON_COLOR_BLUE: return RESOURCE_ID_IMAGE_WEATHER_SUNNY_BLUE;
+        case ICON_COLOR_ORANGE: return RESOURCE_ID_IMAGE_WEATHER_SUNNY_ORANGE;
+        case ICON_COLOR_GREEN: return RESOURCE_ID_IMAGE_WEATHER_SUNNY_THEME_GREEN;
+        case ICON_COLOR_PINK: return RESOURCE_ID_IMAGE_WEATHER_SUNNY_PINK;
+        case ICON_COLOR_RED: return RESOURCE_ID_IMAGE_WEATHER_SUNNY_RED;
+        case ICON_COLOR_YELLOW: return RESOURCE_ID_IMAGE_WEATHER_SUNNY_THEME_YELLOW;
+        case ICON_COLOR_DEFAULT_WEATHER: return RESOURCE_ID_IMAGE_WEATHER_SUNNY_DEFAULT_WEATHER;
+        case ICON_COLOR_WHITE:
+        default: return RESOURCE_ID_IMAGE_WEATHER_SUNNY_WHITE;
+      }
+    case WEATHER_CLOUDY:
+      switch (color) {
+        case ICON_COLOR_BLACK: return RESOURCE_ID_IMAGE_WEATHER_CLOUDY_BLACK;
+        case ICON_COLOR_BLUE: return RESOURCE_ID_IMAGE_WEATHER_CLOUDY_BLUE;
+        case ICON_COLOR_ORANGE: return RESOURCE_ID_IMAGE_WEATHER_CLOUDY_ORANGE;
+        case ICON_COLOR_GREEN: return RESOURCE_ID_IMAGE_WEATHER_CLOUDY_THEME_GREEN;
+        case ICON_COLOR_PINK: return RESOURCE_ID_IMAGE_WEATHER_CLOUDY_PINK;
+        case ICON_COLOR_RED: return RESOURCE_ID_IMAGE_WEATHER_CLOUDY_RED;
+        case ICON_COLOR_YELLOW: return RESOURCE_ID_IMAGE_WEATHER_CLOUDY_THEME_YELLOW;
+        case ICON_COLOR_DEFAULT_WEATHER: return RESOURCE_ID_IMAGE_WEATHER_CLOUDY_DEFAULT_WEATHER;
+        case ICON_COLOR_WHITE:
+        default: return RESOURCE_ID_IMAGE_WEATHER_CLOUDY_WHITE;
+      }
+    case WEATHER_RAINY:
+      switch (color) {
+        case ICON_COLOR_BLACK: return RESOURCE_ID_IMAGE_WEATHER_RAINY_BLACK;
+        case ICON_COLOR_BLUE: return RESOURCE_ID_IMAGE_WEATHER_RAINY_BLUE;
+        case ICON_COLOR_ORANGE: return RESOURCE_ID_IMAGE_WEATHER_RAINY_ORANGE;
+        case ICON_COLOR_GREEN: return RESOURCE_ID_IMAGE_WEATHER_RAINY_THEME_GREEN;
+        case ICON_COLOR_PINK: return RESOURCE_ID_IMAGE_WEATHER_RAINY_PINK;
+        case ICON_COLOR_RED: return RESOURCE_ID_IMAGE_WEATHER_RAINY_RED;
+        case ICON_COLOR_YELLOW: return RESOURCE_ID_IMAGE_WEATHER_RAINY_THEME_YELLOW;
+        case ICON_COLOR_DEFAULT_WEATHER: return RESOURCE_ID_IMAGE_WEATHER_RAINY_DEFAULT_WEATHER;
+        case ICON_COLOR_WHITE:
+        default: return RESOURCE_ID_IMAGE_WEATHER_RAINY_WHITE;
+      }
+    case WEATHER_STORM:
+      switch (color) {
+        case ICON_COLOR_BLACK: return RESOURCE_ID_IMAGE_WEATHER_STORM_BLACK;
+        case ICON_COLOR_BLUE: return RESOURCE_ID_IMAGE_WEATHER_STORM_BLUE;
+        case ICON_COLOR_ORANGE: return RESOURCE_ID_IMAGE_WEATHER_STORM_ORANGE;
+        case ICON_COLOR_GREEN: return RESOURCE_ID_IMAGE_WEATHER_STORM_THEME_GREEN;
+        case ICON_COLOR_PINK: return RESOURCE_ID_IMAGE_WEATHER_STORM_PINK;
+        case ICON_COLOR_RED: return RESOURCE_ID_IMAGE_WEATHER_STORM_RED;
+        case ICON_COLOR_YELLOW: return RESOURCE_ID_IMAGE_WEATHER_STORM_THEME_YELLOW;
+        case ICON_COLOR_DEFAULT_WEATHER: return RESOURCE_ID_IMAGE_WEATHER_STORM_DEFAULT_WEATHER;
+        case ICON_COLOR_WHITE:
+        default: return RESOURCE_ID_IMAGE_WEATHER_STORM_WHITE;
+      }
+    case WEATHER_SNOW:
+      switch (color) {
+        case ICON_COLOR_BLACK: return RESOURCE_ID_IMAGE_WEATHER_SNOW_BLACK;
+        case ICON_COLOR_BLUE: return RESOURCE_ID_IMAGE_WEATHER_SNOW_BLUE;
+        case ICON_COLOR_ORANGE: return RESOURCE_ID_IMAGE_WEATHER_SNOW_ORANGE;
+        case ICON_COLOR_GREEN: return RESOURCE_ID_IMAGE_WEATHER_SNOW_THEME_GREEN;
+        case ICON_COLOR_PINK: return RESOURCE_ID_IMAGE_WEATHER_SNOW_PINK;
+        case ICON_COLOR_RED: return RESOURCE_ID_IMAGE_WEATHER_SNOW_RED;
+        case ICON_COLOR_YELLOW: return RESOURCE_ID_IMAGE_WEATHER_SNOW_THEME_YELLOW;
+        case ICON_COLOR_DEFAULT_WEATHER: return RESOURCE_ID_IMAGE_WEATHER_SNOW_DEFAULT_WEATHER;
+        case ICON_COLOR_WHITE:
+        default: return RESOURCE_ID_IMAGE_WEATHER_SNOW_WHITE;
+      }
+    case WEATHER_FOG:
+      switch (color) {
+        case ICON_COLOR_BLACK: return RESOURCE_ID_IMAGE_WEATHER_FOG_BLACK;
+        case ICON_COLOR_BLUE: return RESOURCE_ID_IMAGE_WEATHER_FOG_BLUE;
+        case ICON_COLOR_ORANGE: return RESOURCE_ID_IMAGE_WEATHER_FOG_ORANGE;
+        case ICON_COLOR_GREEN: return RESOURCE_ID_IMAGE_WEATHER_FOG_THEME_GREEN;
+        case ICON_COLOR_PINK: return RESOURCE_ID_IMAGE_WEATHER_FOG_PINK;
+        case ICON_COLOR_RED: return RESOURCE_ID_IMAGE_WEATHER_FOG_RED;
+        case ICON_COLOR_YELLOW: return RESOURCE_ID_IMAGE_WEATHER_FOG_THEME_YELLOW;
+        case ICON_COLOR_DEFAULT_WEATHER: return RESOURCE_ID_IMAGE_WEATHER_FOG_DEFAULT_WEATHER;
+        case ICON_COLOR_WHITE:
+        default: return RESOURCE_ID_IMAGE_WEATHER_FOG_WHITE;
+      }
+    case WEATHER_PARTLY_CLOUDY:
+    case WEATHER_UNKNOWN:
+    default:
+      switch (color) {
+        case ICON_COLOR_BLACK: return RESOURCE_ID_IMAGE_WEATHER_PARTLY_CLOUDY_BLACK;
+        case ICON_COLOR_BLUE: return RESOURCE_ID_IMAGE_WEATHER_PARTLY_CLOUDY_BLUE;
+        case ICON_COLOR_ORANGE: return RESOURCE_ID_IMAGE_WEATHER_PARTLY_CLOUDY_ORANGE;
+        case ICON_COLOR_GREEN: return RESOURCE_ID_IMAGE_WEATHER_PARTLY_CLOUDY_THEME_GREEN;
+        case ICON_COLOR_PINK: return RESOURCE_ID_IMAGE_WEATHER_PARTLY_CLOUDY_PINK;
+        case ICON_COLOR_RED: return RESOURCE_ID_IMAGE_WEATHER_PARTLY_CLOUDY_RED;
+        case ICON_COLOR_YELLOW: return RESOURCE_ID_IMAGE_WEATHER_PARTLY_CLOUDY_THEME_YELLOW;
+        case ICON_COLOR_DEFAULT_WEATHER: return RESOURCE_ID_IMAGE_WEATHER_PARTLY_CLOUDY_DEFAULT_WEATHER;
+        case ICON_COLOR_WHITE:
+        default: return RESOURCE_ID_IMAGE_WEATHER_PARTLY_CLOUDY_WHITE;
+      }
+  }
 }
 
 static int battery_bucket(void) {
@@ -271,34 +402,99 @@ static int battery_bucket(void) {
 #endif
 }
 
-static uint32_t battery_white_resource_id(void) {
+static uint32_t battery_resource_id(IconColor color) {
   bool charging = s_battery.is_charging;
   int bucket = battery_bucket();
 #if DAYPAL_QA_DUMMY_DATA
   charging = false;
 #endif
+
+#define BATTERY_RESOURCE_FOR_COLOR(prefix) \
+  if (color == ICON_COLOR_BLACK) return RESOURCE_ID_IMAGE_BATTERY_##prefix##_BLACK; \
+  if (color == ICON_COLOR_BLUE) return RESOURCE_ID_IMAGE_BATTERY_##prefix##_BLUE; \
+  if (color == ICON_COLOR_ORANGE) return RESOURCE_ID_IMAGE_BATTERY_##prefix##_ORANGE; \
+  if (color == ICON_COLOR_GREEN) return RESOURCE_ID_IMAGE_BATTERY_##prefix##_THEME_GREEN; \
+  if (color == ICON_COLOR_PINK) return RESOURCE_ID_IMAGE_BATTERY_##prefix##_PINK; \
+  if (color == ICON_COLOR_RED) return RESOURCE_ID_IMAGE_BATTERY_##prefix##_RED; \
+  if (color == ICON_COLOR_YELLOW) return RESOURCE_ID_IMAGE_BATTERY_##prefix##_THEME_YELLOW; \
+  if (color == ICON_COLOR_DEFAULT_BATTERY) return RESOURCE_ID_IMAGE_BATTERY_##prefix##_DEFAULT_BATTERY; \
+  return RESOURCE_ID_IMAGE_BATTERY_##prefix##_WHITE
+
+#define BATTERY_CHARGING_RESOURCE_FOR_COLOR(prefix) \
+  if (color == ICON_COLOR_BLACK) return RESOURCE_ID_IMAGE_BATTERY_CHARGING_##prefix##_BLACK; \
+  if (color == ICON_COLOR_BLUE) return RESOURCE_ID_IMAGE_BATTERY_CHARGING_##prefix##_BLUE; \
+  if (color == ICON_COLOR_ORANGE) return RESOURCE_ID_IMAGE_BATTERY_CHARGING_##prefix##_ORANGE; \
+  if (color == ICON_COLOR_GREEN) return RESOURCE_ID_IMAGE_BATTERY_CHARGING_##prefix##_THEME_GREEN; \
+  if (color == ICON_COLOR_PINK) return RESOURCE_ID_IMAGE_BATTERY_CHARGING_##prefix##_PINK; \
+  if (color == ICON_COLOR_RED) return RESOURCE_ID_IMAGE_BATTERY_CHARGING_##prefix##_RED; \
+  if (color == ICON_COLOR_YELLOW) return RESOURCE_ID_IMAGE_BATTERY_CHARGING_##prefix##_THEME_YELLOW; \
+  if (color == ICON_COLOR_DEFAULT_BATTERY) return RESOURCE_ID_IMAGE_BATTERY_CHARGING_##prefix##_DEFAULT_BATTERY; \
+  return RESOURCE_ID_IMAGE_BATTERY_CHARGING_##prefix##_WHITE
+
   if (charging) {
-    if (bucket == 0) return RESOURCE_ID_IMAGE_BATTERY_CHARGING_0_WHITE;
-    if (bucket == 25) return RESOURCE_ID_IMAGE_BATTERY_CHARGING_25_WHITE;
-    if (bucket == 50) return RESOURCE_ID_IMAGE_BATTERY_CHARGING_50_WHITE;
-    if (bucket == 75) return RESOURCE_ID_IMAGE_BATTERY_CHARGING_75_WHITE;
-    return RESOURCE_ID_IMAGE_BATTERY_CHARGING_100_WHITE;
+    if (bucket == 0) { BATTERY_CHARGING_RESOURCE_FOR_COLOR(0); }
+    if (bucket == 25) { BATTERY_CHARGING_RESOURCE_FOR_COLOR(25); }
+    if (bucket == 50) { BATTERY_CHARGING_RESOURCE_FOR_COLOR(50); }
+    if (bucket == 75) { BATTERY_CHARGING_RESOURCE_FOR_COLOR(75); }
+    BATTERY_CHARGING_RESOURCE_FOR_COLOR(100);
   }
-  if (bucket == 0) return RESOURCE_ID_IMAGE_BATTERY_0_WHITE;
-  if (bucket == 25) return RESOURCE_ID_IMAGE_BATTERY_25_WHITE;
-  if (bucket == 50) return RESOURCE_ID_IMAGE_BATTERY_50_WHITE;
-  if (bucket == 75) return RESOURCE_ID_IMAGE_BATTERY_75_WHITE;
-  return RESOURCE_ID_IMAGE_BATTERY_100_WHITE;
+
+  if (bucket == 0) { BATTERY_RESOURCE_FOR_COLOR(0); }
+  if (bucket == 25) { BATTERY_RESOURCE_FOR_COLOR(25); }
+  if (bucket == 50) { BATTERY_RESOURCE_FOR_COLOR(50); }
+  if (bucket == 75) { BATTERY_RESOURCE_FOR_COLOR(75); }
+  BATTERY_RESOURCE_FOR_COLOR(100);
+
+#undef BATTERY_RESOURCE_FOR_COLOR
+#undef BATTERY_CHARGING_RESOURCE_FOR_COLOR
 }
 
-static uint32_t resource_id_for_metric(MetricType metric) {
+static uint32_t resource_id_for_metric(MetricType metric, IconColor color) {
   switch (metric) {
-    case METRIC_WEATHER: return weather_white_resource_id();
-    case METRIC_HEART_RATE: return RESOURCE_ID_IMAGE_HEART_RATE_WHITE;
-    case METRIC_BATTERY: return battery_white_resource_id();
-    case METRIC_CALORIES: return RESOURCE_ID_IMAGE_CALORIES_WHITE;
-    case METRIC_STEPS: return RESOURCE_ID_IMAGE_STEPS_WHITE;
-    default: return 0;
+    case METRIC_WEATHER:
+      return weather_resource_id(color);
+    case METRIC_HEART_RATE:
+      switch (color) {
+        case ICON_COLOR_BLACK: return RESOURCE_ID_IMAGE_HEART_RATE_BLACK;
+        case ICON_COLOR_BLUE: return RESOURCE_ID_IMAGE_HEART_RATE_BLUE;
+        case ICON_COLOR_ORANGE: return RESOURCE_ID_IMAGE_HEART_RATE_ORANGE;
+        case ICON_COLOR_GREEN: return RESOURCE_ID_IMAGE_HEART_RATE_THEME_GREEN;
+        case ICON_COLOR_PINK: return RESOURCE_ID_IMAGE_HEART_RATE_PINK;
+        case ICON_COLOR_RED: return RESOURCE_ID_IMAGE_HEART_RATE_RED;
+        case ICON_COLOR_YELLOW: return RESOURCE_ID_IMAGE_HEART_RATE_THEME_YELLOW;
+        case ICON_COLOR_DEFAULT_HEART: return RESOURCE_ID_IMAGE_HEART_RATE_DEFAULT_HEART;
+        case ICON_COLOR_WHITE:
+        default: return RESOURCE_ID_IMAGE_HEART_RATE_WHITE;
+      }
+    case METRIC_BATTERY:
+      return battery_resource_id(color);
+    case METRIC_CALORIES:
+      switch (color) {
+        case ICON_COLOR_BLACK: return RESOURCE_ID_IMAGE_CALORIES_BLACK;
+        case ICON_COLOR_BLUE: return RESOURCE_ID_IMAGE_CALORIES_BLUE;
+        case ICON_COLOR_ORANGE: return RESOURCE_ID_IMAGE_CALORIES_ORANGE;
+        case ICON_COLOR_GREEN: return RESOURCE_ID_IMAGE_CALORIES_THEME_GREEN;
+        case ICON_COLOR_PINK: return RESOURCE_ID_IMAGE_CALORIES_PINK;
+        case ICON_COLOR_RED: return RESOURCE_ID_IMAGE_CALORIES_RED;
+        case ICON_COLOR_YELLOW: return RESOURCE_ID_IMAGE_CALORIES_THEME_YELLOW;
+        case ICON_COLOR_WHITE:
+        default: return RESOURCE_ID_IMAGE_CALORIES_WHITE;
+      }
+    case METRIC_STEPS:
+      switch (color) {
+        case ICON_COLOR_BLACK: return RESOURCE_ID_IMAGE_STEPS_BLACK;
+        case ICON_COLOR_BLUE: return RESOURCE_ID_IMAGE_STEPS_BLUE;
+        case ICON_COLOR_ORANGE: return RESOURCE_ID_IMAGE_STEPS_ORANGE;
+        case ICON_COLOR_GREEN: return RESOURCE_ID_IMAGE_STEPS_THEME_GREEN;
+        case ICON_COLOR_PINK: return RESOURCE_ID_IMAGE_STEPS_PINK;
+        case ICON_COLOR_RED: return RESOURCE_ID_IMAGE_STEPS_RED;
+        case ICON_COLOR_YELLOW: return RESOURCE_ID_IMAGE_STEPS_THEME_YELLOW;
+        case ICON_COLOR_DEFAULT_STEPS: return RESOURCE_ID_IMAGE_STEPS_DEFAULT_STEPS;
+        case ICON_COLOR_WHITE:
+        default: return RESOURCE_ID_IMAGE_STEPS_WHITE;
+      }
+    default:
+      return 0;
   }
 }
 
@@ -409,7 +605,8 @@ static void format_time(char *hour, size_t hour_size, char *minute, size_t minut
 static void draw_metric(GContext *ctx, DayPalTheme theme, MetricType metric, GRect box) {
   bool available = metric_available(metric);
   GColor metric_color = color_for_metric(theme, metric, available);
-  uint32_t resource_id = resource_id_for_metric(metric);
+  IconColor icon_color = icon_color_for_metric(theme, metric);
+  uint32_t resource_id = resource_id_for_metric(metric, icon_color);
   if (resource_id) {
     GBitmap *bitmap = gbitmap_create_with_resource(resource_id);
     if (bitmap) {
