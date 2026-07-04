@@ -57,28 +57,8 @@
         },
         {
           "type": "png",
-          "name": "IMAGE_WEATHER_SUNNY_BLACK",
-          "file": "images/weather/sunny_32_000000.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_WEATHER_SUNNY_YELLOW",
-          "file": "images/weather/sunny_32_FFFF00.png"
-        },
-        {
-          "type": "png",
           "name": "IMAGE_WEATHER_SUNNY_WHITE",
           "file": "images/weather/sunny_32_FFFFFF.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_WEATHER_PARTLY_CLOUDY_BLACK",
-          "file": "images/weather/partly_cloudy_32_000000.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_WEATHER_PARTLY_CLOUDY_YELLOW",
-          "file": "images/weather/partly_cloudy_32_FFFF00.png"
         },
         {
           "type": "png",
@@ -87,28 +67,8 @@
         },
         {
           "type": "png",
-          "name": "IMAGE_WEATHER_CLOUDY_BLACK",
-          "file": "images/weather/cloudy_32_000000.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_WEATHER_CLOUDY_YELLOW",
-          "file": "images/weather/cloudy_32_FFFF00.png"
-        },
-        {
-          "type": "png",
           "name": "IMAGE_WEATHER_CLOUDY_WHITE",
           "file": "images/weather/cloudy_32_FFFFFF.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_WEATHER_RAINY_BLACK",
-          "file": "images/weather/rainy_32_000000.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_WEATHER_RAINY_YELLOW",
-          "file": "images/weather/rainy_32_FFFF00.png"
         },
         {
           "type": "png",
@@ -117,28 +77,8 @@
         },
         {
           "type": "png",
-          "name": "IMAGE_WEATHER_STORM_BLACK",
-          "file": "images/weather/storm_32_000000.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_WEATHER_STORM_YELLOW",
-          "file": "images/weather/storm_32_FFFF00.png"
-        },
-        {
-          "type": "png",
           "name": "IMAGE_WEATHER_STORM_WHITE",
           "file": "images/weather/storm_32_FFFFFF.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_WEATHER_SNOW_BLACK",
-          "file": "images/weather/snow_32_000000.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_WEATHER_SNOW_YELLOW",
-          "file": "images/weather/snow_32_FFFF00.png"
         },
         {
           "type": "png",
@@ -147,18 +87,73 @@
         },
         {
           "type": "png",
-          "name": "IMAGE_WEATHER_FOG_BLACK",
-          "file": "images/weather/fog_32_000000.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_WEATHER_FOG_YELLOW",
-          "file": "images/weather/fog_32_FFFF00.png"
-        },
-        {
-          "type": "png",
           "name": "IMAGE_WEATHER_FOG_WHITE",
           "file": "images/weather/fog_32_FFFFFF.png"
+        },
+        {
+          "type": "png",
+          "name": "IMAGE_BATTERY_0_WHITE",
+          "file": "images/battery/battery_0_32_FFFFFF.png"
+        },
+        {
+          "type": "png",
+          "name": "IMAGE_BATTERY_25_WHITE",
+          "file": "images/battery/battery_25_32_FFFFFF.png"
+        },
+        {
+          "type": "png",
+          "name": "IMAGE_BATTERY_50_WHITE",
+          "file": "images/battery/battery_50_32_FFFFFF.png"
+        },
+        {
+          "type": "png",
+          "name": "IMAGE_BATTERY_75_WHITE",
+          "file": "images/battery/battery_75_32_FFFFFF.png"
+        },
+        {
+          "type": "png",
+          "name": "IMAGE_BATTERY_100_WHITE",
+          "file": "images/battery/battery_100_32_FFFFFF.png"
+        },
+        {
+          "type": "png",
+          "name": "IMAGE_BATTERY_CHARGING_0_WHITE",
+          "file": "images/battery/battery_charging_0_32_FFFFFF.png"
+        },
+        {
+          "type": "png",
+          "name": "IMAGE_BATTERY_CHARGING_25_WHITE",
+          "file": "images/battery/battery_charging_25_32_FFFFFF.png"
+        },
+        {
+          "type": "png",
+          "name": "IMAGE_BATTERY_CHARGING_50_WHITE",
+          "file": "images/battery/battery_charging_50_32_FFFFFF.png"
+        },
+        {
+          "type": "png",
+          "name": "IMAGE_BATTERY_CHARGING_75_WHITE",
+          "file": "images/battery/battery_charging_75_32_FFFFFF.png"
+        },
+        {
+          "type": "png",
+          "name": "IMAGE_BATTERY_CHARGING_100_WHITE",
+          "file": "images/battery/battery_charging_100_32_FFFFFF.png"
+        },
+        {
+          "type": "png",
+          "name": "IMAGE_HEART_RATE_WHITE",
+          "file": "images/heart_rate/heart_rate_32_FFFFFF.png"
+        },
+        {
+          "type": "png",
+          "name": "IMAGE_CALORIES_WHITE",
+          "file": "images/calories/calories_32_FFFFFF.png"
+        },
+        {
+          "type": "png",
+          "name": "IMAGE_STEPS_WHITE",
+          "file": "images/steps/steps_32_FFFFFF.png"
         },
         {
           "type": "png",
@@ -172,7 +167,7 @@
         },
         {
           "type": "png",
-          "name": "IMAGE_WEATHER_SUNNY_GREEN",
+          "name": "IMAGE_WEATHER_SUNNY_THEME_GREEN",
           "file": "images/weather/sunny_32_00AA55.png"
         },
         {
@@ -202,7 +197,7 @@
         },
         {
           "type": "png",
-          "name": "IMAGE_WEATHER_PARTLY_CLOUDY_GREEN",
+          "name": "IMAGE_WEATHER_PARTLY_CLOUDY_THEME_GREEN",
           "file": "images/weather/partly_cloudy_32_00AA55.png"
         },
         {
@@ -232,7 +227,7 @@
         },
         {
           "type": "png",
-          "name": "IMAGE_WEATHER_CLOUDY_GREEN",
+          "name": "IMAGE_WEATHER_CLOUDY_THEME_GREEN",
           "file": "images/weather/cloudy_32_00AA55.png"
         },
         {
@@ -262,7 +257,7 @@
         },
         {
           "type": "png",
-          "name": "IMAGE_WEATHER_RAINY_GREEN",
+          "name": "IMAGE_WEATHER_RAINY_THEME_GREEN",
           "file": "images/weather/rainy_32_00AA55.png"
         },
         {
@@ -292,7 +287,7 @@
         },
         {
           "type": "png",
-          "name": "IMAGE_WEATHER_STORM_GREEN",
+          "name": "IMAGE_WEATHER_STORM_THEME_GREEN",
           "file": "images/weather/storm_32_00AA55.png"
         },
         {
@@ -322,7 +317,7 @@
         },
         {
           "type": "png",
-          "name": "IMAGE_WEATHER_SNOW_GREEN",
+          "name": "IMAGE_WEATHER_SNOW_THEME_GREEN",
           "file": "images/weather/snow_32_00AA55.png"
         },
         {
@@ -352,7 +347,7 @@
         },
         {
           "type": "png",
-          "name": "IMAGE_WEATHER_FOG_GREEN",
+          "name": "IMAGE_WEATHER_FOG_THEME_GREEN",
           "file": "images/weather/fog_32_00AA55.png"
         },
         {
@@ -369,156 +364,6 @@
           "type": "png",
           "name": "IMAGE_WEATHER_FOG_THEME_YELLOW",
           "file": "images/weather/fog_32_FFCC55.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_BATTERY_0_BLACK",
-          "file": "images/battery/battery_0_32_000000.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_BATTERY_0_GREEN",
-          "file": "images/battery/battery_0_32_00FF00.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_BATTERY_0_WHITE",
-          "file": "images/battery/battery_0_32_FFFFFF.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_BATTERY_25_BLACK",
-          "file": "images/battery/battery_25_32_000000.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_BATTERY_25_GREEN",
-          "file": "images/battery/battery_25_32_00FF00.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_BATTERY_25_WHITE",
-          "file": "images/battery/battery_25_32_FFFFFF.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_BATTERY_50_BLACK",
-          "file": "images/battery/battery_50_32_000000.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_BATTERY_50_GREEN",
-          "file": "images/battery/battery_50_32_00FF00.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_BATTERY_50_WHITE",
-          "file": "images/battery/battery_50_32_FFFFFF.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_BATTERY_75_BLACK",
-          "file": "images/battery/battery_75_32_000000.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_BATTERY_75_GREEN",
-          "file": "images/battery/battery_75_32_00FF00.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_BATTERY_75_WHITE",
-          "file": "images/battery/battery_75_32_FFFFFF.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_BATTERY_100_BLACK",
-          "file": "images/battery/battery_100_32_000000.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_BATTERY_100_GREEN",
-          "file": "images/battery/battery_100_32_00FF00.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_BATTERY_100_WHITE",
-          "file": "images/battery/battery_100_32_FFFFFF.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_BATTERY_CHARGING_0_BLACK",
-          "file": "images/battery/battery_charging_0_32_000000.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_BATTERY_CHARGING_0_GREEN",
-          "file": "images/battery/battery_charging_0_32_00FF00.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_BATTERY_CHARGING_0_WHITE",
-          "file": "images/battery/battery_charging_0_32_FFFFFF.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_BATTERY_CHARGING_25_BLACK",
-          "file": "images/battery/battery_charging_25_32_000000.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_BATTERY_CHARGING_25_GREEN",
-          "file": "images/battery/battery_charging_25_32_00FF00.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_BATTERY_CHARGING_25_WHITE",
-          "file": "images/battery/battery_charging_25_32_FFFFFF.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_BATTERY_CHARGING_50_BLACK",
-          "file": "images/battery/battery_charging_50_32_000000.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_BATTERY_CHARGING_50_GREEN",
-          "file": "images/battery/battery_charging_50_32_00FF00.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_BATTERY_CHARGING_50_WHITE",
-          "file": "images/battery/battery_charging_50_32_FFFFFF.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_BATTERY_CHARGING_75_BLACK",
-          "file": "images/battery/battery_charging_75_32_000000.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_BATTERY_CHARGING_75_GREEN",
-          "file": "images/battery/battery_charging_75_32_00FF00.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_BATTERY_CHARGING_75_WHITE",
-          "file": "images/battery/battery_charging_75_32_FFFFFF.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_BATTERY_CHARGING_100_BLACK",
-          "file": "images/battery/battery_charging_100_32_000000.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_BATTERY_CHARGING_100_GREEN",
-          "file": "images/battery/battery_charging_100_32_00FF00.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_BATTERY_CHARGING_100_WHITE",
-          "file": "images/battery/battery_charging_100_32_FFFFFF.png"
         },
         {
           "type": "png",
@@ -822,51 +667,6 @@
         },
         {
           "type": "png",
-          "name": "IMAGE_HEART_RATE_BLACK",
-          "file": "images/heart_rate/heart_rate_32_000000.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_HEART_RATE_RED",
-          "file": "images/heart_rate/heart_rate_32_FF0000.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_HEART_RATE_WHITE",
-          "file": "images/heart_rate/heart_rate_32_FFFFFF.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_CALORIES_BLACK",
-          "file": "images/calories/calories_32_000000.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_CALORIES_ORANGE",
-          "file": "images/calories/calories_32_FF5500.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_CALORIES_WHITE",
-          "file": "images/calories/calories_32_FFFFFF.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_STEPS_BLACK",
-          "file": "images/steps/steps_32_000000.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_STEPS_BLUE",
-          "file": "images/steps/steps_32_00AAFF.png"
-        },
-        {
-          "type": "png",
-          "name": "IMAGE_STEPS_WHITE",
-          "file": "images/steps/steps_32_FFFFFF.png"
-        },
-        {
-          "type": "png",
           "name": "IMAGE_HEART_RATE_BLUE",
           "file": "images/heart_rate/heart_rate_32_0055FF.png"
         },
@@ -877,7 +677,7 @@
         },
         {
           "type": "png",
-          "name": "IMAGE_HEART_RATE_GREEN",
+          "name": "IMAGE_HEART_RATE_THEME_GREEN",
           "file": "images/heart_rate/heart_rate_32_00AA55.png"
         },
         {
@@ -887,12 +687,12 @@
         },
         {
           "type": "png",
-          "name": "IMAGE_HEART_RATE_THEME_RED",
+          "name": "IMAGE_HEART_RATE_RED",
           "file": "images/heart_rate/heart_rate_32_FF0055.png"
         },
         {
           "type": "png",
-          "name": "IMAGE_HEART_RATE_YELLOW",
+          "name": "IMAGE_HEART_RATE_THEME_YELLOW",
           "file": "images/heart_rate/heart_rate_32_FFCC55.png"
         },
         {
@@ -902,12 +702,12 @@
         },
         {
           "type": "png",
-          "name": "IMAGE_CALORIES_THEME_ORANGE",
+          "name": "IMAGE_CALORIES_ORANGE",
           "file": "images/calories/calories_32_FF5500.png"
         },
         {
           "type": "png",
-          "name": "IMAGE_CALORIES_GREEN",
+          "name": "IMAGE_CALORIES_THEME_GREEN",
           "file": "images/calories/calories_32_00AA55.png"
         },
         {
@@ -922,12 +722,12 @@
         },
         {
           "type": "png",
-          "name": "IMAGE_CALORIES_YELLOW",
+          "name": "IMAGE_CALORIES_THEME_YELLOW",
           "file": "images/calories/calories_32_FFCC55.png"
         },
         {
           "type": "png",
-          "name": "IMAGE_STEPS_THEME_BLUE",
+          "name": "IMAGE_STEPS_BLUE",
           "file": "images/steps/steps_32_0055FF.png"
         },
         {
@@ -937,7 +737,7 @@
         },
         {
           "type": "png",
-          "name": "IMAGE_STEPS_GREEN",
+          "name": "IMAGE_STEPS_THEME_GREEN",
           "file": "images/steps/steps_32_00AA55.png"
         },
         {
@@ -952,7 +752,7 @@
         },
         {
           "type": "png",
-          "name": "IMAGE_STEPS_YELLOW",
+          "name": "IMAGE_STEPS_THEME_YELLOW",
           "file": "images/steps/steps_32_FFCC55.png"
         }
       ]
