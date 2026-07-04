@@ -1,14 +1,14 @@
 # DayPal 1.6.0 Release Notes
 
-Status: In development
+Status: Release cleanup / final QA
 Branch: `daypal-1.6.0-dev`
-Visual source of truth: `DayPal-Wireframes-1.6.0-Final.pdf`
+Visual source of truth: `docs/daypal-1.6.0-wireframes.pdf`
 
 ## Release focus
 
 DayPal 1.6.0 focuses on visual accuracy, theme behavior, configuration improvements, manual weather location, anonymous analytics, and release hygiene.
 
-## Planned release scope
+## Release scope
 
 - Match final 1.6.0 watchface wireframes.
 - Restore original metric icon shapes.
@@ -25,6 +25,7 @@ DayPal 1.6.0 focuses on visual accuracy, theme behavior, configuration improveme
 - Support configurable metric slots.
 - Add Support DayPal donation panel.
 - Add anonymous analytics opt-in.
+- Keep analytics dashboards QA/developer-facing only, with no dashboard link exposed from the user-facing config page.
 - Keep production configuration protected until release approval.
 
 ## Active themes
@@ -46,16 +47,24 @@ DayPal 1.6.0 focuses on visual accuracy, theme behavior, configuration improveme
 - Reverse color themes use black background with selected theme-color text, borders, and icons.
 - Reverse Black uses black background with white text, borders, and icons.
 
+## QA checkpoint results
+
+- Icon Manager CloudPebble theme testing passed.
+- Location testing passed using `dev/location-testing.html` presets, live lookups, Celsius/Fahrenheit checks, postal fallbacks, weather-code mapping, and unavailable states.
+- Analytics dashboard QA passed for local/browser test analytics definitions and sample data.
+- Analytics dashboard links were removed from config pages so end users only see the anonymous analytics opt-in toggle.
+
 ## Release hygiene
 
 Before merge approval:
 
 - `/docs` must contain only current DayPal 1.6.0 release documentation.
-- Stale checkpoint docs must be removed.
+- Stale checkpoint docs must be removed or replaced.
 - `package.json` and `appinfo.json` must reference the same valid resource set.
 - No manifest may reference removed PNG assets.
 - CloudPebble import/build must pass.
-- Configuration page must match the final 1.6.0 wireframes.
+- Configuration page must match the final 1.6.0 settings contract.
+- Production build must use `https://lyle-morris.github.io/DayPal-Hosting/app-config.html`, not the `/dev/` URL.
 
 ## Out of scope
 
@@ -63,3 +72,4 @@ Before merge approval:
 - User-created theme colors.
 - Account sign-in.
 - Collection of personal, health, or precise location data.
+- Centralized production analytics aggregation without a backend or analytics provider.
