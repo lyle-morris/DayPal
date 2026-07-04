@@ -1,48 +1,44 @@
 # DayPal 1.6.0 App-Config Handoff
 
-## Current status
+Status: Release-cycle reference
+Branch: `daypal-1.6.0-dev`
+Visual source of truth: `DayPal-Wireframes-1.6.0-Final.pdf`
 
-The 1.6.0 app-config implementation baseline is available in the main DayPal repository at:
+## 1. Purpose
+
+This document captures the app-configuration contract for DayPal 1.6.0.
+
+The configuration page must match the final 1.6.0 wireframes and support settings, theme selection, reverse theme colors, metric slot customization, manual weather location, anonymous analytics opt-in, donation support, reset layout, and save settings.
+
+## 2. Current QA hosting
+
+During the 1.6.0 release cycle, the dev branch may point to a QA-hosted configuration page while production remains protected.
+
+Current QA companion URL:
+
+```text
+https://lyle-morris.github.io/DayMate-config/qa/
+```
+
+Release requirement:
+
+- QA hosting may use the existing hosted repository while development is in progress.
+- Production release approval must confirm the final hosted configuration URL.
+- The production configuration must not accidentally receive QA-only changes before release approval.
+
+## 3. App-config location in repo
+
+The source implementation is staged in:
 
 ```text
 app-config/index.html
 ```
 
-This file is intended to be copied or moved into the hosted GitHub Pages configuration repository that serves:
+The hosted page must be deployed as the `index.html` for the approved GitHub Pages path.
 
-```text
-https://lyle-morris.github.io/DayPal-config/
-```
+## 4. Settings payload contract
 
-The connected GitHub search did not expose a separate `DayPal-config` or `DayMate-config` repository, so the implementation is staged inside the main DayPal repo until the hosted config repository is available.
-
-## Required hosted config path
-
-The PebbleKit JS companion opens:
-
-```text
-https://lyle-morris.github.io/DayPal-config/?settings=<encoded-settings>&donation_url=<encoded-ko-fi-url>
-```
-
-The hosted config page must therefore be available at the root of the GitHub Pages site, usually:
-
-```text
-index.html
-```
-
-## Donation link
-
-The Donate button opens:
-
-```text
-https://ko-fi.com/lylemorris
-```
-
-Payment processing must remain external to DayPal.
-
-## App-config settings contract
-
-The page returns a JSON payload through:
+The configuration page returns settings through:
 
 ```text
 pebblejs://close#<encoded-json>
@@ -58,7 +54,7 @@ Returned object:
   "slot_3_metric": 2,
   "slot_4_metric": 4,
   "show_leading_zero": true,
-  "use_24_hour": true,
+  "use_24_hour": false,
   "use_celsius": false,
   "manual_location": false,
   "manual_postal_code": "",
@@ -68,7 +64,7 @@ Returned object:
 }
 ```
 
-## Metric values
+## 5. Metric values
 
 ```text
 0 = Weather
@@ -79,7 +75,16 @@ Returned object:
 5 = None
 ```
 
-## Theme values
+Default slot order:
+
+```text
+Slot 1 = Weather
+Slot 2 = Heart rate
+Slot 3 = Battery
+Slot 4 = Steps
+```
+
+## 6. Theme values
 
 ```text
 0 = Default
@@ -92,43 +97,104 @@ Returned object:
 9 = Yellow
 ```
 
-Legacy values may still exist in stored settings and are normalized by the watch/companion where possible.
+Only these active themes should be exposed in the configuration page:
 
-## Manual location validation
+```text
+Default, Blue, Orange, Green, Pink, Red, Yellow, Black
+```
 
-When `manual_location = true`, either `manual_postal_code` or `manual_city` is required.
+## 7. Configuration page panels
 
-Approved error copy:
+The page must include:
+
+1. DayPal title and intro copy.
+2. Support DayPal panel.
+3. Donate action.
+4. Help improve DayPal analytics panel.
+5. Anonymous analytics opt-in.
+6. Settings panel.
+7. Theme panel.
+8. Metric slots panel.
+9. Reset layout action.
+10. Save settings action.
+
+## 8. Settings panel
+
+Required controls:
+
+- Display leading zero on the hours.
+- Use 24-hour format.
+- Use Celsius for temperature.
+- Set location manually.
+
+## 9. Manual location behavior
+
+When manual location is off:
+
+- Hide ZIP/postal code and City fields.
+- Use current-device location for weather.
+
+When manual location is on:
+
+- Show ZIP/postal code field.
+- Show City field.
+- Accept either ZIP/postal code or City.
+
+Error copy:
 
 ```text
 Enter a ZIP/postal code or city to set the location manually.
 ```
 
-The unused field must not be marked invalid when the other field contains a valid value.
-
-## Browser notes
-
-The config baseline uses:
-
-- semantic HTML controls
-- CSS custom properties
-- Material Symbols from Google Fonts
-- `:has()` for selected theme tile styling
-
-If the Pebble app webview has trouble with `:has()`, replace the selected theme tile styling with a small JavaScript class toggle.
-
-## Handoff steps
-
-1. Copy `app-config/index.html` into the hosted config repository as `index.html`.
-2. Confirm GitHub Pages is publishing the root `index.html`.
-3. Open the config URL in a desktop browser with a sample query string.
-4. Confirm the settings render correctly.
-5. Confirm Donate opens Ko-fi externally.
-6. Confirm Save settings closes using `pebblejs://close#...` when opened from the Pebble configuration flow.
-7. Load DayPal 1.6.0 into Pebble Cloud for device/emulator testing.
-
-## Sample browser test URL
+Field-level error copy:
 
 ```text
-https://lyle-morris.github.io/DayPal-config/?settings=%7B%22theme%22%3A0%2C%22slot_1_metric%22%3A0%2C%22slot_2_metric%22%3A1%2C%22slot_3_metric%22%3A2%2C%22slot_4_metric%22%3A4%2C%22show_leading_zero%22%3Atrue%2C%22use_24_hour%22%3Atrue%2C%22use_celsius%22%3Afalse%2C%22manual_location%22%3Afalse%2C%22manual_postal_code%22%3A%22%22%2C%22manual_city%22%3A%22%22%2C%22reverse_theme%22%3Afalse%2C%22analytics_enabled%22%3Atrue%7D&donation_url=https%3A%2F%2Fko-fi.com%2Flylemorris
+Missing/invalid information
 ```
+
+## 10. Theme panel behavior
+
+The Theme panel must include:
+
+- Theme options: Default, Blue, Orange, Green, Pink, Red, Yellow, Black.
+- Reverse theme colors checkbox.
+- Selected theme visual state.
+- Focus border color: `#00AAFF`.
+
+Theme preview chips must follow the 1.6.0 wireframe redlines:
+
+- Non-reverse color themes use selected color background and black text.
+- Non-reverse Black uses white background and black text.
+- Reverse color themes use black background and selected color text.
+- Reverse Black uses black background and white text.
+
+## 11. Analytics copy
+
+Analytics opt-in must communicate:
+
+- Usage analytics are anonymous.
+- No personal data is collected.
+- No health data is collected.
+- No location data is collected.
+
+## 12. Donation link
+
+Donate action opens:
+
+```text
+https://ko-fi.com/lylemorris
+```
+
+Payment processing remains external to DayPal.
+
+## 13. Handoff checklist
+
+1. Confirm `app-config/index.html` matches the final 1.6.0 configuration page wireframes.
+2. Confirm the QA hosted URL loads.
+3. Confirm settings render from a sample `settings` query string.
+4. Confirm Save settings returns `pebblejs://close#<encoded-json>`.
+5. Confirm Reset layout restores default slot order and default theme.
+6. Confirm manual location validation states.
+7. Confirm analytics opt-in can be saved.
+8. Confirm Donate opens Ko-fi externally.
+9. Confirm final production hosted URL before release approval.
