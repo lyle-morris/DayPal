@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>DayPal Manual Weather Test v2</title>
+  <style>
+    :root{--bg:#000;--surface:#1d1d1d;--text:#fff;--muted:#bdbdbd;--border:#444;--focus:#00aaff;--danger:#ff5a4f;--ok:#65d889}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.4 Arial,sans-serif}.page{width:min(100%,760px);margin:auto;padding:18px}h1{font-size:26px;margin:0 0 4px}.intro{color:var(--muted);margin:0 0 18px}.card{background:var(--surface);border:1px solid var(--border);padding:16px;margin:0 0 12px}.grid{display:grid;gap:10px}.field{display:grid;gap:5px}.field label{font-size:12px;font-weight:700;color:var(--muted)}input,select,button{font:inherit}input,select{width:100%;min-height:40px;background:#050505;color:#fff;border:1px solid #555;padding:0 10px}button{border:0;min-height:40px;background:var(--focus);color:#000;font-weight:800;padding:0 16px;cursor:pointer}.secondary{background:#555;color:#fff}.row{display:flex;gap:8px;flex-wrap:wrap}.result{white-space:pre-wrap;background:#050505;border:1px solid #333;padding:12px;min-height:120px}.ok{color:var(--ok)}.err{color:var(--danger)}.muted{color:var(--muted)}.kpi{display:grid;grid-template-columns:185px 1fr;gap:6px 10px;margin:10px 0}.kpi b{color:var(--muted)}.small{font-size:12px;color:var(--muted)}.pill{display:inline-block;border:1px solid #555;padding:4px 7px;margin:2px 4px 2px 0;cursor:pointer}
+  </style>
+</head>
+<body>
+  <main class="page">
+    <h1>DayPal Manual Weather Test v2</h1>
+    <p class="intro">This version tests Canadian postal-code fallback using the FSA prefix, then fetches Open-Meteo weather from resolved coordinates.</p>
+    <section class="card grid">
+      <div class="field"><label for="query">ZIP/postal code or city</label><input id="query" value="X0A 0H0" autocomplete="postal-code"></div>
+      <div><span class="pill" data-code="X0A 0H0">Iqaluit X0A 0H0</span><span class="pill" data-code="X1A 2N2">Yellowknife X1A 2N2</span><span class="pill" data-code="M5V 2T6">Toronto M5V 2T6</span><span class="pill" data-code="99501">Anchorage 99501</span></div>
+      <div class="field"><label for="unit">Temperature unit</label><select id="unit"><option value="fahrenheit">Fahrenheit</option><option value="celsius">Celsius</option></select></div>
+      <div class="row"><button id="run" type="button">Test manual weather</button><button class="secondary" id="clear" type="button">Clear</button></div>
+      <p class="small">Fallback order: Open-Meteo geocoding → Canadian/US postal lookup using FSA/ZIP → Open-Meteo forecast.</p>
+    </section>
+    <section class="card"><h2>Resolved result</h2><div id="summary" class="muted">No test run yet.</div><div id="details" class="kpi"></div></section>
+    <section class="card"><h2>Debug log</h2><div id="log" class="result muted">Run a test to see the lookup sequence.</div></section>
+  </main>
+  <script>
+    const $=id=>document.getElementById(id);
+    function isCA(q){return /^[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d$/.test(q)||/^[A-Za-z]\d[A-Za-z]$/.test(q)}
+    function isUS(q){return /^\d{5}(-\d{4})?$/.test(q)}
+    function country(q){if(isCA(q))return'ca';if(isUS(q))return'us';return''}
+    function postal(q,c){q=q.toUpperCase().replace(/\s+/g,'');if(c==='ca')return q.slice(0,3);return q.split('-')[0]}
+    function label(code){code=Number(code);if(code===0)return'Sunny / clear';if(code===1||code===2)return'Partly cloudy';if(code===3)return'Cloudy / overcast';if(code===45||code===48)return'Fog';if((code>=51&&code<=67)||(code>=80&&code<=82))return'Rain';if((code>=71&&code<=77)||code===85||code===86)return'Snow';if(code===95||code===96||code===99)return'Storm';return'Unknown / unsupported'}
+    function condition(code){code=Number(code);if(code===0)return'0 Sunny';if(code===1||code===2)return'1 Partly cloudy';if(code===3)return'6 Cloudy';if(code===45||code===48)return'5 Fog';if((code>=51&&code<=67)||(code>=80&&code<=82))return'2 Rain';if((code>=71&&code<=77)||code===85||code===86)return'4 Snow';if(code===95||code===96||code===99)return'3 Storm';return'7 Unknown'}
+    function setLog(t,c){$('log').className='result '+(c||'');$('log').textContent=t}
+    function setDetails(rows){$('details').innerHTML=rows.map(r=>'<b>'+r[0]+'</b><span>'+r[1]+'</span>').join('')}
+    async function json(url){const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status+' for '+url);return r.json()}
+    async function resolve(q){const geocodeUrl='https://geocoding-api.open-meteo.com/v1/search?name='+encodeURIComponent(q)+'&count=1&language=en&format=json';let log='1) Open-Meteo geocoding URL:\n'+geocodeUrl;let geo=await json(geocodeUrl);if(geo.results&&geo.results.length){let p=geo.results[0];return{source:'Open-Meteo geocoding',log:log+'\n\nOpen-Meteo result:\n'+JSON.stringify(p,null,2),place:[p.name,p.admin1,p.country].filter(Boolean).join(', '),lat:p.latitude,lon:p.longitude,timezone:p.timezone||''}}
+      const c=country(q);if(!c)throw new Error('No Open-Meteo result and query is not a supported CA/US postal code.');const pc=postal(q,c),url='https://api.zippopotam.us/'+c+'/'+encodeURIComponent(pc);log+='\n\n2) No Open-Meteo result. Postal fallback URL:\n'+url;let data=await json(url);if(!data.places||!data.places.length)throw new Error('Postal fallback returned no places for '+pc+'.');let p=data.places[0];return{source:'Postal fallback '+c.toUpperCase()+' / '+pc,log:log+'\n\nPostal result:\n'+JSON.stringify(data,null,2),place:[p['place name'],p.state,data.country].filter(Boolean).join(', '),lat:p.latitude,lon:p.longitude,timezone:''}}
+    async function run(){const q=$('query').value.trim(),unit=$('unit').value;if(!q){$('summary').innerHTML='<span class="err">Enter a location.</span>';return}$('summary').textContent='Resolving location...';setDetails([]);setLog('Starting lookup...');try{const loc=await resolve(q);const url='https://api.open-meteo.com/v1/forecast?latitude='+encodeURIComponent(loc.lat)+'&longitude='+encodeURIComponent(loc.lon)+'&current=temperature_2m,weather_code&temperature_unit='+encodeURIComponent(unit);const forecast=await json(url),cur=forecast.current||{},temp=Math.round(Number(cur.temperature_2m)),code=Number(cur.weather_code),u=unit==='celsius'?'°C':'°F';$('summary').innerHTML='<span class="ok">Resolved and fetched current weather.</span>';setDetails([['Input',q],['Resolution source',loc.source],['Resolved place',loc.place],['Latitude / longitude',loc.lat+', '+loc.lon],['Timezone from API',loc.timezone||forecast.timezone||'Not provided'],['Current temp',temp+u+' → watch displays '+temp+'°'],['Weather code',code+' — '+label(code)],['DayPal condition',condition(code)],['Weather timestamp',cur.time||'Not provided']]);setLog(loc.log+'\n\n3) Forecast URL:\n'+url+'\n\nCurrent weather:\n'+JSON.stringify(cur,null,2),'ok')}catch(e){$('summary').innerHTML='<span class="err">Weather test failed.</span>';setDetails([]);setLog(String(e),'err')}}
+    $('run').onclick=run;$('query').onkeydown=e=>{if(e.key==='Enter')run()};$('clear').onclick=()=>{$('query').value='';$('summary').textContent='No test run yet.';setDetails([]);setLog('Run a test to see the lookup sequence.','muted')};document.querySelectorAll('[data-code]').forEach(p=>p.onclick=()=>{$('query').value=p.dataset.code;run()});
+  </script>
+</body>
+</html>
