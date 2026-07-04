@@ -145,16 +145,20 @@ Hosted configuration repository:
 https://github.com/lyle-morris/DayPal-Hosting
 ```
 
-QA configuration page:
+Development hosted files:
 
 ```text
-https://lyle-morris.github.io/DayPal-Hosting/qa/
+https://lyle-morris.github.io/DayPal-Hosting/dev/app-config.html
+https://lyle-morris.github.io/DayPal-Hosting/dev/analytics.html
+https://lyle-morris.github.io/DayPal-Hosting/dev/location-testing.html
 ```
 
-Production configuration page target:
+Production hosted files:
 
 ```text
-https://lyle-morris.github.io/DayPal-Hosting/
+https://lyle-morris.github.io/DayPal-Hosting/app-config.html
+https://lyle-morris.github.io/DayPal-Hosting/analytics.html
+https://lyle-morris.github.io/DayPal-Hosting/location-testing.html
 ```
 
 ## Weather
