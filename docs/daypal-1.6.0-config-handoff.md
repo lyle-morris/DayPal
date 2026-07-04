@@ -11,27 +11,37 @@ This document captures the app-configuration contract for DayPal 1.6.0.
 
 The configuration page must match the final 1.6.0 wireframes and support settings, theme selection, reverse theme colors, metric slot customization, manual weather location, anonymous analytics opt-in, donation support, reset layout, and save settings.
 
-## 2. Current QA hosting
+## 2. Current hosting structure
 
-During the 1.6.0 release cycle, the dev branch points to a QA-hosted configuration page while production remains protected.
+DayPal-Hosting uses separate dev and production paths.
 
-Current QA companion URL:
+Development URLs:
 
 ```text
-https://lyle-morris.github.io/DayPal-Hosting/qa/
+https://lyle-morris.github.io/DayPal-Hosting/dev/app-config.html
+https://lyle-morris.github.io/DayPal-Hosting/dev/analytics.html
+https://lyle-morris.github.io/DayPal-Hosting/dev/location-testing.html
 ```
 
-Production target URL:
+Production URLs:
 
 ```text
-https://lyle-morris.github.io/DayPal-Hosting/
+https://lyle-morris.github.io/DayPal-Hosting/app-config.html
+https://lyle-morris.github.io/DayPal-Hosting/analytics.html
+https://lyle-morris.github.io/DayPal-Hosting/location-testing.html
+```
+
+During the 1.6.0 release cycle, the watchface dev branch must open the dev app-config URL:
+
+```text
+https://lyle-morris.github.io/DayPal-Hosting/dev/app-config.html
 ```
 
 Release requirement:
 
-- QA hosting uses the `DayPal-Hosting` repository while development is in progress.
-- Production release approval must confirm the final hosted configuration URL.
-- Production root must not accidentally receive QA-only changes before release approval.
+- Development testing uses the `/dev/` hosted files.
+- Production release approval must confirm promotion from `/dev/` to the production root files.
+- Production root must not receive QA-only changes before release approval.
 
 ## 3. App-config location in repo
 
@@ -41,19 +51,23 @@ The source implementation is staged in the DayPal watchface repo at:
 app-config/index.html
 ```
 
-The hosted copy should live in the `DayPal-Hosting` repository. Recommended hosting structure:
+The hosted copy in `DayPal-Hosting` must be named:
+
+```text
+app-config.html
+```
+
+Recommended hosting structure:
 
 ```text
 /
-  index.html
-  qa/
-    index.html
+  app-config.html
+  analytics.html
+  location-testing.html
+  dev/
+    app-config.html
     analytics.html
-    location-test.html
-    weather-test.html
-  releases/
-    1.6.0/
-      index.html
+    location-testing.html
 ```
 
 ## 4. Settings payload contract
@@ -209,12 +223,14 @@ Payment processing remains external to DayPal.
 
 ## 13. Handoff checklist
 
-1. Confirm `app-config/index.html` matches the final 1.6.0 configuration page wireframes.
-2. Confirm `https://lyle-morris.github.io/DayPal-Hosting/qa/` loads.
-3. Confirm settings render from a sample `settings` query string.
-4. Confirm Save settings returns `pebblejs://close#<encoded-json>`.
-5. Confirm Reset layout restores default slot order and default theme.
-6. Confirm manual location validation states.
-7. Confirm analytics opt-in can be saved.
-8. Confirm Donate opens Ko-fi externally.
-9. Confirm final production root URL before release approval.
+1. Confirm `app-config/index.html` in the DayPal repo matches the final 1.6.0 configuration page wireframes.
+2. Confirm `https://lyle-morris.github.io/DayPal-Hosting/dev/app-config.html` loads.
+3. Confirm `https://lyle-morris.github.io/DayPal-Hosting/dev/analytics.html` loads.
+4. Confirm `https://lyle-morris.github.io/DayPal-Hosting/dev/location-testing.html` loads.
+5. Confirm settings render from a sample `settings` query string.
+6. Confirm Save settings returns `pebblejs://close#<encoded-json>`.
+7. Confirm Reset layout restores default slot order and default theme.
+8. Confirm manual location validation states.
+9. Confirm analytics opt-in can be saved.
+10. Confirm Donate opens Ko-fi externally.
+11. Confirm final production root files before release approval.
