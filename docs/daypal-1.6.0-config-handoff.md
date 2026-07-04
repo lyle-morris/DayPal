@@ -152,6 +152,8 @@ The page must include:
 9. Reset layout action.
 10. Save settings action.
 
+The user-facing config page must not expose a direct analytics dashboard link. Analytics dashboard URLs are QA/developer support pages only.
+
 ## 8. Settings panel
 
 Required controls:
@@ -209,7 +211,8 @@ Analytics opt-in must communicate:
 - Usage analytics are anonymous.
 - No personal data is collected.
 - No health data is collected.
-- No location data is collected.
+- Precise GPS coordinates are not stored in analytics.
+- Manual city or postal-code settings are used for weather lookup only and must not be included in analytics events.
 
 ## 12. Donation link
 
@@ -232,5 +235,6 @@ Payment processing remains external to DayPal.
 7. Confirm Reset layout restores default slot order and default theme.
 8. Confirm manual location validation states.
 9. Confirm analytics opt-in can be saved.
-10. Confirm Donate opens Ko-fi externally.
-11. Confirm final production root files before release approval.
+10. Confirm the user-facing config page does not expose a dashboard link.
+11. Confirm Donate opens Ko-fi externally.
+12. Confirm final production root files before release approval.
