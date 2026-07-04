@@ -1,119 +1,288 @@
-# DayPal 1.6.0 Requirements Baseline
+# DayPal 1.6.0 Product Requirements Document
 
-Status: Approved for development
-Target release: July 5, 2026
-Visual source of truth: DayPal-Wireframes-1.6.0-Final.pdf
+Status: Release source of truth
+Branch: `daypal-1.6.0-dev`
+Visual source of truth: `DayPal-Wireframes-1.6.0-Final.pdf`
 
-## Release objective
+## 1. Product summary
 
-DayPal 1.6.0 expands user configuration, weather location control, theme behavior, privacy controls, and internal icon handling while preserving the core DayPal watchface layout established in 1.5.0.
+DayPal 1.6.0 is a configurable Pebble Time 2 watchface release focused on theme accuracy, user-controlled display settings, weather/location control, privacy-forward analytics, and a refreshed configuration page.
 
-## In scope
+The release must match the final 1.6.0 wireframes. The watchface and configuration page must not depend on older release behavior, old labels, or stale manifest/resource references.
 
-- Display leading zero setting
-- Use 24-hour format setting
-- Use Celsius for temperature setting
-- Current-location weather behavior when manual location is off
-- Manual weather location using either ZIP/postal code or City
-- Manual-location validation, error, and success states
-- Theme selection: Default, Blue, Orange, Green, Pink, Red, Yellow, Black
-- Reverse theme colors setting
-- Four configurable metric slots
-- Reset layout action
-- Anonymous usage analytics
-- Visible analytics opt-out control
-- Support DayPal donation section linked to Ko-fi
-- Icon Manager architecture
-- One white-on-transparent PNG source asset per icon state, recolored at runtime
-- App-config page implementation targeting approximately 98% visual fidelity to the approved wireframe
-- Google Material icons / Material Symbols for app-config UI icons where shown in the approved wireframe
+## 2. Goals
 
-## Out of scope
+- Match the 1.6.0 watchface wireframes for all active themes.
+- Render metric icons in the correct color for each theme and reverse-theme state.
+- Support configurable metric slots.
+- Support leading-zero and 24-hour time display settings.
+- Support Celsius temperature display through configuration and weather handling.
+- Support manual weather location entry by ZIP/postal code or city.
+- Provide clear configuration states for default layout, manual-location off, manual-location on, validation error, and success.
+- Provide an analytics opt-in setting that is anonymous and excludes personal, health, and location data.
+- Keep all active release documentation, manifests, and code references aligned to DayPal 1.6.0.
 
-- Fallback/unavailable styling fixes; resolved in 1.5.0
-- Time clipping/alignment fixes; resolved in 1.5.0
-- New metrics beyond Weather, Heart Rate, Battery, Steps, Calories, and None
-- Donation payment processing inside DayPal
-- Collection of personal, health, or location data for analytics
+## 3. Non-goals
 
-## Approved behavior rules
+- Public app store release automation.
+- Account sign-in.
+- Collection of personal, health, or precise location data.
+- Theme colors outside the final 1.6.0 palette.
+- Runtime image tinting on the Pebble device.
 
-### Time
+## 4. Supported platforms
 
-- When Use 24-hour format is on, the watch uses 24-hour time.
-- When Use 24-hour format is off, the watch uses 12-hour time.
-- Display leading zero applies to the hour display.
+- Pebble Time 2 target platform: `emery`.
+- CloudPebble-compatible project structure.
+- Watchface runtime in C.
+- PebbleKit JS companion for configuration, weather, location, and analytics communication.
+- Hosted configuration page for user settings.
 
-### Temperature
+## 5. Watchface layout requirements
 
-- When Use Celsius for temperature is on, weather temperature is displayed in Celsius.
-- When off, temperature is displayed in Fahrenheit.
-- DayPal does not display a degree symbol or temperature-unit suffix on the watchface.
+### 5.1 Canvas
 
-### Location
+- Target screen: Pebble Time 2, 200 x 228.
+- Metric tray: left column.
+- Clock area: right column.
+- Divider: vertical rule between metric tray and clock area.
+- Date: bottom of clock area.
 
-- When Set location manually is off, weather uses the phone's current location.
-- When Set location manually is on, the user may provide either ZIP/postal code or City.
-- Either field alone is sufficient.
-- Both fields blank is invalid.
-- Error copy: Enter a ZIP/postal code or city to set the location manually.
-- The unused field must not show an error when the other field resolves successfully.
+### 5.2 Default visible metric slots
 
-### Themes
+The default metric slot order must be:
 
-- Default uses black background, white clock/date text, #555555 divider, and metric-specific icon colors.
-- Non-reversed solid themes use the selected theme color as background and black foreground.
-- Reversed solid themes use black background and the selected theme color as foreground.
-- Black non-reversed uses white background with black foreground.
-- Black reversed uses black background with white foreground.
-- Default reverse is visually equivalent to Default.
+1. Weather
+2. Heart rate
+3. Battery
+4. Steps
 
-### Icons
+Calories must be available as a selectable metric, but it is not part of the default layout.
 
-- Maintain one white-on-transparent PNG source asset per icon state.
-- The Icon Manager owns resource selection, runtime recoloring, draw behavior, and cleanup.
-- Default theme uses metric-specific colors.
-- Solid themes use the resolved foreground color.
-- Unavailable states use the existing 1.5.0 unavailable behavior and must not be reworked as part of 1.6.0.
+### 5.3 Metric value formatting
 
-### Analytics
+- Weather: numeric temperature only; no degree symbol.
+- Battery: numeric charge only; no percent symbol.
+- Heart rate: numeric BPM only.
+- Steps: compact count; large values may abbreviate to `k`.
+- Calories: compact count; large values may abbreviate to `k`.
+- Missing/unavailable values: `---`.
+- Unavailable value color: `#666666`.
 
-- Checkbox label: Share anonymous usage analytics.
-- Supporting copy: Share anonymous usage data to help improve DayPal. No personal, health, or location data is collected.
-- Default state: checked.
-- Analytics must not collect personal information, health values, location values, ZIP/postal code, city, or other location identifiers.
-- If the user opts out, no analytics events may be sent after the preference is applied.
+### 5.4 Metric data examples from wireframes
 
-### Donation
+The release must support these display ranges and examples:
 
-- Section title: Support DayPal.
-- Copy: DayPal is free to use. If you enjoy it, consider leaving a small tip to support future updates and improvements.
-- Button label: Donate.
-- Donation service: Ko-fi.
-- Donation URL: https://ko-fi.com/lylemorris
-- The Donate button opens the Ko-fi page externally.
-- Payment processing and payment data remain external to DayPal.
+| Metric | Examples |
+| --- | --- |
+| Steps | `---`, `0`, `99`, `999`, `9999`, `99k`, `999k` |
+| Battery | `---`, `0`, `25`, `50`, `75`, `100` |
+| Heart rate | `---`, `60`, `100`, `150`, `200` |
+| Weather | `---`, `-8`, `-32`, `60`, `100` |
+| Calories | `---`, `9`, `99`, `999`, `9999`, `99k`, `999k` |
 
-## Configuration defaults
+## 6. Weather requirements
 
-- Display leading zero: on
-- Use 24-hour format: on
-- Use Celsius for temperature: off
-- Set location manually: off
-- Reverse theme colors: off
-- Share anonymous usage analytics: on
-- Theme: Default
-- Slot 1: Weather
-- Slot 2: Heart rate
-- Slot 3: Battery
-- Slot 4: Steps
+### 6.1 Weather conditions
 
-## Implementation sections
+The weather icon system must support:
 
-1. Documentation baseline
-2. App-config structure and CSS
-3. Settings persistence and AppMessage contract
-4. Weather location and temperature-unit logic
-5. Theme resolution and Icon Manager
-6. Anonymous analytics and opt-out enforcement
-7. Integration, CloudPebble build, visual QA, and regression QA
+- Sunny
+- Partly cloudy
+- Rain
+- Storm
+- Snow
+- Fog
+- Cloudy
+
+### 6.2 Weather display
+
+- Weather metric shows the weather icon above the numeric temperature value.
+- Temperature displays without degree symbol.
+- Temperature unit is controlled by the configuration setting.
+- Weather must update based on current location when manual location is off.
+- Weather must update based on manually entered ZIP/postal code or city when manual location is on.
+- Manual location must support international postal/city lookup where the weather provider supports it.
+
+## 7. Theme requirements
+
+### 7.1 Active selectable themes
+
+The configuration page must expose these active themes:
+
+- Default
+- Blue
+- Orange
+- Green
+- Pink
+- Red
+- Yellow
+- Black
+
+### 7.2 Default theme
+
+Default theme is a multi-color watchface theme.
+
+| Property | Color |
+| --- | --- |
+| Background | `#000000` |
+| Font | `#FFFFFF` |
+| Border/divider | `#555555` |
+| Weather | `#FFFF00` |
+| Heart rate | `#FF0000` |
+| Battery | `#00FF00` |
+| Steps | `#00AAFF` |
+| Calories | `#FF5500` |
+
+### 7.3 Non-reverse themes
+
+For non-reverse color themes, the background uses the selected theme color and all text, borders, and metric icons use black.
+
+| Theme | Background | Text | Border | Metric icons |
+| --- | --- | --- | --- | --- |
+| Blue | `#0055FF` | `#000000` | `#000000` | `#000000` |
+| Orange | `#FF5500` | `#000000` | `#000000` | `#000000` |
+| Green | `#00AA55` | `#000000` | `#000000` | `#000000` |
+| Pink | `#FF00AA` | `#000000` | `#000000` | `#000000` |
+| Yellow | `#FFCC55` | `#000000` | `#000000` | `#000000` |
+| Red | `#FF0055` | `#000000` | `#000000` | `#000000` |
+| Black | `#FFFFFF` | `#000000` | `#000000` | `#000000` |
+
+### 7.4 Reverse themes
+
+For reverse themes, the background is black and text, borders, and metric icons use the selected theme color.
+
+| Theme | Background | Text | Border | Metric icons |
+| --- | --- | --- | --- | --- |
+| Default | `#000000` | `#FFFFFF` | `#555555` | default metric colors |
+| Blue | `#000000` | `#0055FF` | `#0055FF` | `#0055FF` |
+| Orange | `#000000` | `#FF5500` | `#FF5500` | `#FF5500` |
+| Green | `#000000` | `#00AA55` | `#00AA55` | `#00AA55` |
+| Pink | `#000000` | `#FF00AA` | `#FF00AA` | `#FF00AA` |
+| Yellow | `#000000` | `#FFCC55` | `#FFCC55` | `#FFCC55` |
+| Red | `#000000` | `#FF0055` | `#FF0055` | `#FF0055` |
+| Black | `#000000` | `#FFFFFF` | `#FFFFFF` | `#FFFFFF` |
+
+### 7.5 Icon color behavior
+
+Metric icons must not always render white. Icon selection must follow the active theme state:
+
+- Default: per-metric icon colors.
+- Non-reverse Blue/Orange/Green/Pink/Yellow/Red/Black: black icons.
+- Reverse Blue/Orange/Green/Pink/Yellow/Red: selected theme-color icons.
+- Reverse Black: white icons.
+- Unavailable values use `#666666` text; icon color continues to follow the active theme unless a future requirement explicitly changes unavailable icon styling.
+
+## 8. Time and date requirements
+
+- Display hour and minute as stacked clock text.
+- Support leading zero on/off for hours.
+- Support 12-hour and 24-hour display.
+- Date format: abbreviated month, day, and weekday, for example `Jul 12, Wed`.
+
+## 9. Configuration page requirements
+
+### 9.1 Default layout
+
+The configuration page must include:
+
+- DayPal title.
+- Introductory helper text.
+- Support DayPal panel.
+- Donate button.
+- Help improve DayPal analytics panel.
+- Anonymous analytics opt-in checkbox.
+- Settings panel.
+- Theme panel.
+- Metric slots panel.
+- Reset layout action.
+- Save settings action.
+
+### 9.2 Settings panel
+
+Settings must include:
+
+- Display leading zero on the hours.
+- Use 24-hour format.
+- Use Celsius for temperature.
+- Set location manually.
+
+### 9.3 Manual location states
+
+When manual location is off:
+
+- ZIP/postal code and city fields are hidden.
+- Weather uses current location.
+
+When manual location is on:
+
+- ZIP/postal code field is shown.
+- City field is shown.
+- User may enter either ZIP/postal code or city.
+
+Error state:
+
+- Show helper text: `Enter a ZIP/postal code or city to set the location manually.`
+- Mark invalid/missing fields with `Missing/invalid information`.
+
+Success state:
+
+- Preserve the entered location value.
+- Continue to show manual location fields.
+- Save settings without resetting unrelated settings.
+
+### 9.4 Theme panel
+
+The theme panel must include:
+
+- Theme options: Default, Blue, Orange, Green, Pink, Red, Yellow, Black.
+- Reverse theme colors checkbox.
+- Selected theme visual state.
+- Focus border color: `#00AAFF`.
+
+Theme panel CSS redlines:
+
+| Theme state | Background | Text | Focus border | Focus icon |
+| --- | --- | --- | --- | --- |
+| Default, non-reverse | `#000000` | `#FFFFFF` | `#00AAFF` | `#FFFFFF` |
+| Blue, non-reverse | `#0055FF` | `#000000` | `#00AAFF` | `#FFFFFF` |
+| Orange, non-reverse | `#FF5500` | `#000000` | `#00AAFF` | `#FFFFFF` |
+| Green, non-reverse | `#00AA55` | `#000000` | `#00AAFF` | `#FFFFFF` |
+| Pink, non-reverse | `#FF00AA` | `#000000` | `#00AAFF` | `#FFFFFF` |
+| Red, non-reverse | `#FF0055` | `#000000` | `#00AAFF` | `#FFFFFF` |
+| Yellow, non-reverse | `#FFCC55` | `#000000` | `#00AAFF` | `#FFFFFF` |
+| Black, non-reverse | `#FFFFFF` | `#000000` | `#00AAFF` | `#000000` |
+| Default, reverse | `#000000` | `#FFFFFF` | `#00AAFF` | `#FFFFFF` |
+| Blue, reverse | `#000000` | `#0055FF` | `#00AAFF` | `#0055FF` |
+| Orange, reverse | `#000000` | `#FF5500` | `#00AAFF` | `#FF5500` |
+| Green, reverse | `#000000` | `#00AA55` | `#00AAFF` | `#00AA55` |
+| Pink, reverse | `#000000` | `#FF00AA` | `#00AAFF` | `#FF00AA` |
+| Red, reverse | `#000000` | `#FF0055` | `#00AAFF` | `#FF0055` |
+| Yellow, reverse | `#000000` | `#FFCC55` | `#00AAFF` | `#FFCC55` |
+| Black, reverse | `#000000` | `#FFFFFF` | `#00AAFF` | `#FFFFFF` |
+
+### 9.5 Metric slots panel
+
+- User can customize which metric appears in each watchface slot.
+- Slots support Weather, Heart rate, Battery, Steps, Calories, and empty/null.
+- Empty/null slots render no active metric value and must not break layout.
+- Default slot values must be Weather, Heart rate, Battery, Steps.
+
+## 10. Analytics requirements
+
+- Analytics opt-in must be disabled unless the user explicitly enables it.
+- Analytics copy must clearly state anonymous usage data only.
+- Analytics must not collect personal data, health data, or location data.
+- Analytics should support unique users, repeat unique users, and broad geographic insight only when privacy-safe.
+
+## 11. Acceptance criteria
+
+- No active docs, manifests, or release files reference an older release number.
+- Watchface matches 1.6.0 wireframe theme colors in default, non-reverse, and reverse states.
+- Metric icons are not white-only; icon color follows theme requirements.
+- Weather displays without a degree symbol.
+- Battery displays without a percent symbol.
+- Configuration page includes all final 1.6.0 panels and states.
+- Manual location works for ZIP/postal code and city.
+- Analytics opt-in copy matches privacy requirements.
+- CloudPebble import/build does not fail due to stale manifest resource references.
