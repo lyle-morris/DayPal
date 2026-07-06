@@ -131,20 +131,38 @@ function weatherCacheId(settings) { var normalized = normalizeSettings(settings)
 function saveWeatherCache(temp, condition, settings) { localStorage.setItem(WEATHER_CACHE_KEY, JSON.stringify({temp: temp, condition: condition, cache_id: weatherCacheId(settings), timestamp: Date.now()})); }
 function sendWeather(temp, condition) { Pebble.sendAppMessage({10: temp, 11: condition, 12: 1}, function() { console.log('DayPal weather sent: ' + temp + ', condition ' + condition); }, function(error) { console.log('DayPal weather send failed: ' + JSON.stringify(error)); }); }
 
-function sendCachedWeather(settings) {
+function readWeatherCache() {
   var raw = localStorage.getItem(WEATHER_CACHE_KEY) || localStorage.getItem(LEGACY_WEATHER_CACHE_KEY);
-  if (!raw) return false;
-  try {
-    var cached = JSON.parse(raw);
-    if (!cached || Date.now() - Number(cached.timestamp) > WEATHER_CACHE_MAX_AGE_MS) return false;
-    if (cached.cache_id && cached.cache_id !== weatherCacheId(settings)) return false;
-    if (!cached.cache_id && settings.use_celsius) return false;
-    sendWeather(Number(cached.temp), Number(cached.condition));
-    return true;
-  } catch (e) { return false; }
+  if (!raw) return null;
+  try { return JSON.parse(raw); } catch (e) { console.log('DayPal weather cache parse failed: ' + e); return null; }
 }
 
-function sendWeatherUnavailable(settings) { if (sendCachedWeather(settings)) return; Pebble.sendAppMessage({12: 0}); }
+function sendWeatherFromCache(settings, allowStale) {
+  var cached = readWeatherCache();
+  if (!cached) return false;
+  if (!allowStale && Date.now() - Number(cached.timestamp) > WEATHER_CACHE_MAX_AGE_MS) return false;
+  if (cached.cache_id && cached.cache_id !== weatherCacheId(settings)) return false;
+  if (!cached.cache_id && settings.use_celsius) return false;
+  if (typeof cached.temp === 'undefined' || typeof cached.condition === 'undefined') return false;
+  sendWeather(Number(cached.temp), Number(cached.condition));
+  return true;
+}
+
+function sendCachedWeather(settings) {
+  return sendWeatherFromCache(settings, false);
+}
+
+function sendLastWeatherRead(settings) {
+  return sendWeatherFromCache(settings, true);
+}
+
+function sendWeatherUnavailable(settings) {
+  if (sendLastWeatherRead(settings)) {
+    console.log('DayPal using last successful weather read as fallback');
+    return;
+  }
+  Pebble.sendAppMessage({12: 0});
+}
 
 function httpGetJson(url, onSuccess, onFailure) {
   var xhr = new XMLHttpRequest();
