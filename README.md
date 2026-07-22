@@ -2,19 +2,22 @@
 
 DayPal is a configurable Pebble Time 2 watchface built for fast, glanceable daily context. It pairs a bold stacked clock with a compact metric tray, selectable high-contrast themes, and native Pebble services for weather, health, and battery status.
 
-## Current Development Release
+## Current Release
 
 **DayPal 1.6.0**
 
-Target release date: **07/05/2026**
+## Upcoming Patch
 
-DayPal 1.6.0 is focused on matching the final 1.6.0 wireframes, correcting theme/icon behavior, improving weather-location control, adding temperature-unit flexibility, supporting reverse theme colors, and introducing anonymous analytics with a clear opt-out path.
+**DayPal 1.6.1**
+
+DayPal 1.6.1 moves the companion configuration page to the consolidated production directory. Watchface behavior and the configuration UI are otherwise unchanged.
 
 ## Release History
 
 - **DayPal 1.0.0** — Released
 - **DayPal 1.5.0** — Released
-- **DayPal 1.6.0** — In development
+- **DayPal 1.6.0** — Released
+- **DayPal 1.6.1** — In development
 
 ## Platform
 
@@ -24,7 +27,8 @@ DayPal 1.6.0 is focused on matching the final 1.6.0 wireframes, correcting theme
 - App type: Watchface
 - Companion: PebbleKit JS
 - Configuration: Hosted Pebble configuration page
-- Hosting repository: `lyle-morris/DayPal-Hosting`
+- Hosting repository: `lyle-morris/Hosting`
+- Legacy compatibility host: `lyle-morris/DayPal-Hosting`
 
 ## 1.6.0 Scope
 
@@ -139,27 +143,19 @@ Default layout:
 
 The configuration page uses a selected tile checkmark and a fixed Save settings footer.
 
-Hosted configuration repository:
+Canonical hosted configuration:
 
 ```text
-https://github.com/lyle-morris/DayPal-Hosting
+https://lyle-morris.github.io/Hosting/apps/daypal/prod/app-config.html
 ```
 
-Development hosted files:
+QA configuration:
 
 ```text
-https://lyle-morris.github.io/DayPal-Hosting/dev/app-config.html
-https://lyle-morris.github.io/DayPal-Hosting/dev/analytics.html
-https://lyle-morris.github.io/DayPal-Hosting/dev/location-testing.html
+https://lyle-morris.github.io/Hosting/apps/daypal/qa/app-config.html
 ```
 
-Production hosted files:
-
-```text
-https://lyle-morris.github.io/DayPal-Hosting/app-config.html
-https://lyle-morris.github.io/DayPal-Hosting/analytics.html
-https://lyle-morris.github.io/DayPal-Hosting/location-testing.html
-```
+The original `DayPal-Hosting` URL remains online for compatibility with DayPal 1.6.0 and earlier installations.
 
 ## Weather
 
