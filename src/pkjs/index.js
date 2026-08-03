@@ -1,4 +1,5 @@
-var CONFIG_URL = 'https://lyle-morris.github.io/DayPal-Hosting/app-config.html';
+var CONFIG_URL = 'https://lyle-morris.github.io/Hosting/apps/daypal/qa/app-config.html';
+var CONFIG_CACHE_LABEL = 'daypal-2.0.0-qa-1';
 var DONATION_URL = 'https://ko-fi.com/lylemorris';
 var SETTINGS_KEY = 'daypal_settings';
 var LEGACY_SETTINGS_KEY = 'daymate_settings';
@@ -242,7 +243,7 @@ function trackAnalyticsEvent(name, data) {
 
 Pebble.addEventListener('ready', function() { var settings = loadSettings(); console.log('DayPal ready with settings: ' + JSON.stringify(settings)); sendSettings(settings); requestWeather(); });
 Pebble.addEventListener('appmessage', function(e) { if (e.payload && (e.payload.settings_ready || e.payload['21'])) console.log('DayPal settings applied on watch'); if (e.payload && (e.payload.request_weather || e.payload['20'])) requestWeather(); });
-Pebble.addEventListener('showConfiguration', function() { var settings = encodeURIComponent(JSON.stringify(loadSettings())); console.log('DayPal opening config: ' + CONFIG_URL); Pebble.openURL(CONFIG_URL + '?settings=' + settings + '&donation_url=' + encodeURIComponent(DONATION_URL)); trackAnalyticsEvent('config_opened'); });
+Pebble.addEventListener('showConfiguration', function() { var settings = encodeURIComponent(JSON.stringify(loadSettings())); console.log('DayPal opening config: ' + CONFIG_URL); Pebble.openURL(CONFIG_URL + '?v=' + encodeURIComponent(CONFIG_CACHE_LABEL) + '&settings=' + settings + '&donation_url=' + encodeURIComponent(DONATION_URL)); trackAnalyticsEvent('config_opened'); });
 Pebble.addEventListener('webviewclosed', function(e) {
   if (!e || !e.response) { console.log('DayPal config closed without response'); return; }
   try {
