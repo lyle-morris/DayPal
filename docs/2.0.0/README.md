@@ -1,76 +1,65 @@
 # DayPal 2.0.0
 
-**Status:** Planning / wireframes in progress  
+**Status:** Design approved / documentation baseline frozen / implementation beginning  
 **Development branch:** `daypal-2.0.0-dev`  
-**Baseline:** DayPal `main` at `9ce17508637784bd04138f45ce555cfd7f49c867` (1.6.1 weather-cache fallback hotfix)  
-**Visual source:** [Figma section 84:1722](https://www.figma.com/design/oRliygHF8qzrzs5THYQOMH/Pebble?node-id=84-1722&m=dev)
+**Baseline:** DayPal `main` at `9ce17508637784bd04138f45ce555cfd7f49c867`  
+**Visual source:** [Figma 2.0.0 section 84:1722](https://www.figma.com/design/oRliygHF8qzrzs5THYQOMH/Pebble?node-id=84-1722&m=dev)
 
-This folder is the source of truth for the DayPal 2.0.0 release. Requirements remain draft until the wireframes are approved.
+This folder is the release source of truth for DayPal 2.0.0. The approved Figma section is the visual authority; these documents define the product, compatibility, analytics, asset, QA, and release contracts around it.
 
-## Current design direction
+## Release documents
 
-The current 2.0.0 Figma section shows:
+- [Product Requirements](DayPal-PRD-2.0.0.md)
+- [Technical Specification](DayPal-Tech-Spec-2.0.0.md)
+- [Asset Inventory](DayPal-Asset-Inventory-2.0.0.md)
+- [Analytics Specification](DayPal-Analytics-Spec-2.0.0.md)
+- [Pixel-Perfect QA Checklist](DayPal-Pixel-Perfect-QA-Checklist-2.0.0.md)
+- [Release Notes](DayPal-Release-Notes-2.0.0.md)
+- [Handoff](DayPal-Handoff-2.0.0.md)
+- [QA Evidence Index](qa/README.md)
 
-- A fixed 200 × 228 Pebble Time 2 watchface.
-- A three-row metric tray beside the stacked time and date.
-- Weather, Heart Rate, and Battery in the illustrated default layout.
-- Nine visible theme choices: Default, Orange, Blue, Purple, Yellow, Green, Red, White, and Black.
-- A 390px-wide hosted configuration page with General settings, Theme, Information, Manual location, Language, Analytics, Support, Reset, and Save sections.
-- Manual location fields for Country, ZIP/postal code, and City.
-- Localization controls carried into the configuration page.
+## Locked 2.0.0 decisions
 
-These observations describe the current wireframes; they are not final acceptance criteria.
+- Pebble Time 2 canvas remains 200 × 228.
+- Both 3-slot and 4-slot layouts are supported.
+- New installs default to 3 slots.
+- Upgrades from 1.6.x retain 4 visible slots when the new layout setting is absent.
+- Slot 4 remains stored while hidden; switching layout never shifts slot assignments.
+- Information tray is 70px wide; clock region is 130px wide.
+- 3-slot icons use 42px canvases with 28px visual glyphs.
+- 4-slot icons use 32px canvases with 20px visual glyphs.
+- Ten themes are selectable: Default, Orange, Blue, Purple, Yellow, Green, Red, Pink, White, Black.
+- Pink keeps ID 2; Purple appends ID 12.
+- Existing compatibility IDs are never reused.
+- Sleep appends metric ID 6.
+- Final 2.0 themes follow the fixed Figma palettes; Reverse Theme is not exposed in the 2.0 configuration UI.
+- Weather uses the Essential Redux reliability pattern: 15-minute schedule, last-success fallback, dedupe/reconnect handling, bounded retries.
+- Analytics is consented and configuration-only; no health readings, location, weather values, device IDs, or free-form user data.
+- Pixel-perfect comparison against native 200 × 228 Figma goldens is a release blocker.
+- DayPal 2.0.0 configuration is developed/promoted through `lyle-morris/Hosting`; `DayPal-Hosting` stays online for published 1.6.x builds.
 
-## Essential Redux controls carried forward
+## One product default still open
 
-DayPal 2.0.0 will reuse the release discipline proven in Essential Redux 2.0.0:
-
-1. Preserve existing AppMessage, metric, theme, and persistence meanings. New values are appended.
-2. Treat the approved Figma frame as the sole visual authority.
-3. Compare native 200 × 228 emulator captures against Figma goldens; document any 1px optical compensation.
-4. Keep the hosted config self-contained unless shared assets are explicitly versioned.
-5. Develop at the consolidated QA URL, then promote the exact validated file to production and an immutable 2.0.0 snapshot.
-6. Use a new cache label for QA and another for the production release.
-7. Keep cached weather visible during temporary failures and test scheduled refresh across real time boundaries.
-8. Record build, emulator, configuration, upgrade, and physical-watch evidence before release closeout.
+The wireframes establish that a new install starts in 3-slot mode but do not unambiguously establish which three metrics Reset Layout/new install should select. Freeze that exact metric trio before implementation of reset/default migration. Do not infer it from one illustrative Figma instance.
 
 ## Hosting paths
 
 - QA: `https://lyle-morris.github.io/Hosting/apps/daypal/qa/app-config.html`
 - Production: `https://lyle-morris.github.io/Hosting/apps/daypal/prod/app-config.html`
-- Planned immutable snapshot: `https://lyle-morris.github.io/Hosting/apps/daypal/releases/2.0.0/app-config.html`
-- Legacy compatibility host: `https://lyle-morris.github.io/DayPal-Hosting/app-config.html`
+- Immutable 2.0.0 snapshot: `https://lyle-morris.github.io/Hosting/apps/daypal/releases/2.0.0/app-config.html`
+- Legacy 1.6.x compatibility host: `https://lyle-morris.github.io/DayPal-Hosting/app-config.html`
 
-Published 1.6.x builds must continue to work through `DayPal-Hosting`. The 2.0.0 development branch points to consolidated QA. Production promotion and the 2.0.0 snapshot happen only after hosted-page QA passes.
-
-## Compatibility decisions required before implementation
-
-- Define how the current fourth metric slot migrates to the three-slot 2.0.0 design.
-- Preserve existing metric IDs and persistence keys even if a slot is no longer visible.
-- Preserve existing theme IDs. White already uses ID 4; ID 6 is a legacy Dark Blue value normalized to Blue; new Purple behavior must not silently change an installed user's saved theme.
-- Decide whether Pink remains as a compatible hidden theme or remains selectable.
-- Decide whether the Figma label “Use 12-hour format” changes the stored `use_24_hour` behavior or is only a UI wording inversion.
-- Define browser settings-key migration before changing `daypal_settings`.
-- Confirm whether the weather temperature should continue without a degree symbol.
-- Confirm default settings for new installs separately from upgrade behavior.
-
-## Planned release documents
-
-- Product requirements
-- Technical specification
-- Asset inventory
-- Localization plan
-- Pixel-perfect QA checklist
-- Release notes
-- Final handoff
-- QA evidence index
+The development companion currently targets consolidated QA using cache label `daypal-2.0.0-qa-1`.
 
 ## Release sequence
 
-1. Approve wireframes and resolve compatibility decisions.
-2. Freeze PRD and technical specification.
-3. Implement the watchface and consolidated QA configuration page.
-4. Run upgrade, weather, settings, localization, asset, and pixel-perfect QA.
-5. Promote the exact QA config to production and `releases/2.0.0`.
-6. Switch the companion from the QA cache label to a fresh production cache label.
-7. Build the final Emery PBW, complete physical-device QA, and close documentation.
+1. Receive and validate the final 32/42px asset exports.
+2. Freeze the new-install/reset metric trio.
+3. Implement the shared 3/4-slot renderer and 2.0 palette.
+4. Implement the hosted configuration page and settings migration.
+5. Implement/verify weather reliability and anonymous analytics.
+6. Run functional, upgrade, asset, and native pixel-perfect QA.
+7. Promote the exact validated QA config to production and the immutable 2.0.0 snapshot.
+8. Switch the companion to production with a fresh cache label.
+9. Build the final Emery PBW and complete physical Pebble Time 2 signoff.
+10. Finalize release notes and close QA evidence.
