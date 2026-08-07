@@ -35,6 +35,7 @@
 #define DAYPAL_UNAVAILABLE_HEX 0x666666
 #define DAYPAL_QA_DUMMY_DATA 0
 #define DAYPAL_QA_TIME_STRESS_TEST 0
+#define DAYPAL_QA_SLOT_COUNT 3
 
 #define STORAGE_KEY_THEME 100
 #define STORAGE_KEY_SLOT_1_METRIC 101
@@ -443,7 +444,14 @@ static void update_health_metrics(void) {
 static int get_visible_metrics(MetricType visible[4]) {
   int count = 0;
   for (int i = 0; i < 4; i++) {
-    if (s_settings.slot_metrics[i] != METRIC_NONE) visible[count++] = s_settings.slot_metrics[i];
+    if (s_settings.slot_metrics[i] != METRIC_NONE) {
+      visible[count++] = s_settings.slot_metrics[i];
+#if DAYPAL_QA_SLOT_COUNT == 3
+      // Temporary DayPal 2.0.0 QA override: exercise the three-slot watchface
+      // before app-config exposes layout selection. Remove this cap when ready.
+      if (count == 3) break;
+#endif
+    }
   }
   return count;
 }
