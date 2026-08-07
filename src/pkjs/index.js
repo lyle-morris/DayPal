@@ -1,5 +1,5 @@
 var CONFIG_URL = 'https://lyle-morris.github.io/Hosting/apps/daypal/qa/app-config.html';
-var CONFIG_CACHE_LABEL = 'daypal-2.0.0-qa-1';
+var CONFIG_CACHE_LABEL = 'daypal-2.0.0-app-config-qa-1';
 var DONATION_URL = 'https://ko-fi.com/lylemorris';
 var SETTINGS_KEY = 'daypal_settings';
 var LEGACY_SETTINGS_KEY = 'daymate_settings';
