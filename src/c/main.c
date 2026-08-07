@@ -19,9 +19,9 @@
 #define METRIC_VALUE_H 16
 #define TIME_TEXT_X 81
 #define TIME_TEXT_W 108
-#define TIME_TEXT_H 72
-#define HOUR_TEXT_Y 16
-#define MINUTE_TEXT_Y 96
+#define TIME_TEXT_H 104
+#define HOUR_TEXT_Y -7
+#define MINUTE_TEXT_Y 75
 #define DATE_TEXT_X 70
 #define DATE_TEXT_Y 181
 #define DATE_TEXT_W 130
