@@ -27,6 +27,7 @@
 #define DATE_TEXT_Y 179
 #define DATE_TEXT_W 130
 #define DATE_TEXT_H 24
+#define DATE_SEGMENT_GAP 3
 #define DAYPAL_UNAVAILABLE_HEX 0x666666
 #define DAYPAL_QA_DUMMY_DATA 0
 #define DAYPAL_QA_TIME_STRESS_TEST 0
@@ -466,6 +467,51 @@ static void draw_metric(GContext *ctx, DayPalTheme theme, MetricType metric, int
     GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
 }
 
+static int date_segment_width(const char *text) {
+  GSize size = graphics_text_layout_get_content_size(
+    text, s_font_date, GRect(0, 0, DATE_TEXT_W, DATE_TEXT_H),
+    GTextOverflowModeFill, GTextAlignmentLeft);
+  return size.w;
+}
+
+static void draw_date_text(GContext *ctx, const char *date, int x, int width) {
+  const char *comma = strchr(date, ',');
+  if (!comma || comma < date + 5) {
+    graphics_draw_text(ctx, date, s_font_date, GRect(x, DATE_TEXT_Y, width, DATE_TEXT_H),
+      GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+    return;
+  }
+
+  char month[4] = {date[0], date[1], date[2], '\0'};
+  int day_len = (int)(comma - (date + 4));
+  if (day_len < 1 || day_len > 2) {
+    graphics_draw_text(ctx, date, s_font_date, GRect(x, DATE_TEXT_Y, width, DATE_TEXT_H),
+      GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+    return;
+  }
+
+  char day_comma[4] = {0};
+  memcpy(day_comma, date + 4, day_len);
+  day_comma[day_len] = ',';
+  const char *weekday = comma + 1;
+  while (*weekday == ' ') weekday++;
+
+  // Keep the original centered-string anchor so the already-correct month stays fixed.
+  int full_width = date_segment_width(date);
+  int month_width = date_segment_width(month);
+  int day_width = date_segment_width(day_comma);
+  int start_x = x + (width - full_width) / 2;
+  int day_x = start_x + month_width + DATE_SEGMENT_GAP;
+  int weekday_x = day_x + day_width + DATE_SEGMENT_GAP;
+
+  graphics_draw_text(ctx, month, s_font_date, GRect(start_x, DATE_TEXT_Y, width, DATE_TEXT_H),
+    GTextOverflowModeFill, GTextAlignmentLeft, NULL);
+  graphics_draw_text(ctx, day_comma, s_font_date, GRect(day_x, DATE_TEXT_Y, width, DATE_TEXT_H),
+    GTextOverflowModeFill, GTextAlignmentLeft, NULL);
+  graphics_draw_text(ctx, weekday, s_font_date, GRect(weekday_x, DATE_TEXT_Y, width, DATE_TEXT_H),
+    GTextOverflowModeFill, GTextAlignmentLeft, NULL);
+}
+
 static void draw_clock(GContext *ctx, DayPalTheme theme, int clock_x, int clock_w) {
   char hour[4], minute[4], date[18];
   format_time(hour, sizeof(hour), minute, sizeof(minute), date, sizeof(date));
@@ -473,11 +519,11 @@ static void draw_clock(GContext *ctx, DayPalTheme theme, int clock_x, int clock_
   if (clock_x == CLOCK_X && clock_w == CLOCK_W) {
     graphics_draw_text(ctx, hour, s_font_time, GRect(TIME_TEXT_X, HOUR_TEXT_Y, TIME_TEXT_W, TIME_TEXT_H), GTextOverflowModeFill, GTextAlignmentRight, NULL);
     graphics_draw_text(ctx, minute, s_font_time, GRect(TIME_TEXT_X, MINUTE_TEXT_Y, TIME_TEXT_W, TIME_TEXT_H), GTextOverflowModeFill, GTextAlignmentRight, NULL);
-    graphics_draw_text(ctx, date, s_font_date, GRect(DATE_TEXT_X, DATE_TEXT_Y, DATE_TEXT_W, DATE_TEXT_H), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+    draw_date_text(ctx, date, DATE_TEXT_X, DATE_TEXT_W);
   } else {
     graphics_draw_text(ctx, hour, s_font_time, GRect(clock_x, HOUR_TEXT_Y, clock_w, TIME_TEXT_H), GTextOverflowModeFill, GTextAlignmentCenter, NULL);
     graphics_draw_text(ctx, minute, s_font_time, GRect(clock_x, MINUTE_TEXT_Y, clock_w, TIME_TEXT_H), GTextOverflowModeFill, GTextAlignmentCenter, NULL);
-    graphics_draw_text(ctx, date, s_font_date, GRect(clock_x, DATE_TEXT_Y, clock_w, DATE_TEXT_H), GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
+    draw_date_text(ctx, date, clock_x, clock_w);
   }
 }
 
