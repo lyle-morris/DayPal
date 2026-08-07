@@ -41,7 +41,7 @@
       },
       {
         "type": "font",
-        "name": "FONT_ROBOTO_BOLD_12",
+        "name": "FONT_ROBOTO_BOLD_14",
         "file": "fonts/Roboto-Bold.ttf",
         "characterRegex": "[0-9k°:\\-]"
       },
