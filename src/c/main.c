@@ -14,16 +14,17 @@
 #define CLOCK_FULL_W 200
 #define ICON_SIZE 32
 #define METRIC_ICON_X 19
-#define METRIC_VALUE_X 19
+#define METRIC_VALUE_X 20
 #define METRIC_VALUE_W 32
+#define METRIC_VALUE_Y_OFFSET -1
 #define METRIC_VALUE_H 16
 #define TIME_TEXT_X 81
 #define TIME_TEXT_W 108
 #define TIME_TEXT_H 104
 #define HOUR_TEXT_Y -9
-#define MINUTE_TEXT_Y 73
-#define DATE_TEXT_X 70
-#define DATE_TEXT_Y 178
+#define MINUTE_TEXT_Y 72
+#define DATE_TEXT_X 69
+#define DATE_TEXT_Y 179
 #define DATE_TEXT_W 130
 #define DATE_TEXT_H 24
 #define DAYPAL_UNAVAILABLE_HEX 0x666666
@@ -461,7 +462,7 @@ static void draw_metric(GContext *ctx, DayPalTheme theme, MetricType metric, int
   char value[12];
   value_for_metric(metric, value, sizeof(value));
   graphics_draw_text(ctx, value, s_font_metric,
-    GRect(METRIC_VALUE_X, slot_y + ICON_SIZE, METRIC_VALUE_W, METRIC_VALUE_H),
+    GRect(METRIC_VALUE_X, slot_y + ICON_SIZE + METRIC_VALUE_Y_OFFSET, METRIC_VALUE_W, METRIC_VALUE_H),
     GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
 }
 
