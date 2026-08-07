@@ -20,10 +20,10 @@
 #define TIME_TEXT_X 81
 #define TIME_TEXT_W 108
 #define TIME_TEXT_H 104
-#define HOUR_TEXT_Y -7
-#define MINUTE_TEXT_Y 75
+#define HOUR_TEXT_Y -9
+#define MINUTE_TEXT_Y 73
 #define DATE_TEXT_X 70
-#define DATE_TEXT_Y 181
+#define DATE_TEXT_Y 178
 #define DATE_TEXT_W 130
 #define DATE_TEXT_H 24
 #define DAYPAL_UNAVAILABLE_HEX 0x666666
@@ -614,8 +614,8 @@ static void init(void) {
   update_health_metrics();
   s_battery = battery_state_service_peek();
   s_font_time = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ROBOTO_BLACK_93));
-  s_font_metric = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ROBOTO_BOLD_16));
-  s_font_date = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ROBOTO_BOLD_20));
+  s_font_metric = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ROBOTO_BOLD_12));
+  s_font_date = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ROBOTO_BOLD_18));
   s_window = window_create();
   window_set_window_handlers(s_window, (WindowHandlers){.load = main_window_load, .unload = main_window_unload});
   window_stack_push(s_window, true);
