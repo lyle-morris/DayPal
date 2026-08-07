@@ -661,7 +661,7 @@ static void init(void) {
   update_health_metrics();
   s_battery = battery_state_service_peek();
   s_font_time = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ROBOTO_BLACK_93));
-  s_font_metric = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ROBOTO_BOLD_12));
+  s_font_metric = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ROBOTO_BOLD_14));
   s_font_date = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ROBOTO_BOLD_18));
   s_window = window_create();
   window_set_window_handlers(s_window, (WindowHandlers){.load = main_window_load, .unload = main_window_unload});
