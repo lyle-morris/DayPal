@@ -18,6 +18,10 @@
 #define METRIC_VALUE_W 32
 #define METRIC_VALUE_Y_OFFSET -2
 #define METRIC_VALUE_H 16
+#define THREE_SLOT_ICON_SIZE 42
+#define THREE_SLOT_ICON_X 14
+#define THREE_SLOT_VALUE_X 15
+#define THREE_SLOT_VALUE_W 42
 #define TIME_TEXT_X 81
 #define TIME_TEXT_W 108
 #define TIME_TEXT_H 104
@@ -243,7 +247,7 @@ static IconTreatment icon_treatment_for_metric(DayPalTheme theme) {
   return theme.icon_treatment;
 }
 
-static uint32_t weather_resource_id(IconTreatment treatment) {
+static uint32_t weather_resource_id(IconTreatment treatment, bool use_42px) {
 #if DAYPAL_QA_DUMMY_DATA
   WeatherCondition condition = WEATHER_SUNNY;
 #else
@@ -251,6 +255,11 @@ static uint32_t weather_resource_id(IconTreatment treatment) {
 #endif
 
 #define WEATHER_RESOURCE(state) \
+  if (use_42px) { \
+    if (treatment == ICON_TREATMENT_BLACK) return RESOURCE_ID_IMAGE_WEATHER_##state##_BLACK_42; \
+    if (treatment == ICON_TREATMENT_WHITE) return RESOURCE_ID_IMAGE_WEATHER_##state##_WHITE_42; \
+    return RESOURCE_ID_IMAGE_WEATHER_##state##_COLOR_42; \
+  } \
   if (treatment == ICON_TREATMENT_BLACK) return RESOURCE_ID_IMAGE_WEATHER_##state##_BLACK_32; \
   if (treatment == ICON_TREATMENT_WHITE) return RESOURCE_ID_IMAGE_WEATHER_##state##_WHITE_32; \
   return RESOURCE_ID_IMAGE_WEATHER_##state##_COLOR_32
@@ -281,7 +290,7 @@ static int battery_bucket(void) {
 #endif
 }
 
-static uint32_t battery_resource_id(IconTreatment treatment) {
+static uint32_t battery_resource_id(IconTreatment treatment, bool use_42px) {
   bool charging = s_battery.is_charging;
   int bucket = battery_bucket();
 #if DAYPAL_QA_DUMMY_DATA
@@ -289,11 +298,21 @@ static uint32_t battery_resource_id(IconTreatment treatment) {
 #endif
 
 #define BATTERY_RESOURCE(prefix) \
+  if (use_42px) { \
+    if (treatment == ICON_TREATMENT_BLACK) return RESOURCE_ID_IMAGE_BATTERY_##prefix##_BLACK_42; \
+    if (treatment == ICON_TREATMENT_WHITE) return RESOURCE_ID_IMAGE_BATTERY_##prefix##_WHITE_42; \
+    return RESOURCE_ID_IMAGE_BATTERY_##prefix##_COLOR_42; \
+  } \
   if (treatment == ICON_TREATMENT_BLACK) return RESOURCE_ID_IMAGE_BATTERY_##prefix##_BLACK_32; \
   if (treatment == ICON_TREATMENT_WHITE) return RESOURCE_ID_IMAGE_BATTERY_##prefix##_WHITE_32; \
   return RESOURCE_ID_IMAGE_BATTERY_##prefix##_COLOR_32
 
 #define BATTERY_CHARGING_RESOURCE(prefix) \
+  if (use_42px) { \
+    if (treatment == ICON_TREATMENT_BLACK) return RESOURCE_ID_IMAGE_BATTERY_CHARGING_##prefix##_BLACK_42; \
+    if (treatment == ICON_TREATMENT_WHITE) return RESOURCE_ID_IMAGE_BATTERY_CHARGING_##prefix##_WHITE_42; \
+    return RESOURCE_ID_IMAGE_BATTERY_CHARGING_##prefix##_COLOR_42; \
+  } \
   if (treatment == ICON_TREATMENT_BLACK) return RESOURCE_ID_IMAGE_BATTERY_CHARGING_##prefix##_BLACK_32; \
   if (treatment == ICON_TREATMENT_WHITE) return RESOURCE_ID_IMAGE_BATTERY_CHARGING_##prefix##_WHITE_32; \
   return RESOURCE_ID_IMAGE_BATTERY_CHARGING_##prefix##_COLOR_32
@@ -314,16 +333,21 @@ static uint32_t battery_resource_id(IconTreatment treatment) {
 #undef BATTERY_CHARGING_RESOURCE
 }
 
-static uint32_t resource_id_for_metric(MetricType metric, IconTreatment treatment) {
+static uint32_t resource_id_for_metric(MetricType metric, IconTreatment treatment, bool use_42px) {
 #define SIMPLE_RESOURCE(name) \
+  if (use_42px) { \
+    if (treatment == ICON_TREATMENT_BLACK) return RESOURCE_ID_IMAGE_##name##_BLACK_42; \
+    if (treatment == ICON_TREATMENT_WHITE) return RESOURCE_ID_IMAGE_##name##_WHITE_42; \
+    return RESOURCE_ID_IMAGE_##name##_COLOR_42; \
+  } \
   if (treatment == ICON_TREATMENT_BLACK) return RESOURCE_ID_IMAGE_##name##_BLACK_32; \
   if (treatment == ICON_TREATMENT_WHITE) return RESOURCE_ID_IMAGE_##name##_WHITE_32; \
   return RESOURCE_ID_IMAGE_##name##_COLOR_32
 
   switch (metric) {
-    case METRIC_WEATHER: return weather_resource_id(treatment);
+    case METRIC_WEATHER: return weather_resource_id(treatment, use_42px);
     case METRIC_HEART_RATE: SIMPLE_RESOURCE(HEART_RATE);
-    case METRIC_BATTERY: return battery_resource_id(treatment);
+    case METRIC_BATTERY: return battery_resource_id(treatment, use_42px);
     case METRIC_CALORIES: SIMPLE_RESOURCE(CALORIES);
     case METRIC_STEPS: SIMPLE_RESOURCE(STEPS);
     case METRIC_SLEEP: SIMPLE_RESOURCE(SLEEP_SCORE);
@@ -446,16 +470,21 @@ static void format_time(char *hour, size_t hour_size, char *minute, size_t minut
 #endif
 }
 
-static void draw_metric(GContext *ctx, DayPalTheme theme, MetricType metric, int slot_y) {
+static void draw_metric(GContext *ctx, DayPalTheme theme, MetricType metric, int slot_y, bool use_42px) {
   bool available = metric_available(metric);
   GColor metric_color = color_for_metric(theme, metric, available);
   IconTreatment treatment = icon_treatment_for_metric(theme);
-  uint32_t resource_id = resource_id_for_metric(metric, treatment);
+  uint32_t resource_id = resource_id_for_metric(metric, treatment, use_42px);
+  int icon_size = use_42px ? THREE_SLOT_ICON_SIZE : ICON_SIZE;
+  int icon_x = use_42px ? THREE_SLOT_ICON_X : METRIC_ICON_X;
+  int value_x = use_42px ? THREE_SLOT_VALUE_X : METRIC_VALUE_X;
+  int value_w = use_42px ? THREE_SLOT_VALUE_W : METRIC_VALUE_W;
+
   if (resource_id) {
     GBitmap *bitmap = gbitmap_create_with_resource(resource_id);
     if (bitmap) {
       graphics_context_set_compositing_mode(ctx, GCompOpSet);
-      graphics_draw_bitmap_in_rect(ctx, bitmap, GRect(METRIC_ICON_X, slot_y, ICON_SIZE, ICON_SIZE));
+      graphics_draw_bitmap_in_rect(ctx, bitmap, GRect(icon_x, slot_y, icon_size, icon_size));
       gbitmap_destroy(bitmap);
     }
   }
@@ -463,7 +492,7 @@ static void draw_metric(GContext *ctx, DayPalTheme theme, MetricType metric, int
   char value[12];
   value_for_metric(metric, value, sizeof(value));
   graphics_draw_text(ctx, value, s_font_metric,
-    GRect(METRIC_VALUE_X, slot_y + ICON_SIZE + METRIC_VALUE_Y_OFFSET, METRIC_VALUE_W, METRIC_VALUE_H),
+    GRect(value_x, slot_y + icon_size + METRIC_VALUE_Y_OFFSET, value_w, METRIC_VALUE_H),
     GTextOverflowModeTrailingEllipsis, GTextAlignmentCenter, NULL);
 }
 
@@ -537,13 +566,25 @@ static void canvas_update_proc(Layer *layer, GContext *ctx) {
     draw_clock(ctx, theme, CLOCK_FULL_X, CLOCK_FULL_W);
     return;
   }
+
   graphics_context_set_fill_color(ctx, theme.divider);
   graphics_fill_rect(ctx, GRect(DIVIDER_X, 0, DIVIDER_W, SCREEN_H), 0, GCornerNone);
-  const int slot_y[4] = {8, 64, 120, 176};
-  for (int i = 0; i < 4; i++) {
-    MetricType metric = s_settings.slot_metrics[i];
-    if (metric != METRIC_NONE) draw_metric(ctx, theme, metric, slot_y[i]);
+
+  if (count == 3) {
+    // Figma 249:2646: 42px icon canvases, 14px values, 12px vertical tray padding.
+    const int three_slot_y[3] = {12, 86, 160};
+    for (int i = 0; i < 3; i++) {
+      draw_metric(ctx, theme, visible[i], three_slot_y[i], true);
+    }
+  } else {
+    // Approved four-slot geometry remains unchanged.
+    const int four_slot_y[4] = {8, 64, 120, 176};
+    for (int i = 0; i < 4; i++) {
+      MetricType metric = s_settings.slot_metrics[i];
+      if (metric != METRIC_NONE) draw_metric(ctx, theme, metric, four_slot_y[i], false);
+    }
   }
+
   draw_clock(ctx, theme, CLOCK_X, CLOCK_W);
 }
 
