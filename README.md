@@ -1,243 +1,63 @@
-# DayPal
-
-DayPal is a configurable Pebble Time 2 watchface built for fast, glanceable daily context. It pairs a bold stacked clock with a compact metric tray, selectable high-contrast themes, and native Pebble services for weather, health, and battery status.
-
-## Current Development Release
-
-**DayPal 1.6.0**
-
-Target release date: **07/05/2026**
-
-DayPal 1.6.0 is focused on matching the final 1.6.0 wireframes, correcting theme/icon behavior, improving weather-location control, adding temperature-unit flexibility, supporting reverse theme colors, and introducing anonymous analytics with a clear opt-out path.
-
-## Release History
-
-- **DayPal 1.0.0** — Released
-- **DayPal 1.5.0** — Released
-- **DayPal 1.6.0** — In development
-
-## Platform
+# DayPal 2.0.0 Development
 
-- Target device: Pebble Time 2
-- Target platform: Emery
-- SDK: Pebble SDK 3
-- App type: Watchface
-- Companion: PebbleKit JS
-- Configuration: Hosted Pebble configuration page
-- Hosting repository: `lyle-morris/DayPal-Hosting`
-
-## 1.6.0 Scope
-
-DayPal 1.6.0 includes the following planned updates:
-
-- Match final DayPal 1.6.0 wireframes
-- Restore original metric icon shapes
-- Correct icon color mapping for Default, non-reverse, and reverse theme states
-- Add Use 24-hour format setting
-- Add Weather location setting with current-location and manual-location behavior
-- Add Manual location input using ZIP/postal code or city
-- Add Celsius temperature setting
-- Add Reverse theme colors option
-- Add anonymous analytics opt-in/out
-- Add donation/support panel in the configuration page
-
-## Not in Scope for 1.6.0
-
-The following items should not be carried into the DayPal 1.6.0 backlog:
-
-- Saved custom themes
-- User-created theme colors
-- Account sign-in
-- Collection of personal, health, or precise location data
-
-## Features
-
-- Large stacked hour and minute display
-- Centered date line
-- Four configurable metric slots
-- Supported metrics:
-  - Weather
-  - Heart Rate
-  - Battery
-  - Calories
-  - Steps
-- `None` option for hiding individual metric slots
-- Clock-only mode when all metric slots are hidden
-- Duplicate metric selections supported
-- 12-hour and 24-hour time support
-- Optional leading zero
-- Persistent settings on the phone and watch
-- Open-Meteo weather integration with cached fallback
-- Pebble Health integration for steps, heart rate, and active calories
-- Battery charge and charging-state icon support
+This branch contains the in-progress DayPal 2.0.0 work for Pebble Time 2 / Emery.
 
-## Themes
-
-DayPal 1.6.0 includes the active theme set shown in the final wireframes.
-
-| Theme | Non-reverse behavior | Reverse behavior |
-|---|---|---|
-| Default / Multi-Color | `#000000` background, white clock/date, multi-color metric icons | Same as Default unless changed by an approved requirement |
-| Blue | `#0055FF` background, black text/icons | `#000000` background, `#0055FF` text/icons |
-| Orange | `#FF5500` background, black text/icons | `#000000` background, `#FF5500` text/icons |
-| Green | `#00AA55` background, black text/icons | `#000000` background, `#00AA55` text/icons |
-| Pink | `#FF00AA` background, black text/icons | `#000000` background, `#FF00AA` text/icons |
-| Yellow | `#FFCC55` background, black text/icons | `#000000` background, `#FFCC55` text/icons |
-| Red | `#FF0055` background, black text/icons | `#000000` background, `#FF0055` text/icons |
-| Black | `#FFFFFF` background, black text/icons | `#000000` background, white text/icons |
+**Branch:** `daypal-2.0.0-dev`  
+**Status:** Active development / partial QA prototype / **not release-ready**  
+**Base:** stable DayPal `main` 1.6.x line  
+**Visual authority:** Figma section `84:1722`
 
-Default / Multi-Color metric icon colors:
+## Start here
 
-- Weather: `#FFFF00`
-- Heart Rate: `#FF0000`
-- Battery: `#00FF00`
-- Steps: `#00AAFF`
-- Calories: `#FF5500`
+- Release index: [`docs/2.0.0/README.md`](docs/2.0.0/README.md)
+- Current handoff and blockers: [`docs/2.0.0/DayPal-Handoff-2.0.0.md`](docs/2.0.0/DayPal-Handoff-2.0.0.md)
+- Pixel-perfect gate: [`docs/2.0.0/DayPal-Pixel-Perfect-QA-Checklist-2.0.0.md`](docs/2.0.0/DayPal-Pixel-Perfect-QA-Checklist-2.0.0.md)
+- QA evidence: [`docs/2.0.0/qa/README.md`](docs/2.0.0/qa/README.md)
+- Draft release notes: [`docs/2.0.0/DayPal-Release-Notes-2.0.0.md`](docs/2.0.0/DayPal-Release-Notes-2.0.0.md)
 
-## Design
+## What is already present
 
-DayPal uses a fixed 200 x 228 layout tuned for Pebble Time 2.
+- 200 × 228 DayPal 2.0 watchface geometry work.
+- 3-slot and 4-slot rendering code paths and matching 42px/32px asset sets.
+- 10 fixed theme palette work: Default, Orange, Blue, Purple, Yellow, Green, Red, Pink, White, Black.
+- Weather, Heart Rate, Battery, Calories, and Steps metric support from the 1.6.x line.
+- Additional Sleep, Activity Time, and Distance IDs/assets/UI entries.
+- Hosted 2.0 QA page in `lyle-morris/Hosting/apps/daypal/qa/`.
+- Manual/current-location weather flow and last-successful-weather fallback.
 
-- Metric tray width: 58 px
-- Divider width: 1 px
-- Clock region width with metrics: 141 px
-- Full-screen clock region when all metrics are hidden
-- Slot positions remain fixed, even when other slots are set to `None`
-- Default theme uses colored metric icons
-- Non-reverse color themes use black icons
-- Reverse color themes use selected theme-color icons
-- Default divider color: `#555555`
+The repository copy of `app-config/index.html` and the consolidated Hosting QA page currently share the same blob, so QA is using the checked-in development config source.
 
-The visual direction is minimal, high-contrast, and readable at a glance.
+## Known release blockers
 
-## Configuration
+This branch is intentionally **not** merged to `main` because the 2.0 release contract is not complete.
 
-DayPal is configured from the Pebble mobile app configuration flow. Settings are sent through PebbleKit JS, applied on the watch through AppMessage, and persisted locally.
+- `DAYPAL_QA_SLOT_COUNT` still forces the watchface to three visible metrics for QA.
+- The hosted 3/4-slot toggle does not have a real persisted layout key on the watch/companion.
+- Three-slot mode currently saves Slot 4 as `None`; the hidden Slot 4 choice is not preserved across a save/reopen cycle.
+- Companion/config defaults still describe four visible slots, conflicting with the planned new-install three-slot default.
+- The exact three-metric new-install/Reset Layout default is still not frozen.
+- Sleep, Activity Time, and Distance render `---` in normal runtime because live Health data is not wired yet.
+- Language is currently presentation-only: the config shows only English and does not serialize a language setting to the companion/watch.
+- The Country control is not part of the saved manual-location model.
+- Analytics is still a local test-event buffer; GA4 collection/reporting is not implemented in the 2.0 runtime.
+- Weather refresh is currently 30 minutes on-watch; the 2.0 contract calls for 15-minute scheduling plus dedupe/retry/reconnect behavior.
+- `appinfo.json` and `package.json` still identify the branch as 1.6.0.
+- The companion still points to the consolidated **QA** config URL.
+- Hosting does not yet contain `apps/daypal/releases/2.0.0/`.
+- Formal QA evidence and final physical Pebble Time 2 signoff are incomplete.
 
-Configurable options:
+See the handoff for the full blocker history and resume sequence.
 
-- Theme selection using color tiles
-- Use 24-hour format
-- Leading zero
-- Weather location: Current or Manual
-- Manual location: ZIP/postal code or city
-- Celsius temperature
-- Reverse theme colors
-- Slot 1 metric
-- Slot 2 metric
-- Slot 3 metric
-- Slot 4 metric
-- Reset layout
-- Anonymous analytics opt-in/out
+## Hosting
 
-Default layout:
+DayPal 2.0 development uses the consolidated Hosting repository:
 
-- Slot 1: Weather
-- Slot 2: Heart Rate
-- Slot 3: Battery
-- Slot 4: Steps
+- QA: `https://lyle-morris.github.io/Hosting/apps/daypal/qa/app-config.html`
+- Future production: `https://lyle-morris.github.io/Hosting/apps/daypal/prod/app-config.html`
+- Future immutable 2.0 snapshot: `https://lyle-morris.github.io/Hosting/apps/daypal/releases/2.0.0/app-config.html`
 
-The configuration page uses a selected tile checkmark and a fixed Save settings footer.
+The legacy `lyle-morris/DayPal-Hosting` repository must remain online for installed 1.6.x builds and is not the 2.0 development target.
 
-Hosted configuration repository:
+## Important design check before resuming
 
-```text
-https://github.com/lyle-morris/DayPal-Hosting
-```
-
-Development hosted files:
-
-```text
-https://lyle-morris.github.io/DayPal-Hosting/dev/app-config.html
-https://lyle-morris.github.io/DayPal-Hosting/dev/analytics.html
-https://lyle-morris.github.io/DayPal-Hosting/dev/location-testing.html
-```
-
-Production hosted files:
-
-```text
-https://lyle-morris.github.io/DayPal-Hosting/app-config.html
-https://lyle-morris.github.io/DayPal-Hosting/analytics.html
-https://lyle-morris.github.io/DayPal-Hosting/location-testing.html
-```
-
-## Weather
-
-Weather uses the phone companion to request location and fetch current conditions from Open-Meteo. DayPal 1.6.0 supports choosing either the current phone location or a manually entered location using ZIP/postal code or city. The watch displays the current temperature and a themed weather icon. The last valid weather result is cached so a temporary location or network failure does not immediately clear the weather display.
-
-Supported weather states:
-
-- Sunny
-- Partly Cloudy
-- Cloudy
-- Rain
-- Storm
-- Snow
-- Fog
-
-## Battery
-
-Battery icon mapping:
-
-- `0%` → 0 icon
-- `1-25%` → 25 icon
-- `26-50%` → 50 icon
-- `51-80%` → 75 icon
-- `81-100%` → 100 icon
-
-The watchface displays the numeric battery charge without a percent symbol.
-
-## Health Metrics
-
-DayPal reads supported Pebble Health metrics directly on the watch:
-
-- Steps
-- Heart rate
-- Active calories
-
-If a health metric is unavailable on the device, DayPal shows `---` for that metric instead of failing or displaying stale placeholder data.
-
-## Analytics
-
-DayPal 1.6.0 includes anonymous analytics to help understand configuration usage and general adoption patterns. Analytics should not collect personally identifiable information, exact user location, health values, or unique personal data. The configuration page must include an analytics opt-in/out section.
-
-## Development
-
-Primary development branch for DayPal 1.6.0:
-
-```text
-daypal-1.6.0-dev
-```
-
-Hosted configuration, analytics dashboard, and location QA work belongs in:
-
-```text
-lyle-morris/DayPal-Hosting
-```
-
-The project is intended to build in CloudPebble or a compatible Pebble/Rebble SDK environment.
-
-Required resource categories:
-
-- Roboto font resources
-- Weather icons
-- Battery icons
-- Heart rate icon
-- Calories icon
-- Steps icon
-
-## Release Status
-
-DayPal 1.6.0 is currently in development.
-
-## Release Notes Summary
-
-DayPal 1.6.0 planned updates include:
-
-- Use 24-hour format setting
-- Weather location setting with Current and Manual options
-- Manual ZIP/postal code or city location input
-- Celsius temperature setting
-- Reverse theme colors option
-- Anonymous analytics
-- DayPal-Hosting configuration, analytics, and location QA support
+The checked-in 2.0 contract uses the ten fixed preset themes above. Later design discussions explored a more granular custom-color theming model. Before doing substantial theme/config work, verify the latest approved Figma direction instead of assuming either model is final.
