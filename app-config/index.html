@@ -35,18 +35,7 @@
 var BUILD='daypal-2.0.0-config-qa-2';
 var DEFAULTS={theme:0,slot_1_metric:0,slot_2_metric:1,slot_3_metric:2,slot_4_metric:4,show_leading_zero:true,use_24_hour:false,use_celsius:false,manual_location:false,manual_postal_code:'',manual_city:'',manual_country:'US',language:'en',reverse_theme:false,analytics_enabled:true};
 var METRICS=[[0,'Weather'],[1,'Heart rate'],[2,'Battery'],[3,'Calories'],[4,'Steps'],[6,'Sleep'],[7,'Activity time'],[8,'Distance'],[5,'None']];
-var THEMES=[
- {value:0,label:'Default',bg:'#000000',fg:'#ffffff'},
- {value:5,label:'Orange',bg:'#ff5500',fg:'#ffffff'},
- {value:1,label:'Blue',bg:'#00aaff',fg:'#ffffff'},
- {value:12,label:'Purple',bg:'#5500ff',fg:'#ffffff'},
- {value:9,label:'Yellow',bg:'#ffcc55',fg:'#000000'},
- {value:3,label:'Green',bg:'#005500',fg:'#ffffff'},
- {value:8,label:'Red',bg:'#ff0000',fg:'#ffffff'},
- {value:2,label:'Pink',bg:'#ff00aa',fg:'#ffffff'},
- {value:4,label:'White',bg:'#ffffff',fg:'#000000'},
- {value:7,label:'Black',bg:'#000000',fg:'#ffffff'}
-];
+var THEMES=[{value:0,label:'Default',bg:'#000000',fg:'#ffffff'},{value:5,label:'Orange',bg:'#ff5500',fg:'#ffffff'},{value:1,label:'Blue',bg:'#00aaff',fg:'#ffffff'},{value:12,label:'Purple',bg:'#5500ff',fg:'#ffffff'},{value:9,label:'Yellow',bg:'#ffcc55',fg:'#000000'},{value:3,label:'Green',bg:'#005500',fg:'#ffffff'},{value:8,label:'Red',bg:'#ff0000',fg:'#ffffff'},{value:2,label:'Pink',bg:'#ff00aa',fg:'#ffffff'},{value:4,label:'White',bg:'#ffffff',fg:'#000000'},{value:7,label:'Black',bg:'#000000',fg:'#ffffff'}];
 var LANGUAGES=[['en','English'],['es','Español'],['fr','Français'],['de','Deutsch'],['pt','Português'],['it','Italiano'],['nl','Nederlands'],['da','Dansk'],['nb','Norsk'],['sv','Svenska'],['fi','Suomi'],['is','Íslenska'],['ca','Català'],['eu','Euskara'],['gl','Galego'],['pl','Polski'],['cs','Čeština'],['sk','Slovenčina'],['sl','Slovenščina'],['hr','Hrvatski'],['bs','Bosanski'],['sr-Latn','Srpski (latinica)'],['ro','Română'],['hu','Magyar'],['et','Eesti'],['lv','Latviešu'],['lt','Lietuvių'],['tr','Türkçe'],['sq','Shqip'],['mt','Malti']];
 var COUNTRY_CODES=('US CA GB AU NZ IE DE FR ES IT PT NL BE LU CH AT DK NO SE FI IS PL CZ SK SI HR BA RS RO HU EE LV LT TR AL MT GR CY BG MK ME XK UA MD GE AM AZ IL ZA IN JP KR SG MY PH TH VN ID MX BR AR CL CO PE UY PY BO EC VE CR PA GT HN SV NI DO JM TT BS BB BZ GY SR FJ').split(' ');
 var previousFourthMetric=4;
