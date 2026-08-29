@@ -1,65 +1,90 @@
 # DayPal 2.0.0
 
-**Status:** Design approved / documentation baseline frozen / implementation beginning  
+**Status:** Active development / partial QA prototype / **not release-ready**  
 **Development branch:** `daypal-2.0.0-dev`  
-**Baseline:** DayPal `main` at `9ce17508637784bd04138f45ce555cfd7f49c867`  
+**Pull request:** #7 — keep Draft until the release gate is complete  
+**Stable baseline:** DayPal `main` 1.6.x line  
 **Visual source:** [Figma 2.0.0 section 84:1722](https://www.figma.com/design/oRliygHF8qzrzs5THYQOMH/Pebble?node-id=84-1722&m=dev)
 
-This folder is the release source of truth for DayPal 2.0.0. The approved Figma section is the visual authority; these documents define the product, compatibility, analytics, asset, QA, and release contracts around it.
+This folder is the working release source of truth for DayPal 2.0.0. The approved Figma section is the visual authority for the checked-in design contract, but the latest Figma theme/config direction should be reconfirmed before substantial new theming work.
 
-## Release documents
+## Read first
 
-- [Product Requirements](DayPal-PRD-2.0.0.md)
-- [Technical Specification](DayPal-Tech-Spec-2.0.0.md)
-- [Asset Inventory](DayPal-Asset-Inventory-2.0.0.md)
-- [Analytics Specification](DayPal-Analytics-Spec-2.0.0.md)
-- [Pixel-Perfect QA Checklist](DayPal-Pixel-Perfect-QA-Checklist-2.0.0.md)
-- [Release Notes](DayPal-Release-Notes-2.0.0.md)
-- [Handoff](DayPal-Handoff-2.0.0.md)
-- [QA Evidence Index](qa/README.md)
+1. [Current Handoff / Blockers](DayPal-Handoff-2.0.0.md)
+2. [Product Requirements](DayPal-PRD-2.0.0.md)
+3. [Technical Specification](DayPal-Tech-Spec-2.0.0.md)
+4. [Asset Inventory](DayPal-Asset-Inventory-2.0.0.md)
+5. [Analytics Specification](DayPal-Analytics-Spec-2.0.0.md)
+6. [Pixel-Perfect QA Checklist](DayPal-Pixel-Perfect-QA-Checklist-2.0.0.md)
+7. [QA Evidence Index](qa/README.md)
+8. [Draft Release Notes](DayPal-Release-Notes-2.0.0.md)
 
-## Locked 2.0.0 decisions
+The handoff is more current than the original baseline documents and records implementation drift discovered during the August 29 cleanup audit.
+
+## What exists today
+
+- 200 × 228 DayPal 2.0 watchface geometry.
+- 3-slot and 4-slot rendering work.
+- 42px/32px Color/White/Black asset families.
+- Ten fixed preset themes in the checked-in implementation.
+- Weather, Heart Rate, Battery, Calories, and Steps runtime metrics.
+- Sleep, Activity Time, and Distance IDs/assets/UI entries, but no live runtime data yet.
+- Consolidated DayPal 2.0 QA app-config in `lyle-morris/Hosting`.
+- Current/manual-location weather and last-successful-weather fallback.
+
+The checked-in `DayPal/app-config/index.html` and `Hosting/apps/daypal/qa/app-config.html` currently have the same blob SHA (`dc6c4e1981ef63fdbb6b3bb2646d24b91062a0f2`).
+
+## Locked compatibility decisions
 
 - Pebble Time 2 canvas remains 200 × 228.
-- Both 3-slot and 4-slot layouts are supported.
-- New installs default to 3 slots.
-- Upgrades from 1.6.x retain 4 visible slots when the new layout setting is absent.
-- Slot 4 remains stored while hidden; switching layout never shifts slot assignments.
-- Information tray is 70px wide; clock region is 130px wide.
-- 3-slot icons use 42px canvases with 28px visual glyphs.
-- 4-slot icons use 32px canvases with 20px visual glyphs.
-- Ten themes are selectable: Default, Orange, Blue, Purple, Yellow, Green, Red, Pink, White, Black.
-- Pink keeps ID 2; Purple appends ID 12.
-- Existing compatibility IDs are never reused.
-- Sleep appends metric ID 6.
-- Final 2.0 themes follow the fixed Figma palettes; Reverse Theme is not exposed in the 2.0 configuration UI.
-- Weather uses the Essential Redux reliability pattern: 15-minute schedule, last-success fallback, dedupe/reconnect handling, bounded retries.
-- Analytics is consented and configuration-only; no health readings, location, weather values, device IDs, or free-form user data.
-- Pixel-perfect comparison against native 200 × 228 Figma goldens is a release blocker.
-- DayPal 2.0.0 configuration is developed/promoted through `lyle-morris/Hosting`; `DayPal-Hosting` stays online for published 1.6.x builds.
+- Existing AppMessage IDs and stored meanings must not be repurposed.
+- Existing metric IDs 0–5 retain their meanings.
+- Existing theme IDs retain their meanings; Purple uses ID 12.
+- Reverse Theme remains a legacy compatibility value even though the fixed 2.0 palette does not expose it in the final UI.
+- `DayPal-Hosting` must remain online for installed 1.6.x clients.
+- DayPal 2.0 development/promotions use `lyle-morris/Hosting`.
 
-## One product default still open
+## Current release blockers
 
-The wireframes establish that a new install starts in 3-slot mode but do not unambiguously establish which three metrics Reset Layout/new install should select. Freeze that exact metric trio before implementation of reset/default migration. Do not infer it from one illustrative Figma instance.
+Do not merge or publish while any of these remain:
+
+- Watchface still forces three visible slots through `DAYPAL_QA_SLOT_COUNT`.
+- No dedicated persisted/AppMessage layout key exists for 3/4-slot mode.
+- Hiding Slot 4 currently loses its saved metric after Save/reopen.
+- Fresh-install/Reset Layout three-metric default is not frozen or implemented.
+- Sleep, Activity Time, and Distance are not connected to live Pebble Health data.
+- Language UI is not wired to companion/watch settings.
+- Country UI is not part of the saved manual-location model.
+- Analytics is development-local only, not GA4.
+- Watch weather schedule is 30 minutes rather than the intended 15-minute release contract, and retry/dedupe work remains incomplete.
+- `appinfo.json` and `package.json` still say 1.6.0.
+- Companion still targets consolidated QA.
+- No immutable `Hosting/apps/daypal/releases/2.0.0/` snapshot exists.
+- Formal native visual QA evidence and physical PT2 signoff are incomplete.
+
+See the handoff for root causes and the exact resume sequence.
 
 ## Hosting paths
 
 - QA: `https://lyle-morris.github.io/Hosting/apps/daypal/qa/app-config.html`
-- Production: `https://lyle-morris.github.io/Hosting/apps/daypal/prod/app-config.html`
-- Immutable 2.0.0 snapshot: `https://lyle-morris.github.io/Hosting/apps/daypal/releases/2.0.0/app-config.html`
+- Future production: `https://lyle-morris.github.io/Hosting/apps/daypal/prod/app-config.html`
+- Future immutable 2.0.0 snapshot: `https://lyle-morris.github.io/Hosting/apps/daypal/releases/2.0.0/app-config.html`
 - Legacy 1.6.x compatibility host: `https://lyle-morris.github.io/DayPal-Hosting/app-config.html`
 
-The development companion currently targets consolidated QA using cache label `daypal-2.0.0-qa-1`.
+The development companion currently targets QA and must remain there until promotion is complete.
 
 ## Release sequence
 
-1. Receive and validate the final 32/42px asset exports.
-2. Freeze the new-install/reset metric trio.
-3. Implement the shared 3/4-slot renderer and 2.0 palette.
-4. Implement the hosted configuration page and settings migration.
-5. Implement/verify weather reliability and anonymous analytics.
-6. Run functional, upgrade, asset, and native pixel-perfect QA.
-7. Promote the exact validated QA config to production and the immutable 2.0.0 snapshot.
-8. Switch the companion to production with a fresh cache label.
-9. Build the final Emery PBW and complete physical Pebble Time 2 signoff.
-10. Finalize release notes and close QA evidence.
+1. Reconfirm the latest Figma theme/config direction.
+2. Freeze the new-install/Reset Layout three-metric default.
+3. Replace the QA slot-count override with a real layout setting and migration contract.
+4. Fix hidden Slot 4 persistence.
+5. Complete or remove unfinished metrics and placeholder controls.
+6. Implement GA4 analytics with privacy QA.
+7. Complete weather schedule/retry/dedupe reliability work.
+8. Run the full functional, upgrade, asset, and native pixel-perfect QA matrix.
+9. Complete physical Pebble Time 2 signoff.
+10. Promote the exact approved QA page to `releases/2.0.0` and `prod`, verifying matching blob SHAs.
+11. Set versions to 2.0.0 and switch the companion to production with a fresh cache token.
+12. Build and record the final Emery PBW.
+13. Mark PR #7 ready and merge to `main` only after all gates pass.
