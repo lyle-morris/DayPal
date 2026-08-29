@@ -659,8 +659,11 @@ static void inbox_received(DictionaryIterator *iter, void *context) {
   if ((t = dict_find(iter, APP_KEY_WEATHER_TEMP))) { s_weather_temp = t->value->int32; weather_changed = true; }
   if ((t = dict_find(iter, APP_KEY_WEATHER_CODE))) { s_weather_condition = (WeatherCondition)t->value->int32; weather_changed = true; }
   if ((t = dict_find(iter, APP_KEY_WEATHER_VALID))) { s_weather_available = t->value->int32 == 1; weather_changed = true; }
+  if (weather_changed) {
+    APP_LOG(APP_LOG_LEVEL_INFO, "DayPal weather received: %d, condition %d, valid %d", s_weather_temp, (int)s_weather_condition, s_weather_available ? 1 : 0);
+    save_weather();
+  }
   layer_mark_dirty(s_canvas_layer);
-  if (weather_changed) save_weather();
   if (settings_changed) {
     save_settings();
     send_settings_ready();
@@ -682,6 +685,7 @@ static void battery_handler(BatteryChargeState state) {
 }
 
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
+  APP_LOG(APP_LOG_LEVEL_INFO, "DayPal minute tick: %02d:%02d", tick_time->tm_hour, tick_time->tm_min);
   if (tick_time->tm_min % 30 == 0 && has_metric_configured(METRIC_WEATHER)) {
     request_weather();
   }
@@ -720,6 +724,7 @@ static void init(void) {
   health_service_events_subscribe(health_handler, NULL);
   app_message_register_inbox_received(inbox_received);
   app_message_open(512, 512);
+  APP_LOG(APP_LOG_LEVEL_INFO, "DayPal QA refresh diagnostics enabled");
   request_weather();
 }
 
