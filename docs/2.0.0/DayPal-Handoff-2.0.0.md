@@ -1,106 +1,83 @@
 # DayPal 2.0.0 Handoff
 
-Use this document to resume DayPal 2.0.0 work without reconstructing the release decisions.
+Updated: August 29, 2026
+
+Use this document to resume DayPal 2.0.0 without reconstructing the release decisions or accidentally promoting QA-only code.
+
+## Release status
+
+**DayPal 2.0.0 is active development and is not release-ready. Do not merge PR #7 to `main` yet.**
+
+The last implementation/QA commit before this documentation cleanup was:
+
+`18b3627f9d2cc71fff16fbb37c22f3d460878068` — `Bust cache for DayPal 2.0 app config QA`
+
+Documentation cleanup commits follow that implementation commit on `daypal-2.0.0-dev`.
+
+The stable DayPal source remains on `main`. Its head before this documentation cleanup was `9ce17508637784bd04138f45ce555cfd7f49c867`, the merge of the DayPal 1.6.1 weather cache fallback hotfix. Historical version metadata on the stable branch still says 1.6.0, so do not infer the published revision from `appinfo.json` alone.
 
 ## Quick resume prompt
 
 ```text
-Continue DayPal 2.0.0 from branch daypal-2.0.0-dev. Read docs/2.0.0/README.md and DayPal-Handoff-2.0.0.md, verify the current GitHub branch and Figma section 84:1722, then continue from the first incomplete release gate.
+Continue DayPal 2.0.0 from branch daypal-2.0.0-dev. Read docs/2.0.0/README.md and docs/2.0.0/DayPal-Handoff-2.0.0.md first. Verify the latest Figma section 84:1722 before changing the theme model. Do not merge PR #7 until every release blocker in the handoff and QA checklist is resolved.
 ```
 
-## Repositories and branch
+## Repository boundaries
 
-- App: `lyle-morris/DayPal`
-- Development branch: `daypal-2.0.0-dev`
-- Consolidated hosting: `lyle-morris/Hosting`
-- Legacy compatibility hosting: `lyle-morris/DayPal-Hosting`
+### Watchface / companion
+
+- Repository: `lyle-morris/DayPal`
+- Stable branch: `main`
+- 2.0 development branch: `daypal-2.0.0-dev`
+- 2.0 pull request: #7
+- Store/app UUID: `64d3ca97-9d6a-47d0-98e5-0cb9530ad920`
 - Target: Pebble Time 2 / Emery / 200 × 228
 - Figma file: `oRliygHF8qzrzs5THYQOMH`
-- Approved Figma section: `84:1722` (`2.0.0`)
+- Approved 2.0 section used by the checked-in contract: `84:1722`
 
-## Starting point
+### Consolidated hosting
 
-- Branch baseline is DayPal `main` commit `9ce17508637784bd04138f45ce555cfd7f49c867`, containing the 1.6.1 last-successful-weather fallback.
-- Root version/readme references still require final 2.0.0 release cleanup.
-- The 2.0.0 branch companion points to consolidated DayPal QA with cache label `daypal-2.0.0-qa-1`.
-- Published 1.6.x builds still use `DayPal-Hosting`; that host must remain available.
-- The owner is exporting the final 2.0.0 image assets to the development branch.
+- Repository: `lyle-morris/Hosting`
+- Branch: `main`
+- QA: `apps/daypal/qa/app-config.html`
+- Production: `apps/daypal/prod/app-config.html`
+- Release snapshots: `apps/daypal/releases/`
 
-## Approved Figma structure
+Current DayPal 2.0 QA page is synchronized with the app-repository copy:
 
-Section `84:1722` contains:
+- `DayPal/app-config/index.html` blob: `dc6c4e1981ef63fdbb6b3bb2646d24b91062a0f2`
+- `Hosting/apps/daypal/qa/app-config.html` blob: `dc6c4e1981ef63fdbb6b3bb2646d24b91062a0f2`
 
-- 390px hosted configuration frame.
-- Ten 200 × 228 three-slot theme goldens.
-- Ten 200 × 228 four-slot theme goldens.
-- A technical specification frame.
-- Ten selectable themes: Default, Orange, Blue, Purple, Yellow, Green, Red, Pink, White, Black.
-- Configuration controls for general settings, theme, information/layout, manual location, language, analytics, support, reset, and save.
+There is **no `apps/daypal/releases/2.0.0/` snapshot yet**. Only 1.6.0 and 1.6.1 snapshots exist. That is an intentional release gate.
 
-Pixel-perfect conformance to these watchface goldens is a release blocker.
+### Legacy compatibility hosting
 
-## Locked layout contract
+- Repository: `lyle-morris/DayPal-Hosting`
+- Published compatibility URL: `https://lyle-morris.github.io/DayPal-Hosting/app-config.html`
 
-### Shared
+The current stable DayPal companion on `main` still opens this legacy URL. Keep the repository and endpoint online for installed 1.6.x builds.
 
-- Tray x0/y0/w70/h228.
-- Clock region x70/y0/w130/h228.
-- 1px separator at the boundary.
-- Hour x81/y16/w108/h72.
-- Minute x81/y96/w108/h72.
-- Date optical target around x87.5/y184/w95.
-- Hour/minute: Roboto Black 93 target.
-- Date: Roboto Bold 18 target.
+The consolidated stable production copy and legacy live page currently use the same app-config blob (`07d5f06a9530bf5043511cde6126fd32fd92b5b2`), but existing installations may still open the legacy URL directly.
 
-### Three slots
+## What is implemented in the 2.0 development branch
 
-- 42 × 42 icon canvas; 28px visual glyph.
-- icon x14; y12/86/160.
-- value x14/w42/h14; y54/128/202.
-- Roboto Bold 14 target.
+### Watchface geometry / assets
 
-### Four slots
+- Native 200 × 228 renderer.
+- 70px information tray and 130px clock region.
+- 3-slot geometry using 42 × 42 icon canvases.
+- 4-slot geometry using 32 × 32 icon canvases.
+- Purpose-built Color/White/Black resource treatments.
+- Expanded weather and battery asset sets.
+- Pixel-level layout tuning performed during development.
 
-- 32 × 32 icon canvas; 20px visual glyph.
-- icon x19; y8/64/120/176.
-- value x19/w32/h12; y40/96/152/208.
-- Roboto Bold 12 target.
+### Themes
 
-Native Figma golden beats a textual annotation if the two disagree. Pebble integer/font rasterization permits only a documented ≤1px optical text compensation.
-
-## Layout migration
-
-- New installs: three-slot mode.
-- Upgrade from legacy persisted DayPal: four-slot mode when new layout key is absent.
-- Slot 4 stays saved while hidden.
-- Switching layouts never shifts slot values.
-- Proposed new AppMessage key: 8.
-- Proposed new persistence key: 111.
-- Browser key: `use_four_slots`.
-- Still to freeze: exact three metric selections used by new install/Reset Layout.
-
-## Metrics
-
-Preserve:
-
-- 0 Weather
-- 1 Heart Rate
-- 2 Battery
-- 3 Calories
-- 4 Steps
-- 5 None
-
-Append:
-
-- 6 Sleep
-
-Weather 2.0 display matches Figma with an integer plus degree symbol. Battery remains numeric without `%`. Missing value remains `---`.
-
-## Theme contract
+The checked-in implementation currently supports the fixed 2.0 preset set:
 
 | Theme | ID | Background | Foreground |
 |---|---:|---|---|
-| Default | 0 | #000000 | metric Color |
+| Default | 0 | #000000 | per-metric color |
 | Orange | 5 | #FF5500 | white |
 | Blue | 1 | #00AAFF | white |
 | Purple | 12 | #5500FF | white |
@@ -111,85 +88,269 @@ Weather 2.0 display matches Figma with an integer plus degree symbol. Battery re
 | White | 4 | #FFFFFF | black |
 | Black | 7 | #000000 | white |
 
-Legacy IDs 6, 10, 11 remain reserved/compatible and are never repurposed.
+Legacy theme IDs 6, 10, and 11 remain compatibility values and must not be repurposed.
 
-Reverse Theme is absent from the final 2.0 UI. Preserve its existing message/persistence keys so stored data is not misinterpreted, but 2.0 selectable themes render with their fixed Figma palette.
+`reverse_theme` remains persisted for upgrade compatibility but the fixed 2.0 palette does not apply the old reverse-theme visual behavior.
 
-## Asset contract
+### Metrics currently represented
 
-- Treatments: Color, White, Black.
-- 3 slots: 42px canvas / 28px glyph.
-- 4 slots: 32px canvas / 20px glyph.
-- Weather: 7 conditions × 2 sizes × 3 treatments = 42.
-- Battery: 5 buckets × 2 charge states × 2 sizes × 3 treatments = 60.
-- Heart Rate, Steps, Calories, Sleep: 24 combined.
-- Full distinct-resource target: 126.
+IDs in code/UI:
 
-Validate actual PNG dimensions/transparent bounds and manifest mappings when exported assets arrive.
+- 0 Weather
+- 1 Heart Rate
+- 2 Battery
+- 3 Calories
+- 4 Steps
+- 5 None
+- 6 Sleep
+- 7 Activity Time
+- 8 Distance
 
-## Weather reliability
+Weather, Heart Rate, Battery, Calories, and Steps have runtime data paths. Sleep, Activity Time, and Distance currently have assets/UI IDs but are not yet backed by live data in normal runtime.
 
-Carry forward Essential Redux 2.0.0 lessons:
+### Weather / location
 
-- 15-minute scheduled requests.
-- Settings-ready/config/reconnect triggers.
-- 60-second equivalent-request dedupe.
-- Persist/show last successful data during temporary failures.
-- Bounded retry around 1/5/15 minutes.
-- Engineering logging for reason/timing/ACK/NACK/cache age without sending readings/location to analytics.
+Already present:
 
-## Analytics
+- Open-Meteo current-weather requests.
+- Current phone location flow.
+- Manual postal/city geocoding.
+- US/Canada postal fallback via Zippopotam.
+- Cached weather keyed by location/unit.
+- Last-successful-weather fallback when a current request fails.
 
-Consented hosted-page GA4 taxonomy:
+### Hosted app-config
 
-Events:
+The current QA page includes:
+
+- General settings.
+- Ten preset themes.
+- 3/4-slot presentation toggle.
+- Slot metric selectors.
+- Manual postal/city UI.
+- Country UI placeholder.
+- Language section placeholder.
+- Analytics consent toggle.
+- Support link.
+- Reset Layout and Save.
+
+The page is a QA implementation, not a finished production contract.
+
+## Release blockers — must resolve before merging PR #7
+
+### 1. Three-slot mode is still forced by a compile-time QA override
+
+`src/c/main.c` currently contains:
+
+```c
+#define DAYPAL_QA_SLOT_COUNT 3
+```
+
+and caps visible metrics at three under that macro. The source comment explicitly says this is temporary QA behavior.
+
+**Required:** remove the QA override and let a real persisted layout setting control 3/4-slot rendering.
+
+### 2. No real 3/4-slot AppMessage/persistence contract yet
+
+The 2.0 design contract calls for a real layout setting while preserving the existing slot values. The current manifest and companion have no layout AppMessage key.
+
+The hosted page currently simulates three-slot mode by saving Slot 4 as `None`.
+
+**Required:** implement and freeze a layout key/persistence key without reusing existing IDs.
+
+### 3. Hidden Slot 4 is not preserved across save/reopen
+
+The hosted page remembers the previous Slot 4 value only in the current browser session, then saves `slot_4_metric = None` when three-slot mode is selected. After closing/reopening, the previous Slot 4 choice is lost.
+
+**Required:** store layout separately and preserve Slot 4 exactly while hidden.
+
+### 4. Fresh-install / Reset Layout defaults are not frozen
+
+The design contract says new installs default to three slots, but the checked-in companion/config defaults still have four active metrics:
+
+- Weather
+- Heart Rate
+- Battery
+- Steps
+
+The exact three-metric trio for fresh install and Reset Layout was left open in the original 2.0 documentation.
+
+**Required:** freeze the intended trio and implement it consistently in watch, companion, and hosted config while preserving upgrade behavior for existing four-slot users.
+
+### 5. Sleep, Activity Time, and Distance are not live metrics yet
+
+Normal runtime currently displays `---` for metric IDs 6, 7, and 8. `update_health_metrics()` only populates Steps, Active Calories, and Heart Rate.
+
+**Required:** wire the intended Pebble Health metrics and formatting, or remove the unfinished choices from the 2.0 selector/release scope.
+
+### 6. Language section is presentation-only
+
+The hosted page currently exposes only English and does not serialize a language field. The companion/watch AppMessage contract has no language key.
+
+**Required:** implement the approved language contract end-to-end or remove the Language section from the release UI.
+
+### 7. Country control is not part of the settings model
+
+The QA page shows a Country selector, but the collected/manual-location settings do not carry `manual_country` to the companion.
+
+**Required:** implement country-aware location end-to-end or remove the dead control.
+
+### 8. Analytics is still a local test buffer, not GA4
+
+The development companion's `trackAnalyticsEvent()` appends events to `localStorage` (`daypal_analytics_events`) and logs them. The consolidated QA page does not load `gtag.js`.
+
+The approved analytics spec calls for consented configuration-only reporting and explicitly prohibits health, weather, battery, location, identifiers, and free-form values.
+
+**Required:** implement actual GA4 collection, opt-out behavior, privacy checks, and the agreed taxonomy before release.
+
+### 9. Weather refresh contract is incomplete
+
+The watch currently requests weather when `tm_min % 30 == 0`. The 2.0 contract calls for a 15-minute schedule plus dedupe/reconnect and bounded retry behavior.
+
+**Required:** align runtime behavior with the final weather reliability contract and QA it across real time boundaries.
+
+### 10. Version metadata still says 1.6.0
+
+`appinfo.json` on the 2.0 branch still has `versionLabel: 1.6.0`. `package.json` also remains 1.6.0.
+
+**Required:** change both to 2.0.0 only when the release candidate is actually ready.
+
+### 11. Companion still targets QA hosting
+
+Current development companion:
+
+```js
+var CONFIG_URL = 'https://lyle-morris.github.io/Hosting/apps/daypal/qa/app-config.html';
+var CONFIG_CACHE_LABEL = 'daypal-2.0.0-app-config-qa-1';
+```
+
+This is correct for development and a release blocker by design.
+
+**Required:** after QA promotion, switch to production with a new production cache label and build a fresh PBW.
+
+### 12. No immutable 2.0.0 hosted snapshot
+
+`Hosting/apps/daypal/releases/` currently contains only 1.6.0 and 1.6.1.
+
+**Required:** after QA is approved, copy the exact validated bytes to `releases/2.0.0/app-config.html` and `prod/app-config.html`, then verify matching blob SHAs.
+
+### 13. Formal QA evidence is incomplete
+
+The repository QA checklist remains largely unchecked and does not contain the required final PBW, native golden matrix, diff/overlay evidence, physical-device signoff, or release record.
+
+Development conversations included successful visual review of the 4-slot layout and a positive 3-slot review, but those are **informal QA notes**, not substitutes for the repository's evidence requirements.
+
+### 14. Theme direction should be reconfirmed before substantial new work
+
+The checked-in 2.0 contract uses ten fixed presets. Later product discussion explored a more granular custom-color system for tray/time box/stripe/text/icons.
+
+**Required:** verify the latest approved Figma direction before refactoring the theme engine or app-config. Do not assume the older preset-only contract or later custom-theme discussion automatically wins.
+
+### 15. App-config preview colors need final visual reconciliation
+
+The current QA CSS uses some preview values that do not exactly match the watch/source contract (for example the Yellow preview token and Blue preview text treatment).
+
+**Required:** reconcile hosted preview colors with the final approved Figma/watch palette during visual QA.
+
+## Issues / blockers encountered during the 2.0 development cycle
+
+Preserve these lessons when resuming:
+
+- 4-slot layout required several pixel-level adjustments to time, date, and information text before informal visual approval.
+- 3-slot mode was initially hard-coded for QA because the configuration/layout contract was not yet implemented.
+- Informational text sizing went through multiple iterations.
+- Theme contrast/readability required review; this contributed to later discussion of a different theming model.
+- App-config was rebuilt to match the Figma direction and the consolidated Hosting path.
+- Asset naming/resource strategy changed from many theme-colored files toward Color/White/Black treatments and separate 32/42px sizes.
+- Weather reliability must preserve the successful last-read fallback from the stable 1.6.x hotfix.
+- Analytics was specified but never completed as real GA4 telemetry in the 2.0 implementation.
+- Version/root documentation drift remained because 2.0 development was never promoted to a true release candidate.
+
+## Current AppMessage contract
+
+Existing meanings must be preserved:
+
+| Key | Meaning |
+|---:|---|
+| 0 | theme |
+| 1 | slot_1_metric |
+| 2 | slot_2_metric |
+| 3 | slot_3_metric |
+| 4 | slot_4_metric |
+| 5 | show_leading_zero |
+| 6 | use_24_hour |
+| 7 | reverse_theme (legacy compatibility) |
+| 10 | weather_temp |
+| 11 | weather_code |
+| 12 | weather_valid |
+| 20 | request_weather |
+| 21 | settings_ready |
+
+Do not repurpose existing keys. Append new layout/language/etc. keys only after the contract is frozen.
+
+## Settings migration constraints
+
+- `SETTINGS_KEY`: `daypal_settings`
+- legacy settings key: `daymate_settings`
+- Existing slot/theme meanings must remain stable.
+- Legacy Reverse Theme data must not be reinterpreted.
+- A new layout setting must distinguish a fresh install from an upgrade that has no layout key.
+- Slot 4 must remain stored while hidden in three-slot mode.
+
+## Analytics target contract
+
+The 2.0 analytics specification intends consented configuration-only events such as:
 
 - `settings_loaded`
 - `settings_saved`
 
-Key parameters:
+Useful parameters include theme, layout mode, visible slot count, selected metric IDs, and a layout signature.
 
-- `app_name=daypal`
-- `app_version`
-- `theme_id`, `theme_name`
-- `layout_mode`, `visible_slot_count`
-- `slot_1_metric` … `slot_4_metric`
-- `layout_signature`
-- `reverse_theme` only as legacy compatibility visibility
+Never send:
 
-Never send health readings, weather values, battery readings, location fields/coordinates, device IDs, account IDs, or free-form input.
+- Health readings.
+- Weather readings.
+- Battery readings.
+- Location text or coordinates.
+- Device/account identifiers.
+- Free-form user input.
 
-Use the same taxonomy later for Essential Redux with `app_name=essential_redux`.
+Treat the existing local event buffer as development instrumentation only.
 
-## Hosting release contract
+## Hosting promotion contract
 
-1. Develop only at `Hosting/apps/daypal/qa/app-config.html`.
-2. Validate normal-browser and Pebble configuration flows.
-3. Copy exact validated bytes to `Hosting/apps/daypal/releases/2.0.0/app-config.html`.
-4. Promote the same bytes to `Hosting/apps/daypal/prod/app-config.html`.
-5. Verify matching blob SHAs.
-6. Switch the app companion to prod with a new production cache label.
-7. Never edit the immutable 2.0.0 snapshot after release.
-8. Keep `DayPal-Hosting` online for installed 1.6.x.
+1. Develop only against `Hosting/apps/daypal/qa/app-config.html`.
+2. Validate normal-browser and real Pebble configuration flows.
+3. Freeze the approved QA blob.
+4. Copy those exact bytes to `Hosting/apps/daypal/releases/2.0.0/app-config.html`.
+5. Copy the same bytes to `Hosting/apps/daypal/prod/app-config.html`.
+6. Verify QA/release/prod blob SHAs match at promotion time.
+7. Switch the companion to production with a fresh production cache label.
+8. Build a fresh Emery PBW.
+9. Complete physical Pebble Time 2 signoff.
+10. Do not edit the immutable 2.0.0 snapshot after release.
 
-## Release docs
+Keep `DayPal-Hosting` online for installed 1.6.x clients.
 
-Read in this order:
+## Recommended resume sequence
 
-1. `docs/2.0.0/README.md`
-2. `DayPal-PRD-2.0.0.md`
-3. `DayPal-Tech-Spec-2.0.0.md`
-4. `DayPal-Asset-Inventory-2.0.0.md`
-5. `DayPal-Analytics-Spec-2.0.0.md`
-6. `DayPal-Pixel-Perfect-QA-Checklist-2.0.0.md`
-7. `qa/README.md`
-8. `DayPal-Release-Notes-2.0.0.md`
+1. Verify the latest Figma theme/config direction.
+2. Freeze the fresh-install/reset three-metric default.
+3. Implement a real 3/4-slot layout key and migration logic; remove `DAYPAL_QA_SLOT_COUNT`.
+4. Fix hidden Slot 4 persistence.
+5. Complete or remove Sleep/Activity/Distance.
+6. Complete or remove Language/Country UI.
+7. Implement real GA4 analytics with privacy QA.
+8. Finish the 15-minute weather reliability contract.
+9. Reconcile app-config theme previews with Figma/watch colors.
+10. Run the full functional and 20-case native visual matrix plus physical PT2 signoff.
+11. Promote exact QA bytes to immutable 2.0.0 + prod.
+12. Set app/package version to 2.0.0, switch companion to prod, and build the final PBW.
+13. Only then mark PR #7 ready and merge to `main`.
 
-## Next implementation work
+## Branch policy
 
-1. Inventory/validate the assets arriving on `daypal-2.0.0-dev`.
-2. Freeze the new-install/reset three-metric default.
-3. Implement shared 3/4-slot renderer, palettes, Sleep metric, and font/resources.
-4. Implement consolidated hosted config + settings migration + analytics.
-5. Apply scheduled weather reliability work.
-6. Run upgrade and native pixel-perfect QA continuously, not only at the end.
+- `main` is stable 1.6.x source until 2.0 passes the release gate.
+- `daypal-2.0.0-dev` remains the only active 2.0 branch.
+- PR #7 should remain Draft while blockers remain.
+- Do not delete the 2.0 development branch until after a completed release merge/tag/archive.
