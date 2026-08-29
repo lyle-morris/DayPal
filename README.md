@@ -24,8 +24,8 @@ DayPal 2.0.0 is **not release-ready** and must not be merged to `main` yet.
 - Pull request: #7
 - Figma authority: section `84:1722`
 - Consolidated QA config: `https://lyle-morris.github.io/Hosting/apps/daypal/qa/app-config.html`
-- Current handoff: [`docs/2.0.0/DayPal-Handoff-2.0.0.md`](docs/2.0.0/DayPal-Handoff-2.0.0.md)
-- QA evidence: [`docs/2.0.0/qa/README.md`](docs/2.0.0/qa/README.md)
+- Current handoff: [DayPal 2.0.0 Handoff](https://github.com/lyle-morris/DayPal/blob/daypal-2.0.0-dev/docs/2.0.0/DayPal-Handoff-2.0.0.md)
+- QA evidence: [DayPal 2.0.0 QA Evidence](https://github.com/lyle-morris/DayPal/blob/daypal-2.0.0-dev/docs/2.0.0/qa/README.md)
 
 The 2.0 branch contains substantial layout, asset, theme, and hosted-config work, but it still contains explicit QA-only behavior and incomplete release contracts. The handoff is the source of truth for what is implemented versus what remains blocked.
 
@@ -75,4 +75,4 @@ Do not promote DayPal 2.0.0 until all of the following are true:
 
 ## Development guidance
 
-For 2.0 work, start with [`docs/2.0.0/README.md`](docs/2.0.0/README.md) and then read the handoff. Do not infer implementation status from the PR title or the Figma alone.
+For 2.0 work, start with the [DayPal 2.0.0 release index](https://github.com/lyle-morris/DayPal/blob/daypal-2.0.0-dev/docs/2.0.0/README.md) and then read the handoff. Do not infer implementation status from the PR title or the Figma alone.
