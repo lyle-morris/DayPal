@@ -3,453 +3,85 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#111111">
-  <title>My DayPal</title>
+  <meta name="theme-color" content="#333333">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>DayPal Settings</title>
   <style>
-    :root{
-      --black:#000000;
-      --page-top:#333333;
-      --card:#222222;
-      --card-border:#555555;
-      --white:#ffffff;
-      --focus:#00aaff;
-      --error:#ff6b6b;
-      --divider:rgba(255,255,255,.10);
-      --header:rgba(244,244,244,.08);
-      --body-end:rgba(255,255,255,.05);
-      --button:rgba(255,255,255,.15);
-      --default:#515151;
-      --orange:#ff5500;
-      --blue:#00aaff;
-      --purple:#5500ff;
-      --yellow:#ffaa00;
-      --green:#005500;
-      --red:#ff0000;
-      --pink:#ff00aa;
-    }
-    *{box-sizing:border-box}
-    html{background:#000000}
-    body{
-      margin:0;
-      min-width:320px;
-      min-height:100vh;
-      font-family:'Roboto',Arial,sans-serif;
-      font-size:16px;
-      line-height:24px;
-      color:#ffffff;
-      background:linear-gradient(180deg,#333333 0%,#000000 100%);
-    }
-    button,input,select{font:inherit}
-    button{cursor:pointer}
-    .page{
-      position:relative;
-      display:flex;
-      flex-direction:column;
-      gap:16px;
-      width:min(100%,390px);
-      margin:0 auto;
-      padding:153px 12px 107px;
-    }
-    .page-header{
-      position:absolute;
-      top:0;
-      left:0;
-      width:100%;
-      padding:24px;
-    }
-    .page-header h1{margin:0;font-size:38px;line-height:46px;font-weight:900}
-    .intro{margin:0;line-height:24px}
-    section{
-      width:100%;
-      overflow:hidden;
-      background:#222222;
-      border:1px solid #555555;
-      border-radius:8px;
-      box-shadow:0 0 12px rgba(0,0,0,.5);
-    }
-    section h2{
-      margin:0;
-      padding:16px;
-      background:rgba(244,244,244,.08);
-      font-size:18px;
-      line-height:24px;
-      font-weight:700;
-    }
-    section .content{
-      display:flex;
-      flex-direction:column;
-      padding:16px;
-      background:linear-gradient(180deg,rgba(255,255,255,0),rgba(255,255,255,.05));
-    }
-    section .content.copy-content{gap:16px}
-    section .content p{margin:0;line-height:24px}
-    .setting-row{
-      display:flex;
-      align-items:center;
-      gap:16px;
-      min-height:56px;
-      padding:12px 0;
-      border-bottom:1px solid var(--divider);
-    }
-    .setting-row:last-child{border-bottom:0}
-    .setting-row>span:first-child{flex:1;font-weight:500}
-    .check-control{display:grid;place-items:center;width:32px;height:32px;flex:0 0 32px}
-    input[type=checkbox]{width:20px;height:20px;margin:0;accent-color:#00aaff}
-    input[type=text],select{
-      width:100%;
-      height:48px;
-      padding:0 16px;
-      background:#000000;
-      border:2px solid rgba(255,255,255,.25);
-      border-radius:4px;
-      color:#ffffff;
-      font-size:16px;
-      font-weight:700;
-    }
-    input[type=text]:focus,select:focus{outline:none;border-color:#00aaff}
-    select{
-      appearance:none;
-      -webkit-appearance:none;
-      padding-right:44px;
-      background-image:url("data:image/svg+xml;utf8,<svg fill='%2300AAFF' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
-      background-repeat:no-repeat;
-      background-position:right 10px center;
-      background-size:24px;
-    }
-    select option{background:#000000;color:#ffffff}
-    .theme-content{padding:16px!important}
-    .theme-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;width:100%}
-    .theme{
-      --theme-bg:#000000;
-      --theme-fg:#ffffff;
-      position:relative;
-      display:flex;
-      height:80px;
-      padding:6px;
-      overflow:hidden;
-      border:2px solid transparent;
-      border-radius:8px;
-      cursor:pointer;
-    }
-    .theme input{position:absolute;opacity:0;pointer-events:none}
-    .theme span{
-      display:flex;
-      flex:1;
-      align-items:center;
-      justify-content:center;
-      width:100%;
-      border-radius:6px;
-      background:var(--theme-bg);
-      color:var(--theme-fg);
-      font-size:14px;
-      font-weight:700;
-      text-align:center;
-    }
-    .theme.selected{border-color:#00aaff}
-    .default{--theme-bg:var(--default);--theme-fg:#ffffff}
-    .orange{--theme-bg:var(--orange);--theme-fg:#ffffff}
-    .blue{--theme-bg:var(--blue);--theme-fg:#000000}
-    .purple{--theme-bg:var(--purple);--theme-fg:#ffffff}
-    .yellow{--theme-bg:var(--yellow);--theme-fg:#000000}
-    .green{--theme-bg:var(--green);--theme-fg:#ffffff}
-    .red{--theme-bg:var(--red);--theme-fg:#ffffff}
-    .pink{--theme-bg:var(--pink);--theme-fg:#ffffff}
-    .white{--theme-bg:#ffffff;--theme-fg:#000000}
-    .black{--theme-bg:#000000;--theme-fg:#ffffff}
-    .slot-toggle{
-      display:flex;
-      align-items:center;
-      gap:16px;
-      min-height:50px;
-      padding:6px 16px;
-      background:#000000;
-      border-radius:4px;
-    }
-    .slot-toggle strong{flex:1}
-    .switch{position:relative;width:43px;height:23px;flex:0 0 43px}
-    .switch input{position:absolute;opacity:0}
-    .switch-track{position:absolute;inset:0;border-radius:999px;background:#777777;transition:.15s}
-    .switch-track:after{
-      content:"";
-      position:absolute;
-      top:3px;
-      left:3px;
-      width:17px;
-      height:17px;
-      border-radius:50%;
-      background:#ffffff;
-      transition:.15s;
-    }
-    .switch input:checked+.switch-track{background:#00aa44}
-    .switch input:checked+.switch-track:after{transform:translateX(20px)}
-    .slots{display:flex;flex-direction:column}
-    .slot-row{
-      display:grid;
-      grid-template-columns:53px minmax(0,1fr);
-      align-items:center;
-      gap:16px;
-      min-height:88px;
-      padding:12px 0;
-      border-bottom:1px solid var(--divider);
-    }
-    .slot-row:last-child{border-bottom:0}
-    .slot-row[hidden]{display:none}
-    .slot-icon{width:53px;height:64px;object-fit:contain}
-    .fields{display:flex;flex-direction:column;gap:16px}
-    .field{display:flex;flex-direction:column;gap:4px}
-    .field-label{font-size:14px;line-height:20px;font-weight:700}
-    .analytics-row{padding:8px 12px;background:#000000;border-radius:4px}
-    .support-button{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      width:100%;
-      min-height:48px;
-      padding:12px 24px;
-      border:0;
-      border-radius:4px;
-      background:var(--button);
-      color:#ffffff;
-      font-weight:700;
-      text-decoration:none;
-    }
-    .actions{
-      position:fixed;
-      z-index:10;
-      left:0;
-      right:0;
-      bottom:0;
-      padding:16px max(16px,env(safe-area-inset-right)) calc(16px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));
-      background:rgba(0,0,0,.96);
-      box-shadow:0 0 6px rgba(0,0,0,.5);
-    }
-    .actions-inner{display:grid;grid-template-columns:1fr 1fr;gap:16px;width:min(100%,358px);margin:auto}
-    .btn{
-      min-height:48px;
-      padding:12px 18px;
-      border:0;
-      border-radius:4px;
-      background:var(--button);
-      color:#ffffff;
-      font-weight:700;
-    }
-    .btn.primary{background:#00aaff;color:#ffffff}
-    .status{grid-column:1/-1;text-align:center;color:#00ff88;font-size:12px;font-weight:700}
-    .status:empty{display:none}
-    .theme:focus-within,.btn:focus-visible,.switch input:focus-visible+.switch-track,.support-button:focus-visible{outline:2px solid #00aaff;outline-offset:2px}
-    [hidden]{display:none!important}
-    @media(max-width:360px){.actions-inner{gap:8px}.btn{padding-left:10px;padding-right:10px}}
+    :root{--page-top:#333;--page-bottom:#000;--card:#222;--card-border:#555;--card-header:rgba(255,255,255,.08);--card-body-end:rgba(255,255,255,.05);--white:#fff;--black:#000;--divider:rgba(255,255,255,.10);--control-border:rgba(255,255,255,.25);--focus:#00aaff;--switch-on:#00ee33;--switch-off:#666;--button-muted:rgba(255,255,255,.15)}
+    *{box-sizing:border-box}html{min-width:320px;min-height:100%;background:#000}body{min-width:320px;min-height:100vh;margin:0;padding:0 0 107px;color:#fff;background:linear-gradient(180deg,var(--page-top),var(--page-bottom));background-attachment:fixed;font-family:"Roboto Flex",Roboto,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:16px;line-height:normal}
+    button,select,input{font:inherit}button,label,select{-webkit-tap-highlight-color:transparent}button{touch-action:manipulation}[hidden]{display:none!important}.shell{width:min(100%,390px);margin:0 auto;position:relative}.page-heading{height:153px;padding:24px;color:#fff}.page-heading h1{margin:0;font-size:48px;line-height:58px;font-weight:800;letter-spacing:-.5px}.page-heading p{margin:0;font-size:18px;line-height:24px}.page-content{display:flex;flex-direction:column;gap:16px;padding:0 12px}.card{width:100%;overflow:hidden;border:1px solid var(--card-border);border-radius:8px;background:var(--card);box-shadow:0 0 12px rgba(0,0,0,.5)}.card-title{display:flex;align-items:center;min-height:53px;margin:0;padding:16px;background:var(--card-header);font-size:18px;line-height:21px;font-weight:800}.card-form{display:flex;flex-direction:column;gap:16px;padding:16px;background:linear-gradient(180deg,rgba(255,255,255,0),var(--card-body-end))}.card-copy{margin:0;font-size:16px;line-height:24px}.layout-toggle{display:flex;align-items:center;gap:16px;min-height:50px;padding:6px 16px;border-radius:4px;background:#000;cursor:pointer}.layout-toggle strong{flex:1;line-height:38px;font-weight:700}.switch{position:relative;flex:0 0 43px;width:43px;height:23px}.switch input{position:absolute;opacity:0;pointer-events:none}.switch-track{position:absolute;inset:0;border-radius:999px;background:var(--switch-off);transition:.15s}.switch-track:after{content:"";position:absolute;top:0;left:0;width:23px;height:23px;border-radius:50%;background:#fff;transition:.15s}.switch input:checked+.switch-track{background:var(--switch-on)}.switch input:checked+.switch-track:after{transform:translateX(20px)}.switch input:focus-visible+.switch-track{outline:2px solid var(--focus);outline-offset:2px}.slots{display:flex;flex-direction:column}.slot-row{display:grid;grid-template-columns:53px minmax(0,1fr);align-items:center;gap:16px;min-height:88px;padding:12px 0;border-bottom:1px solid var(--divider)}.slot-row:last-child{border-bottom:0}.slot-preview{display:block;width:53px;height:64px;object-fit:contain}
+    select{width:100%;height:48px;padding:0 48px 0 16px;appearance:none;-webkit-appearance:none;border:2px solid var(--control-border);border-radius:4px;background-color:#000;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='%2300AAFF' d='m7 10 5 5 5-5z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;background-size:24px;color:#fff;font-size:16px;font-weight:700}select option{color:#fff;background:#000}select:focus-visible,.text-input:focus-visible{border-color:var(--focus);outline:2px solid var(--focus);outline-offset:0}.setting-list{gap:0}.setting-row{display:flex;align-items:center;gap:16px;min-height:56px;padding:12px 0;border-bottom:1px solid var(--divider);cursor:pointer}.setting-row:last-child{border-bottom:0}.setting-row strong{flex:1;font-size:16px;line-height:22px;font-weight:500}.checkbox{position:relative;flex:0 0 32px;width:32px;height:32px;display:grid;place-items:center}.checkbox input{position:absolute;opacity:0;pointer-events:none}.checkbox-box{position:relative;width:18px;height:18px;border:2px solid rgba(255,255,255,.28);border-radius:2px}.checkbox input:checked+.checkbox-box{border-color:var(--focus);background:var(--focus)}.checkbox input:checked+.checkbox-box:after{content:"";position:absolute;left:4px;top:0;width:5px;height:10px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}.checkbox input:focus-visible+.checkbox-box{outline:2px solid #fff;outline-offset:3px}.theme-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}.theme-choice{height:80px;padding:6px;overflow:hidden;border:2px solid transparent;border-radius:8px;background:transparent;cursor:pointer}.theme-choice[aria-pressed="true"]{border-color:var(--focus)}.theme-choice-swatch{display:flex;align-items:center;justify-content:center;width:100%;height:100%;border-radius:6px;font-size:14px;font-weight:700}.field-group{display:flex;flex-direction:column;gap:4px}.field-label{font-size:14px;line-height:20px;font-weight:700}.input-wrap{position:relative}.text-input{width:100%;height:48px;padding:0 48px 0 16px;border:2px solid var(--control-border);border-radius:4px;background:#000;color:#fff}.field-clear{position:absolute;top:50%;right:4px;width:40px;height:40px;transform:translateY(-50%);padding:0;border:0;background:transparent;color:#fff;font-size:26px;line-height:40px;cursor:pointer}.field-clear:focus-visible{outline:2px solid var(--focus);outline-offset:-2px;border-radius:4px}.analytics-toggle{padding:8px 12px;border:0;border-radius:4px;background:#000}.analytics-toggle strong{font-weight:400}.support-link{display:inline-flex;align-items:center;justify-content:center;width:100%;min-height:48px;padding:12px 24px;border-radius:4px;background:var(--button-muted);color:#fff;font-weight:700;text-decoration:none}.actions{position:fixed;z-index:10;left:50%;bottom:0;width:min(100%,390px);transform:translateX(-50%);padding:16px max(16px,env(safe-area-inset-right)) calc(16px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));background:#222;box-shadow:0 0 12px rgba(0,0,0,.5)}.actions-inner{display:grid;grid-template-columns:1fr 1fr;gap:16px;width:100%}.button{min-height:48px;padding:12px 16px;border:0;border-radius:4px;background:var(--button-muted);color:#fff;font-weight:700;cursor:pointer}.button.primary{background:var(--focus)}.status{grid-column:1/-1;color:#55ff88;font-size:13px;line-height:18px;font-weight:700;text-align:center}.status:empty{display:none}.qa-note{margin:0;padding:10px 12px;border-radius:4px;background:rgba(0,170,255,.12);color:#cceeff;font-size:13px;line-height:18px}@media(max-width:360px){.page-heading{padding-left:16px;padding-right:16px}.page-content{padding:0 8px}.card-form,.card-title{padding-left:14px;padding-right:14px}.slot-row,.layout-toggle{gap:12px}.theme-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
   </style>
 </head>
 <body>
-  <main class="page">
-    <header class="page-header">
-      <h1>My DayPal</h1>
-      <p class="intro">Use the settings below to customize your Pebble watch face.</p>
-    </header>
-
-    <section class="general-settings">
-      <h2>General settings</h2>
-      <div class="content">
-        <label class="setting-row"><span>Display leading zero on the hours.</span><span class="check-control"><input id="leading" type="checkbox"></span></label>
-        <label class="setting-row"><span>Use 12-hour format</span><span class="check-control"><input id="hour12" type="checkbox"></span></label>
-        <label class="setting-row"><span>Use Celsius for temperature</span><span class="check-control"><input id="celsius" type="checkbox"></span></label>
-      </div>
-    </section>
-
-    <section>
-      <h2>Theme</h2>
-      <div class="content theme-content">
-        <div class="theme-grid" role="radiogroup" aria-label="Theme" id="themeGrid"></div>
-      </div>
-    </section>
-
-    <section>
-      <h2>Information</h2>
-      <div class="content copy-content">
-        <p>Customize what information is shown on the watch face.</p>
-        <label class="slot-toggle">
-          <strong id="slotCountLabel">Use 4 informational slots</strong>
-          <span class="switch"><input id="fourSlots" type="checkbox" aria-labelledby="slotCountLabel"><span class="switch-track"></span></span>
-        </label>
-        <div class="slots">
-          <div class="slot-row"><img class="slot-icon" id="slot1Icon" alt=""><select id="slot1" aria-label="Information slot 1"></select></div>
-          <div class="slot-row"><img class="slot-icon" id="slot2Icon" alt=""><select id="slot2" aria-label="Information slot 2"></select></div>
-          <div class="slot-row"><img class="slot-icon" id="slot3Icon" alt=""><select id="slot3" aria-label="Information slot 3"></select></div>
-          <div class="slot-row" id="slot4Row"><img class="slot-icon" id="slot4Icon" alt=""><select id="slot4" aria-label="Information slot 4"></select></div>
-        </div>
-      </div>
-    </section>
-
-    <section>
-      <h2>Manual location</h2>
-      <div class="content">
-        <div class="fields">
-          <label class="field"><span class="field-label">Country</span><select id="country"><option value="US">United States</option></select></label>
-          <label class="field"><span class="field-label">ZIP/postal code</span><input id="postal" type="text" autocomplete="postal-code"></label>
-          <label class="field"><span class="field-label">City</span><input id="city" type="text" autocomplete="address-level2"></label>
-        </div>
-      </div>
-    </section>
-
-    <section>
-      <h2>Language</h2>
-      <div class="content copy-content">
-        <p>Change the default language for the watch face and the setting page.</p>
-        <select id="language" aria-label="Language"><option value="en">English</option></select>
-      </div>
-    </section>
-
-    <section>
-      <h2>Analytics</h2>
-      <div class="content copy-content">
-        <p>This watch face uses anonymous data to help track and improve the experience. No personal or health data is collected.</p>
-        <label class="setting-row analytics-row"><span>Share anonymous usage analytics</span><span class="check-control"><input id="analytics" type="checkbox"></span></label>
-      </div>
-    </section>
-
-    <section>
-      <h2>Support</h2>
-      <div class="content copy-content">
-        <p>This watch face is free to use and built with care. If it makes your day a little easier, consider leaving a small tip to help support future updates and improvements.</p>
-        <a class="support-button" id="donate" href="https://ko-fi.com/lylemorris" target="_blank" rel="noopener">Support</a>
-      </div>
-    </section>
-  </main>
-
-  <footer class="actions">
-    <div class="actions-inner">
-      <div id="status" class="status"></div>
-      <button class="btn" id="reset" type="button">Reset layout</button>
-      <button class="btn primary" id="save" type="button">Save settings</button>
-    </div>
-  </footer>
-
-  <script>
-    var D={theme:0,slot_1_metric:0,slot_2_metric:1,slot_3_metric:2,slot_4_metric:4,show_leading_zero:true,use_24_hour:false,use_celsius:false,manual_location:false,manual_postal_code:'',manual_city:'',reverse_theme:false,analytics_enabled:true};
-    var METRICS=[
-      [0,'Weather'],[1,'Heart rate'],[2,'Battery'],[3,'Calories'],[4,'Steps'],
-      [6,'Sleep'],[7,'Activity time'],[8,'Distance'],[5,'None']
-    ];
-    var THEMES=[
-      ['default',0,'Default'],['orange',5,'Orange'],['blue',1,'Blue'],['purple',12,'Purple'],
-      ['yellow',9,'Yellow'],['green',3,'Green'],['red',8,'Red'],['pink',2,'Pink'],
-      ['white',4,'White'],['black',7,'Black']
-    ];
-    var SLOT_IMAGE_ROOT='./images/';
-    var SLOT_IMAGE_FALLBACK='https://raw.githubusercontent.com/lyle-morris/Hosting/main/apps/daypal/qa/images/';
-    var previousFourthMetric=4;
-
-    function $(id){return document.getElementById(id)}
-    function b(v,d){if(v===true||v===1||v==='1'||v==='true')return true;if(v===false||v===0||v==='0'||v==='false')return false;return d}
-    function n(v,d){var x=Number(v);return isNaN(x)?d:x}
-    function clean(v){return String(v||'').trim()}
-    function norm(s){
-      s=Object.assign({},D,s||{});
-      return{
-        theme:n(s.theme,D.theme),
-        slot_1_metric:n(s.slot_1_metric,D.slot_1_metric),
-        slot_2_metric:n(s.slot_2_metric,D.slot_2_metric),
-        slot_3_metric:n(s.slot_3_metric,D.slot_3_metric),
-        slot_4_metric:n(s.slot_4_metric,D.slot_4_metric),
-        show_leading_zero:b(s.show_leading_zero,D.show_leading_zero),
-        use_24_hour:b(s.use_24_hour,D.use_24_hour),
-        use_celsius:b(s.use_celsius,D.use_celsius),
-        manual_location:b(s.manual_location,D.manual_location),
-        manual_postal_code:clean(s.manual_postal_code),
-        manual_city:clean(s.manual_city),
-        reverse_theme:false,
-        analytics_enabled:b(s.analytics_enabled,D.analytics_enabled)
-      };
-    }
-    function incoming(){
-      var p=new URLSearchParams(location.search),u=p.get('donation_url'),r=p.get('settings');
-      if(u)$('donate').href=u;
-      if(!r)return norm(D);
-      try{return norm(JSON.parse(decodeURIComponent(r)))}catch(e){return norm(D)}
-    }
-    function setMetricOptions(el,value){
-      el.innerHTML='';
-      METRICS.forEach(function(m){var o=document.createElement('option');o.value=m[0];o.textContent=m[1];el.appendChild(o)});
-      el.value=String(value);
-      if(el.selectedIndex<0)el.value='5';
-    }
-    function buildThemes(){
-      var html='';
-      THEMES.forEach(function(t){html+='<label class="theme '+t[0]+'"><input type="radio" name="theme" value="'+t[1]+'"><span>'+t[2]+'</span></label>'});
-      $('themeGrid').innerHTML=html;
-      document.querySelectorAll('input[name=theme]').forEach(function(i){i.onchange=syncTheme});
-    }
-    function syncTheme(){
-      document.querySelectorAll('.theme').forEach(function(t){t.classList.toggle('selected',!!t.querySelector('input:checked'))});
-    }
-    function slotImage(id,name){
-      var img=$(id);
-      img.onerror=function(){img.onerror=null;img.src=SLOT_IMAGE_FALLBACK+name};
-      img.src=SLOT_IMAGE_ROOT+name;
-    }
-    function syncSlotMode(){
-      var useFour=$('fourSlots').checked;
-      $('slot4Row').hidden=!useFour;
-      var total=useFour?4:3;
-      for(var i=1;i<=total;i++)slotImage('slot'+i+'Icon','informational_'+i+'of'+total+'.png');
-      if(!useFour){
-        var current=+$('slot4').value;
-        if(current!==5)previousFourthMetric=current;
-      }else if(+$('slot4').value===5){
-        $('slot4').value=String(previousFourthMetric===5?4:previousFourthMetric);
-      }
-    }
-    function render(s){
-      $('leading').checked=s.show_leading_zero;
-      $('hour12').checked=!s.use_24_hour;
-      $('celsius').checked=s.use_celsius;
-      $('analytics').checked=s.analytics_enabled;
-      $('postal').value=s.manual_postal_code;
-      $('city').value=s.manual_city;
-      var themeRadio=document.querySelector('input[name=theme][value="'+s.theme+'"]')||document.querySelector('input[name=theme][value="0"]');
-      themeRadio.checked=true;
-      setMetricOptions($('slot1'),s.slot_1_metric);
-      setMetricOptions($('slot2'),s.slot_2_metric);
-      setMetricOptions($('slot3'),s.slot_3_metric);
-      setMetricOptions($('slot4'),s.slot_4_metric);
-      if(s.slot_4_metric!==5)previousFourthMetric=s.slot_4_metric;
-      $('fourSlots').checked=s.slot_4_metric!==5;
-      syncTheme();
-      syncSlotMode();
-    }
-    function collect(){
-      var useFour=$('fourSlots').checked;
-      var postal=clean($('postal').value),city=clean($('city').value);
-      return norm({
-        theme:Number(document.querySelector('input[name=theme]:checked').value),
-        slot_1_metric:+$('slot1').value,
-        slot_2_metric:+$('slot2').value,
-        slot_3_metric:+$('slot3').value,
-        slot_4_metric:useFour?+$('slot4').value:5,
-        show_leading_zero:$('leading').checked,
-        use_24_hour:!$('hour12').checked,
-        use_celsius:$('celsius').checked,
-        manual_location:!!(postal||city),
-        manual_postal_code:postal,
-        manual_city:city,
-        reverse_theme:false,
-        analytics_enabled:$('analytics').checked
-      });
-    }
-    function save(){
-      var s=collect(),encoded=encodeURIComponent(JSON.stringify(s)),closeUrl='pebblejs://close#'+encoded;
-      $('status').textContent='Saving…';
-      setTimeout(function(){window.location.href=closeUrl},50);
-      setTimeout(function(){document.location=closeUrl},150);
-      setTimeout(function(){$('status').textContent='Saved. If this window stays open, close it and rerun the emulator.'},800);
-    }
-
-    buildThemes();
-    render(incoming());
-    $('fourSlots').onchange=syncSlotMode;
-    $('reset').onclick=function(){var keepAnalytics=$('analytics').checked;render(Object.assign({},D,{analytics_enabled:keepAnalytics}))};
-    $('save').onclick=save;
-  </script>
+<main class="shell">
+  <header class="page-heading"><h1>DayPal</h1><p>Use the settings below to customize your Pebble watchface.</p></header>
+  <div class="page-content">
+    <section class="card"><h2 class="card-title">Information</h2><div class="card-form"><p class="card-copy">Customize what information is shown on the watch face.</p><label class="layout-toggle" for="fourSlots"><strong>Use 4 informational slots</strong><span class="switch"><input id="fourSlots" type="checkbox"><span class="switch-track"></span></span></label><div class="slots"><div class="slot-row"><img class="slot-preview" id="slot1Icon" alt=""><select id="slot1" aria-label="Information slot 1"></select></div><div class="slot-row"><img class="slot-preview" id="slot2Icon" alt=""><select id="slot2" aria-label="Information slot 2"></select></div><div class="slot-row"><img class="slot-preview" id="slot3Icon" alt=""><select id="slot3" aria-label="Information slot 3"></select></div><div class="slot-row" id="slot4Row"><img class="slot-preview" id="slot4Icon" alt=""><select id="slot4" aria-label="Information slot 4"></select></div></div><p class="qa-note">QA build 1 keeps DayPal's existing slot protocol intact. The dedicated persisted 3/4-slot key is the next watch-bridge step.</p></div></section>
+    <section class="card"><h2 class="card-title">General settings</h2><div class="card-form setting-list"><label class="setting-row" for="leading"><strong>Display leading zero on the hours.</strong><span class="checkbox"><input id="leading" type="checkbox"><span class="checkbox-box"></span></span></label><label class="setting-row" for="hour12"><strong>Use 12-hour format</strong><span class="checkbox"><input id="hour12" type="checkbox"><span class="checkbox-box"></span></span></label><label class="setting-row" for="celsius"><strong>Use Celsius for temperature</strong><span class="checkbox"><input id="celsius" type="checkbox"><span class="checkbox-box"></span></span></label></div></section>
+    <section class="card"><h2 class="card-title">Theme</h2><div class="card-form"><div class="theme-grid" id="themeGrid" role="group" aria-label="Theme"></div></div></section>
+    <section class="card"><h2 class="card-title">Manual location</h2><div class="card-form"><div class="field-group"><label class="field-label" for="country">Country</label><select id="country"></select></div><div class="field-group"><label class="field-label" for="postal">ZIP/postal code</label><div class="input-wrap"><input class="text-input" id="postal" type="text" autocomplete="postal-code"><button class="field-clear" id="postalClear" type="button" aria-label="Clear ZIP/postal code" hidden>×</button></div></div><div class="field-group"><label class="field-label" for="city">City</label><div class="input-wrap"><input class="text-input" id="city" type="text" autocomplete="address-level2"><button class="field-clear" id="cityClear" type="button" aria-label="Clear city" hidden>×</button></div></div></div></section>
+    <section class="card"><h2 class="card-title">Language</h2><div class="card-form"><p class="card-copy">Choose the language used by DayPal. Build 1 preserves the selection in config state; watch-side date localization is staged for the next bridge build.</p><select id="language" aria-label="Language"></select></div></section>
+    <section class="card"><h2 class="card-title">Analytics</h2><div class="card-form"><p class="card-copy">This watch face uses anonymous configuration data to help improve the experience. No health, weather, location, device ID, or free-form field values are collected.</p><label class="setting-row analytics-toggle" for="analytics"><strong>Share anonymous usage analytics</strong><span class="checkbox"><input id="analytics" type="checkbox"><span class="checkbox-box"></span></span></label></div></section>
+    <section class="card"><h2 class="card-title">Support</h2><div class="card-form"><p class="card-copy">DayPal is free to use and built with care. If it makes your day a little easier, you can support future updates.</p><a class="support-link" id="donate" href="https://ko-fi.com/lylemorris" target="_blank" rel="noopener">Support DayPal</a></div></section>
+  </div>
+</main>
+<footer class="actions"><div class="actions-inner"><div id="status" class="status"></div><button class="button" id="reset" type="button">Reset layout</button><button class="button primary" id="save" type="button">Save settings</button></div></footer>
+<script>
+(function(){
+'use strict';
+var BUILD='daypal-2.0.0-config-qa-2';
+var DEFAULTS={theme:0,slot_1_metric:0,slot_2_metric:1,slot_3_metric:2,slot_4_metric:4,show_leading_zero:true,use_24_hour:false,use_celsius:false,manual_location:false,manual_postal_code:'',manual_city:'',manual_country:'US',language:'en',reverse_theme:false,analytics_enabled:true};
+var METRICS=[[0,'Weather'],[1,'Heart rate'],[2,'Battery'],[3,'Calories'],[4,'Steps'],[6,'Sleep'],[7,'Activity time'],[8,'Distance'],[5,'None']];
+var THEMES=[
+ {value:0,label:'Default',bg:'#000000',fg:'#ffffff'},
+ {value:5,label:'Orange',bg:'#ff5500',fg:'#ffffff'},
+ {value:1,label:'Blue',bg:'#00aaff',fg:'#ffffff'},
+ {value:12,label:'Purple',bg:'#5500ff',fg:'#ffffff'},
+ {value:9,label:'Yellow',bg:'#ffcc55',fg:'#000000'},
+ {value:3,label:'Green',bg:'#005500',fg:'#ffffff'},
+ {value:8,label:'Red',bg:'#ff0000',fg:'#ffffff'},
+ {value:2,label:'Pink',bg:'#ff00aa',fg:'#ffffff'},
+ {value:4,label:'White',bg:'#ffffff',fg:'#000000'},
+ {value:7,label:'Black',bg:'#000000',fg:'#ffffff'}
+];
+var LANGUAGES=[['en','English'],['es','Español'],['fr','Français'],['de','Deutsch'],['pt','Português'],['it','Italiano'],['nl','Nederlands'],['da','Dansk'],['nb','Norsk'],['sv','Svenska'],['fi','Suomi'],['is','Íslenska'],['ca','Català'],['eu','Euskara'],['gl','Galego'],['pl','Polski'],['cs','Čeština'],['sk','Slovenčina'],['sl','Slovenščina'],['hr','Hrvatski'],['bs','Bosanski'],['sr-Latn','Srpski (latinica)'],['ro','Română'],['hu','Magyar'],['et','Eesti'],['lv','Latviešu'],['lt','Lietuvių'],['tr','Türkçe'],['sq','Shqip'],['mt','Malti']];
+var COUNTRY_CODES=('US CA GB AU NZ IE DE FR ES IT PT NL BE LU CH AT DK NO SE FI IS PL CZ SK SI HR BA RS RO HU EE LV LT TR AL MT GR CY BG MK ME XK UA MD GE AM AZ IL ZA IN JP KR SG MY PH TH VN ID MX BR AR CL CO PE UY PY BO EC VE CR PA GT HN SV NI DO JM TT BS BB BZ GY SR FJ').split(' ');
+var previousFourthMetric=4;
+function $(id){return document.getElementById(id)}
+function clean(v){return v===undefined||v===null?'':String(v).replace(/^\s+|\s+$/g,'')}
+function bool(v,d){if(v===true||v===1||v==='1'||v==='true')return true;if(v===false||v===0||v==='0'||v==='false')return false;return d}
+function num(v,d){var n=Number(v);return isNaN(n)?d:n}
+function validLanguage(v){for(var i=0;i<LANGUAGES.length;i++)if(LANGUAGES[i][0]===v)return v;return'en'}
+function validCountry(v){v=clean(v).toUpperCase();return/^[A-Z]{2}$/.test(v)?v:'US'}
+function norm(raw){raw=raw||{};var postal=clean(raw.manual_postal_code),city=clean(raw.manual_city);return{theme:num(raw.theme,DEFAULTS.theme),slot_1_metric:num(raw.slot_1_metric,DEFAULTS.slot_1_metric),slot_2_metric:num(raw.slot_2_metric,DEFAULTS.slot_2_metric),slot_3_metric:num(raw.slot_3_metric,DEFAULTS.slot_3_metric),slot_4_metric:num(raw.slot_4_metric,DEFAULTS.slot_4_metric),show_leading_zero:bool(raw.show_leading_zero,DEFAULTS.show_leading_zero),use_24_hour:bool(raw.use_24_hour,DEFAULTS.use_24_hour),use_celsius:bool(raw.use_celsius,DEFAULTS.use_celsius),manual_location:!!(postal||city),manual_postal_code:postal,manual_city:city,manual_country:validCountry(raw.manual_country||'US'),language:validLanguage(raw.language||'en'),reverse_theme:bool(raw.reverse_theme,DEFAULTS.reverse_theme),analytics_enabled:bool(raw.analytics_enabled,DEFAULTS.analytics_enabled)}}
+function incoming(){var p=new URLSearchParams(location.search),raw=p.get('settings');if(!raw)return norm(DEFAULTS);try{return norm(JSON.parse(decodeURIComponent(raw)))}catch(e){try{return norm(JSON.parse(raw))}catch(_){return norm(DEFAULTS)}}}
+function countryLabel(code){try{if(window.Intl&&Intl.DisplayNames)return new Intl.DisplayNames(['en'],{type:'region'}).of(code)||code}catch(e){}var fallback={US:'United States',CA:'Canada',GB:'United Kingdom',AU:'Australia',DE:'Germany',FR:'France',ES:'Spain',IT:'Italy',PT:'Portugal'};return fallback[code]||code}
+function buildCountries(){var select=$('country');select.innerHTML='';COUNTRY_CODES.forEach(function(code){var o=document.createElement('option');o.value=code;o.textContent=countryLabel(code);select.appendChild(o)})}
+function buildLanguages(){var s=$('language');LANGUAGES.forEach(function(item){var o=document.createElement('option');o.value=item[0];o.textContent=item[1];s.appendChild(o)})}
+function buildThemes(){var grid=$('themeGrid');THEMES.forEach(function(theme){var b=document.createElement('button');b.type='button';b.className='theme-choice';b.dataset.theme=theme.value;b.setAttribute('aria-pressed','false');var sw=document.createElement('span');sw.className='theme-choice-swatch';sw.style.background=theme.bg;sw.style.color=theme.fg;sw.textContent=theme.label;b.appendChild(sw);b.onclick=function(){setTheme(theme.value)};grid.appendChild(b)})}
+function setTheme(value){var found=false;THEMES.forEach(function(t){if(t.value===Number(value))found=true});if(!found)value=0;document.querySelectorAll('.theme-choice').forEach(function(b){b.setAttribute('aria-pressed',Number(b.dataset.theme)===Number(value)?'true':'false')});$('themeGrid').dataset.value=String(value)}
+function setMetricOptions(select,value){select.innerHTML='';METRICS.forEach(function(m){var o=document.createElement('option');o.value=m[0];o.textContent=m[1];if(Number(value)===m[0])o.selected=true;select.appendChild(o)})}
+function slotImage(id,name){var img=$(id);img.onerror=function(){img.onerror=null;img.src='https://raw.githubusercontent.com/lyle-morris/Hosting/main/apps/daypal/qa/images/'+name};img.src='./images/'+name}
+function syncSlotMode(){var useFour=$('fourSlots').checked;$('slot4Row').hidden=!useFour;var total=useFour?4:3;for(var i=1;i<=total;i++)slotImage('slot'+i+'Icon','informational_'+i+'of'+total+'.png');if(!useFour){var current=+$('slot4').value;if(current!==5)previousFourthMetric=current;$('slot4').value='5'}else if(+$('slot4').value===5){$('slot4').value=String(previousFourthMetric)}}
+function syncClearButtons(){$('postalClear').hidden=!clean($('postal').value);$('cityClear').hidden=!clean($('city').value)}
+function render(raw){var s=norm(raw);$('leading').checked=s.show_leading_zero;$('hour12').checked=!s.use_24_hour;$('celsius').checked=s.use_celsius;$('postal').value=s.manual_postal_code;$('city').value=s.manual_city;$('country').value=s.manual_country;$('language').value=s.language;$('analytics').checked=s.analytics_enabled;setTheme(s.theme);setMetricOptions($('slot1'),s.slot_1_metric);setMetricOptions($('slot2'),s.slot_2_metric);setMetricOptions($('slot3'),s.slot_3_metric);setMetricOptions($('slot4'),s.slot_4_metric);if(s.slot_4_metric!==5)previousFourthMetric=s.slot_4_metric;$('fourSlots').checked=s.slot_4_metric!==5;syncSlotMode();syncClearButtons()}
+function collect(){var useFour=$('fourSlots').checked,postal=clean($('postal').value),city=clean($('city').value);return norm({theme:Number($('themeGrid').dataset.value||0),slot_1_metric:+$('slot1').value,slot_2_metric:+$('slot2').value,slot_3_metric:+$('slot3').value,slot_4_metric:useFour?+$('slot4').value:5,show_leading_zero:$('leading').checked,use_24_hour:!$('hour12').checked,use_celsius:$('celsius').checked,manual_location:!!(postal||city),manual_postal_code:postal,manual_city:city,manual_country:$('country').value,language:$('language').value,reverse_theme:false,analytics_enabled:$('analytics').checked})}
+function save(){var s=collect(),encoded=encodeURIComponent(JSON.stringify(s)),closeUrl='pebblejs://close#'+encoded;$('status').textContent='Saving…';setTimeout(function(){window.location.href=closeUrl},50);setTimeout(function(){document.location=closeUrl},150);setTimeout(function(){$('status').textContent='Saved. If this window stays open, close it and reopen DayPal settings.'},800)}
+function clearPostal(){$('postal').value='';syncClearButtons();$('postal').focus()}
+function clearCity(){$('city').value='';syncClearButtons();$('city').focus()}
+buildCountries();buildLanguages();buildThemes();render(incoming());
+$('fourSlots').onchange=syncSlotMode;
+$('postal').addEventListener('input',function(){if(clean(this.value))$('city').value='';syncClearButtons()});
+$('city').addEventListener('input',function(){if(clean(this.value))$('postal').value='';syncClearButtons()});
+$('postalClear').onclick=clearPostal;$('cityClear').onclick=clearCity;
+$('reset').onclick=function(){var keepAnalytics=$('analytics').checked,keepCountry=$('country').value,keepLanguage=$('language').value;render(Object.assign({},DEFAULTS,{analytics_enabled:keepAnalytics,manual_country:keepCountry,language:keepLanguage}))};
+$('save').onclick=save;
+var donation=new URLSearchParams(location.search).get('donation_url');if(donation)$('donate').href=donation;
+console.log('DayPal app config '+BUILD+' ready');
+})();
+</script>
 </body>
 </html>
