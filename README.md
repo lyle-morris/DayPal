@@ -1,78 +1,63 @@
-# DayPal
+# DayPal 2.0.0 Development
 
-DayPal is a configurable Pebble Time 2 watchface built for fast, glanceable daily context. It pairs a stacked clock with a metric tray, configurable themes, weather, Pebble Health data, and a hosted settings page.
+This branch contains the in-progress DayPal 2.0.0 work for Pebble Time 2 / Emery.
 
-## Repository status
+**Branch:** `daypal-2.0.0-dev`  
+**Status:** Active development / partial QA prototype / **not release-ready**  
+**Base:** stable DayPal `main` 1.6.x line  
+**Visual authority:** Figma section `84:1722`
 
-### Stable / production baseline
+## Start here
 
-`main` is the stable 1.6.x source line. The current head includes the last-successful-weather fallback hotfix that was merged as the **DayPal 1.6.1 weather cache fallback hotfix**.
+- Release index: [`docs/2.0.0/README.md`](docs/2.0.0/README.md)
+- Current handoff and blockers: [`docs/2.0.0/DayPal-Handoff-2.0.0.md`](docs/2.0.0/DayPal-Handoff-2.0.0.md)
+- Pixel-perfect gate: [`docs/2.0.0/DayPal-Pixel-Perfect-QA-Checklist-2.0.0.md`](docs/2.0.0/DayPal-Pixel-Perfect-QA-Checklist-2.0.0.md)
+- QA evidence: [`docs/2.0.0/qa/README.md`](docs/2.0.0/qa/README.md)
+- Draft release notes: [`docs/2.0.0/DayPal-Release-Notes-2.0.0.md`](docs/2.0.0/DayPal-Release-Notes-2.0.0.md)
 
-Important historical metadata note: `appinfo.json` and `package.json` on `main` still identify the app as `1.6.0`. Do not use those two files alone to infer the published Store revision of the 1.6.x line.
+## What is already present
 
-The published 1.6.x companion still opens the legacy compatibility host:
+- 200 × 228 DayPal 2.0 watchface geometry work.
+- 3-slot and 4-slot rendering code paths and matching 42px/32px asset sets.
+- 10 fixed theme palette work: Default, Orange, Blue, Purple, Yellow, Green, Red, Pink, White, Black.
+- Weather, Heart Rate, Battery, Calories, and Steps metric support from the 1.6.x line.
+- Additional Sleep, Activity Time, and Distance IDs/assets/UI entries.
+- Hosted 2.0 QA page in `lyle-morris/Hosting/apps/daypal/qa/`.
+- Manual/current-location weather flow and last-successful-weather fallback.
 
-`https://lyle-morris.github.io/DayPal-Hosting/app-config.html`
+The repository copy of `app-config/index.html` and the consolidated Hosting QA page currently share the same blob, so QA is using the checked-in development config source.
 
-Do not remove that endpoint while installed 1.6.x builds may still depend on it.
+## Known release blockers
 
-### DayPal 2.0.0 development
+This branch is intentionally **not** merged to `main` because the 2.0 release contract is not complete.
 
-DayPal 2.0.0 is **not release-ready** and must not be merged to `main` yet.
+- `DAYPAL_QA_SLOT_COUNT` still forces the watchface to three visible metrics for QA.
+- The hosted 3/4-slot toggle does not have a real persisted layout key on the watch/companion.
+- Three-slot mode currently saves Slot 4 as `None`; the hidden Slot 4 choice is not preserved across a save/reopen cycle.
+- Companion/config defaults still describe four visible slots, conflicting with the planned new-install three-slot default.
+- The exact three-metric new-install/Reset Layout default is still not frozen.
+- Sleep, Activity Time, and Distance render `---` in normal runtime because live Health data is not wired yet.
+- Language is currently presentation-only: the config shows only English and does not serialize a language setting to the companion/watch.
+- The Country control is not part of the saved manual-location model.
+- Analytics is still a local test-event buffer; GA4 collection/reporting is not implemented in the 2.0 runtime.
+- Weather refresh is currently 30 minutes on-watch; the 2.0 contract calls for 15-minute scheduling plus dedupe/retry/reconnect behavior.
+- `appinfo.json` and `package.json` still identify the branch as 1.6.0.
+- The companion still points to the consolidated **QA** config URL.
+- Hosting does not yet contain `apps/daypal/releases/2.0.0/`.
+- Formal QA evidence and final physical Pebble Time 2 signoff are incomplete.
 
-- Development branch: `daypal-2.0.0-dev`
-- Pull request: #7
-- Figma authority: section `84:1722`
-- Consolidated QA config: `https://lyle-morris.github.io/Hosting/apps/daypal/qa/app-config.html`
-- Current handoff: [DayPal 2.0.0 Handoff](https://github.com/lyle-morris/DayPal/blob/daypal-2.0.0-dev/docs/2.0.0/DayPal-Handoff-2.0.0.md)
-- QA evidence: [DayPal 2.0.0 QA Evidence](https://github.com/lyle-morris/DayPal/blob/daypal-2.0.0-dev/docs/2.0.0/qa/README.md)
+See the handoff for the full blocker history and resume sequence.
 
-The 2.0 branch contains substantial layout, asset, theme, and hosted-config work, but it still contains explicit QA-only behavior and incomplete release contracts. The handoff is the source of truth for what is implemented versus what remains blocked.
+## Hosting
 
-## Repository boundaries
+DayPal 2.0 development uses the consolidated Hosting repository:
 
-### Watchface and companion
+- QA: `https://lyle-morris.github.io/Hosting/apps/daypal/qa/app-config.html`
+- Future production: `https://lyle-morris.github.io/Hosting/apps/daypal/prod/app-config.html`
+- Future immutable 2.0 snapshot: `https://lyle-morris.github.io/Hosting/apps/daypal/releases/2.0.0/app-config.html`
 
-Repository: `lyle-morris/DayPal`
+The legacy `lyle-morris/DayPal-Hosting` repository must remain online for installed 1.6.x builds and is not the 2.0 development target.
 
-- `main` — stable 1.6.x source line
-- `daypal-2.0.0-dev` — active 2.0 development only
+## Important design check before resuming
 
-### Consolidated hosting
-
-Repository: `lyle-morris/Hosting`
-
-- `apps/daypal/qa/` — DayPal 2.0 development/QA
-- `apps/daypal/prod/` — consolidated stable production copy
-- `apps/daypal/releases/` — immutable release snapshots
-
-There is currently **no `releases/2.0.0/` snapshot**. That is a release blocker, not a cleanup omission.
-
-### Legacy hosting
-
-Repository: `lyle-morris/DayPal-Hosting`
-
-This repository remains online for compatibility with published 1.6.x builds. It should not be repurposed for DayPal 2.0 development.
-
-## DayPal 2.0 release gate
-
-Do not promote DayPal 2.0.0 until all of the following are true:
-
-1. QA-only slot-count forcing is removed.
-2. 3/4-slot mode has a real persisted/AppMessage contract.
-3. Fresh-install and Reset Layout defaults are frozen and implemented.
-4. Hidden Slot 4 survives 3-slot mode across save/reopen.
-5. Sleep, Activity Time, and Distance use live Pebble Health data or are removed from the release selector.
-6. Language UI has a real settings/watch implementation or is removed from the release UI.
-7. Manual-location country behavior is fully implemented or the dead control is removed.
-8. GA4 analytics is implemented and privacy-tested; local test-event buffering is not sufficient.
-9. Weather refresh/retry behavior matches the approved release contract.
-10. The app and package versions are set to 2.0.0.
-11. Native visual QA and physical Pebble Time 2 signoff are recorded.
-12. The exact approved QA config is copied to `prod` and `releases/2.0.0` and verified.
-13. The companion is switched from QA to the production config URL with a fresh cache token.
-14. A final Emery PBW is built and recorded.
-
-## Development guidance
-
-For 2.0 work, start with the [DayPal 2.0.0 release index](https://github.com/lyle-morris/DayPal/blob/daypal-2.0.0-dev/docs/2.0.0/README.md) and then read the handoff. Do not infer implementation status from the PR title or the Figma alone.
+The checked-in 2.0 contract uses the ten fixed preset themes above. Later design discussions explored a more granular custom-color theming model. Before doing substantial theme/config work, verify the latest approved Figma direction instead of assuming either model is final.
